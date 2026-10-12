@@ -10,6 +10,12 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 3
+    groups:
+      # CodeQL refuses to run when its init and analyze steps are different versions
+      # (personal-world#299/#300, 2026-10-12): bump every codeql-action step in one PR.
+      codeql-action:
+        patterns:
+          - "github/codeql-action*"
   - package-ecosystem: npm
     directory: /ui
     schedule:
