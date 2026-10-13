@@ -1,0 +1,879 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ALTITUDE — Worlds vNext concept (MOCKUP)</title>
+<style>
+  /* ------------------------------------------------------------------ *
+   * ALTITUDE — a Worlds vNext concept prototype.
+   * One self-contained file. No network, no build step, no web fonts.
+   * ------------------------------------------------------------------ */
+  :root{
+    --void:#080C16; --canvas:#0B101D; --hull:#111829; --panel:#1B2436; --elevated:#243046;
+    --ink:#EDE7DB; --ink-2:#CBC4B6; --muted:#A79F91;
+    --teal:#72b1b1; --warm:#D4A057; --green:#8FC08A; --clay:#D08C7B; --violet:#A9A2DE;
+    --line:rgba(232,220,200,.14); --line-strong:rgba(232,220,200,.28);
+    --focus:#72b1b1; --r-sm:10px; --r-md:16px; --r-lg:24px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--canvas);color:var(--ink);overflow-x:hidden;
+    font:16px/1.5 system-ui,-apple-system,"Segoe UI",Avenir,sans-serif;
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  h1,h2,h3,h4{line-height:1.25;margin:0}
+  h1{font-size:clamp(28px,6vw,40px)}
+  h2{font-size:clamp(18px,3.4vw,22px)}
+  p{margin:.5em 0}
+  .wrap{max-width:1140px;margin:0 auto;padding:16px}
+  :focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:6px}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+  .skip{position:absolute;left:-9999px;top:0;background:var(--warm);color:#17130c;padding:12px 16px;z-index:50;font-weight:600;border-radius:0 0 var(--r-sm) 0}
+  .skip:focus{left:0}
+  .sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+
+  .bar{background:linear-gradient(180deg,#0E1526 0%,#0B101D 100%);border-bottom:1px solid var(--line)}
+  .mock{display:inline-block;margin:0 0 10px;padding:6px 12px;border-radius:999px;background:rgba(212,160,87,.14);border:1px solid rgba(212,160,87,.5);color:var(--warm);font-size:13px;font-weight:700;letter-spacing:.09em;text-transform:uppercase}
+  .tagline{color:var(--ink-2);max-width:62ch;font-size:17px}
+  .stamp{color:var(--muted);font-size:14px;margin-top:10px}
+  .stamp b{color:var(--ink-2)}
+
+  section{margin-top:26px}
+  .secHead h2{margin-bottom:2px}
+  .secHead p{margin:0;color:var(--muted);font-size:14px;max-width:74ch}
+
+  .stage{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:22px;margin-top:14px;align-items:start}
+
+  /* ---- the sky ---- */
+  .skywrap{background:radial-gradient(circle at 50% 42%,#152036 0%,#0A0F1C 62%,#070B14 100%);border:1px solid var(--line);border-radius:var(--r-lg);padding:10px}
+  .sky{display:block;width:100%;max-width:560px;height:auto;margin:0 auto}
+  .sky text{font-family:inherit;paint-order:stroke;stroke:#080C16;stroke-width:4px;stroke-linejoin:round}
+  .lbl-word{font-size:26px;font-weight:700;letter-spacing:.04em}
+  .lbl-name{font-size:23px;font-weight:600}
+  .lbl-heard{font-size:17px}
+  .lbl-cent{font-size:27px;font-weight:700}
+  .lbl-cent-sub{font-size:18px}
+  .caption{color:var(--muted);font-size:14px;text-align:center;padding:8px 12px 4px;margin:0}
+  @media (max-width:699px){
+    .lbl-name,.lbl-heard{display:none}
+    .lbl-cent{font-size:34px}
+    .lbl-cent-sub{font-size:22px}
+  }
+
+  /* ---- compass chips ---- */
+  .compass{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .chip{
+    min-height:44px;padding:0 14px;border-radius:999px;border:1px solid var(--line-strong);
+    background:var(--panel);color:var(--ink-2);display:inline-flex;align-items:center;gap:8px;font-size:15px;
+  }
+  .chip:hover{border-color:var(--teal);color:var(--ink)}
+  .chip[aria-pressed="true"]{background:var(--elevated);border-color:var(--teal);color:var(--ink)}
+  .chip small{color:var(--muted);font-size:13px}
+  .chip[aria-pressed="true"] small{color:var(--ink-2)}
+
+  /* ---- rail ---- */
+  .rail{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-md);padding:14px}
+  .rail h3{font-size:16px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2)}
+  .stops{display:grid;gap:8px;margin-top:10px}
+  .stop{
+    min-height:56px;border-radius:var(--r-sm);border:1px solid var(--line-strong);background:var(--hull);
+    padding:8px 12px;text-align:left;color:var(--ink-2);
+  }
+  .stop b{display:block;color:var(--ink);font-size:15px}
+  .stop span{font-size:13px;color:var(--muted)}
+  .stop[aria-pressed="true"]{border-color:var(--teal);background:var(--elevated)}
+  .stop:hover{border-color:var(--teal)}
+  .climb{display:flex;gap:8px;margin-top:10px}
+  .btn{
+    min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--line-strong);
+    background:var(--elevated);color:var(--ink);display:inline-flex;align-items:center;gap:8px;font-size:15px;
+  }
+  .btn:hover{border-color:var(--teal)}
+  .btn[disabled]{opacity:.45;cursor:not-allowed}
+  .btn--safe{background:rgba(114,177,177,.16);border-color:var(--teal)}
+  .btn--danger{background:rgba(208,140,123,.14);border-color:var(--clay)}
+  .climb .btn{flex:1 1 0;justify-content:center}
+  .readout{margin-top:14px;border-top:1px solid var(--line);padding-top:12px;color:var(--ink-2);font-size:15px}
+  .readout b{color:var(--ink)}
+  .readout ul{margin:8px 0 0;padding-left:20px}
+  .readout li{margin:4px 0}
+  .rail .btn{width:100%;justify-content:center;margin-top:10px}
+
+  /* ---- the surface ---- */
+  .surface{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px;margin-top:14px}
+  .surfaceHead{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between}
+  .word{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+  .word--fine{color:var(--green)} .word--stale{color:var(--violet)}
+  .word--decision{color:var(--warm)} .word--unknown{color:var(--ink-2)}
+  .shape{width:14px;height:14px;flex:0 0 auto;display:inline-block}
+  .shape--fine{background:var(--green);border-radius:3px}
+  .shape--decision{background:var(--warm);clip-path:polygon(50% 0,100% 100%,0 100%)}
+  .shape--stale{border:2px dashed var(--violet);border-radius:3px}
+  .shape--unknown{border:2px dotted var(--ink-2);border-radius:50%}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px}
+  .card{border:1px solid var(--line);border-radius:var(--r-md);padding:12px 14px;background:var(--hull)}
+  .card h4{margin:0 0 6px;font-size:14px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-2)}
+  dl.facts{margin:0}
+  dl.facts dt{color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.06em;margin-top:8px}
+  dl.facts dd{margin:0}
+  .reader--you{border-top:3px solid var(--teal)}
+  .reader--agent{border-top:3px solid var(--warm)}
+  .reader .same{color:var(--ink-2);font-size:14px}
+  .reader .diff{margin:8px 0 0;padding-left:20px;font-size:14px;color:var(--ink-2)}
+  .reader .diff li{margin:4px 0}
+  .perms{display:grid;gap:12px;grid-template-columns:1fr 1fr}
+  .permbox{border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px;background:var(--hull)}
+  .permbox ul{margin:0;padding-left:20px;color:var(--ink-2);font-size:14px}
+  .permbox li{margin:4px 0}
+  .honest{border-left:3px solid var(--violet);padding-left:10px;color:var(--ink-2)}
+  .honest--unknown{border-left-style:dotted;border-left-color:var(--ink-2)}
+  .note{color:var(--muted);font-size:13px}
+  .embed{border:1px solid var(--line-strong);border-radius:var(--r-md);background:var(--void);padding:12px}
+  .embedHead{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+  .lamps{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px;margin-top:10px}
+  .lamp{min-height:52px;border-radius:var(--r-sm);border:1px solid var(--line-strong);background:var(--hull);color:var(--ink-2);font-size:14px;padding:6px 8px;text-align:left}
+  .lamp .lState{display:block;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+  .lamp[aria-pressed="true"]{border-color:var(--warm);background:rgba(212,160,87,.16);color:var(--ink)}
+  .lamp[aria-pressed="true"] .lState{color:var(--warm)}
+  .linkout{display:inline-flex;align-items:center;min-height:44px;color:var(--teal);font-weight:600}
+  .linkout:hover{text-decoration:underline}
+  .btnRow{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  details.shared{margin-top:16px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--hull)}
+  details.shared summary{min-height:44px;display:flex;align-items:center;padding:10px 14px;cursor:pointer;font-weight:600}
+  details.shared[open] summary{border-bottom:1px solid var(--line)}
+  .allfacts{padding:12px 14px;display:grid;gap:12px}
+  .onefact{border-top:1px solid var(--line);padding-top:10px}
+  .onefact:first-child{border-top:0;padding-top:0}
+  .onefact .head{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  footer{margin-top:32px;padding:18px 0 40px;border-top:1px solid var(--line);color:var(--muted);font-size:14px}
+  footer ul{margin:8px 0 0;padding-left:20px}
+
+  @media (max-width:899px){
+    .stage{grid-template-columns:1fr}
+    .sky{max-width:440px}
+    .grid2,.perms{grid-template-columns:1fr}
+  }
+  @media (prefers-reduced-motion: no-preference){
+    .chip,.stop,.btn,.lamp,.sky path,.sky circle{transition:background-color .18s ease,border-color .18s ease,opacity .22s ease,color .18s ease}
+  }
+  @media (prefers-contrast: more){:root{--line:rgba(232,220,200,.34);--line-strong:rgba(232,220,200,.5);--muted:#CFC7B8}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the sky</a>
+
+<header class="bar">
+  <div class="wrap">
+    <p class="mock">Mockup · concept prototype · sample data · not approved, not built</p>
+    <h1>Altitude</h1>
+    <p class="tagline">Worlds as a sky you descend through. From far up you see the mood of the house; lower you find the services; at ground you read the facts, their source and age, and who may act. Detail is <b>unfolded by descending</b>, never hidden.</p>
+    <p class="stamp"><b>Tuesday 13 October, 08:14.</b> Fixed sample data. No service is contacted and nothing here is a real reading.</p>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <section aria-labelledby="sky-h">
+    <div class="secHead">
+      <h2 id="sky-h">The sky</h2>
+      <p>Descend to unfold detail. The picture above is a drawing; every word it shows is also written in the rail, the chips and the surface below.</p>
+    </div>
+
+    <div class="stage">
+      <div>
+        <div class="skywrap">
+          <svg class="sky" id="sky" viewBox="0 0 640 640" aria-hidden="true" focusable="false"></svg>
+          <p class="caption" id="skyCaption">A ring of six sectors, one per service.</p>
+        </div>
+        <h3 class="sr-only" id="compass-h">Services</h3>
+        <div class="compass" id="compass" role="group" aria-labelledby="compass-h"></div>
+      </div>
+
+      <div class="rail" aria-label="Altitude controls">
+        <h3>Altitude</h3>
+        <div class="stops" id="stops" role="group" aria-label="Choose an altitude"></div>
+        <div class="climb">
+          <button class="btn" id="ascend" type="button">↑ Ascend</button>
+          <button class="btn" id="descend" type="button">↓ Descend</button>
+        </div>
+        <p class="note">Clicking a sector (or the middle of the sky) descends a step; a swipe works on a touchscreen. Both buttons above are the keyboard path.</p>
+        <div class="readout" id="readout"></div>
+        <button class="btn" id="openShared" type="button">Open the shared surface — all six facts</button>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="surface-h">
+    <div class="secHead">
+      <h2 id="surface-h">The surface</h2>
+      <p>One list of facts, read by two principals. Routing and permission decide who is told and who may act — never what is true.</p>
+    </div>
+    <div class="surface" id="surface"></div>
+  </section>
+
+  <footer>
+    <p><b>Mockup limits, stated plainly.</b> Concept prototype with fixed sample data (Tuesday 13 October, 08:14). No service is contacted; no fact is fetched; no action is dispatched, in this page or anywhere else. The embedded panel is a drawing whose switches change nothing.</p>
+    <ul>
+      <li><b>Files is stale:</b> the newest reading Worlds holds is 05:14, three hours ago — it is written that way and drawn as an arc that stops short.</li>
+      <li><b>Weather is unknown:</b> it has never answered, so its sector is an empty outline and Worlds states no fact at all. Descending cannot fill it in.</li>
+      <li>Status is always a written word plus a shape, never colour alone.</li>
+      <li>Aligned with the repository <a href="../../../accessibility/ACCESSIBILITY_CONTRACT.md">accessibility contract</a> (44px targets, keyboard reach, visible focus, reduced motion respected).</li>
+    </ul>
+  </footer>
+</main>
+
+<div class="sr-only" id="live" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+
+/* ------------------------------------------------------------------ *
+ * Fixed sample data — the only source of anything this page says.   *
+ * ------------------------------------------------------------------ */
+var SERVICES = [
+  {
+    id: "media", name: "Media library", status: "fine", word: "Fine", short: "Fine",
+    line: "2 new episodes ready to play",
+    detail: "Two new episodes arrived since yesterday evening. Nothing else changed.",
+    heard: "08:12", heardWord: "2 minutes ago", source: "Media library — its own read-only API",
+    fact: "Two new episodes are waiting in the library.", privateNote: null,
+    agentMay: ["Read the catalogue", "Queue an episode for later"],
+    humanMay: ["Read the catalogue", "Play or queue an episode", "Remove a library folder"],
+    agentDiff: ["The agent reads the same sentence and the same timestamp."],
+    embed: null
+  },
+  {
+    id: "backups", name: "Backups", status: "decision", word: "Needs your decision", short: "Needs you",
+    line: "3 files could not be copied",
+    detail: "The 06:00 run finished. Three files could not be copied — permission denied. Nothing has been retried, and Worlds will not retry on its own.",
+    heard: "06:03", heardWord: "2 hours ago", source: "Backups — its own API, job of 06:00",
+    fact: "Three files could not be copied in this morning's run.",
+    privateNote: "You also wrote, for yourself only: “ask Sam about the NAS permissions”. The agent's copy does not contain this note.",
+    agentMay: ["Read the run report", "Prepare a retry — proposal only, dispatches nothing"],
+    humanMay: ["Read the run report", "Authorise a retry — the only principal who may", "Change the job schedule"],
+    agentDiff: ["The agent reads the same report row and the same 06:03 timestamp.",
+                "The agent cannot authorise a retry; it may only prepare a proposal."],
+    embed: null, decision: true
+  },
+  {
+    id: "lights", name: "Home lights", status: "fine", word: "Fine", short: "Fine",
+    line: "7 of 7 lights reachable",
+    detail: "All seven lamps answered the last poll. Worlds can switch them; the panel below is a drawing of that app, opened inside Worlds at ground level.",
+    heard: "08:10", heardWord: "4 minutes ago", source: "Home lights — the hub in the hall",
+    fact: "All seven lights answered; the house is reachable.", privateNote: null,
+    agentMay: ["Read on/off state", "Turn a lamp on or off"],
+    humanMay: ["Read on/off state", "Turn a lamp on or off", "Rename or remove a lamp"],
+    agentDiff: ["The agent reads the same reachability fact and the same 08:10 timestamp."],
+    embed: { title: "Home lights", url: "https://example.invalid/home-lights" }
+  },
+  {
+    id: "files", name: "Files", status: "stale", word: "Stale", short: "Stale",
+    line: "Last heard 3 hours ago",
+    detail: "The newest reading Worlds holds from Files is from 05:14. It may no longer be true, so Worlds will not present it as current.",
+    heard: "05:14", heardWord: "3 hours ago", source: "Files — its own index; last successful answer 05:14",
+    fact: "The last reading from Files is three hours old and may be out of date.", privateNote: null,
+    agentMay: ["Read the stored reading — marked stale", "Ask Files for a fresh answer"],
+    humanMay: ["Read the stored reading", "Ask Files for a fresh answer", "Mount or unmount a share"],
+    agentDiff: ["The agent gets the same reading and is told the same age — the word “stale” travels with the fact.",
+                "Neither principal is shown a fresh value, because Worlds has none."],
+    embed: null
+  },
+  {
+    id: "board", name: "Project board", status: "fine", word: "Fine", short: "Fine",
+    line: "3 cards due this week",
+    detail: "Three cards are due before Friday. None of them is blocked.",
+    heard: "08:09", heardWord: "5 minutes ago", source: "Project board — its own API",
+    fact: "Three cards are due this week and none is blocked.", privateNote: null,
+    agentMay: ["Read cards and due dates", "Draft a comment — never post it"],
+    humanMay: ["Read cards and due dates", "Move, edit or close a card"],
+    agentDiff: ["The agent reads the same three due dates; it may draft a comment but not post one."],
+    embed: null
+  },
+  {
+    id: "weather", name: "Weather", status: "unknown", word: "Unknown", short: "Unknown",
+    line: "Never answered",
+    detail: "Weather has never answered. Worlds holds no configuration and no reading, so there is nothing to state and nothing to show.",
+    heard: null, heardWord: "never", source: "Weather — no configuration, no answer ever recorded",
+    fact: null, privateNote: null, noReading: true,
+    agentMay: ["Nothing — there is no reading to read"],
+    humanMay: ["Add a location and a provider", "Remove Weather from the house"],
+    agentDiff: ["The agent is shown an absence, not a guess: “no reading exists”."],
+    embed: null
+  }
+];
+
+var BY_ID = {};
+SERVICES.forEach(function (s) { BY_ID[s.id] = s; });
+
+var LEVELS = [
+  { n: 1, ft: "30,000 ft", name: "The weather of the house", blurb: "One thing needs you. Four services are fine, one has gone quiet, one has never spoken." },
+  { n: 2, ft: "3,000 ft", name: "The services", blurb: "Six services, six readings — names, states and ages." },
+  { n: 3, ft: "Ground", name: "The facts", blurb: "The fact itself, where it came from, how old it is, and who may act." }
+];
+
+var altitude = 1;
+var selected = "backups";
+var decisions = { backups: null };
+var embedBroken = false;
+var lamps = [
+  { name: "Kitchen", on: true }, { name: "Hall", on: true }, { name: "Study", on: false },
+  { name: "Porch", on: true }, { name: "Bedroom", on: false }, { name: "Landing", on: true },
+  { name: "Garage", on: true }
+];
+
+var svgNS = "http://www.w3.org/2000/svg";
+var sky = document.getElementById("sky");
+var liveBox = document.getElementById("live");
+var pendingFocus = null;
+
+function el(tag, cls, text) {
+  var n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (text != null) n.textContent = text;
+  return n;
+}
+function svg(tag, attrs, cls) {
+  var n = document.createElementNS(svgNS, tag);
+  if (cls) n.setAttribute("class", cls);
+  for (var k in attrs) n.setAttribute(k, attrs[k]);
+  return n;
+}
+function announce(msg) { liveBox.textContent = msg; }
+function focusedKey() {
+  var a = document.activeElement;
+  return a && a.getAttribute ? a.getAttribute("data-fk") : null;
+}
+function restoreFocus(key) {
+  var k = pendingFocus || key;
+  pendingFocus = null;
+  if (!k) return;
+  var next = document.querySelector('[data-fk="' + k + '"]');
+  if (next) next.focus();
+}
+
+/* ------------------------------------------------------------------ *
+ * Geometry                                                           *
+ * ------------------------------------------------------------------ */
+var CX = 320, CY = 320, R_BAND = 252, R_OUT = 286, R_IN = 96, GAP = 4;
+
+function polar(r, deg) {
+  var a = (deg - 90) * Math.PI / 180;
+  return { x: CX + r * Math.cos(a), y: CY + r * Math.sin(a) };
+}
+function arc(r, a0, a1) {
+  var p0 = polar(r, a0), p1 = polar(r, a1);
+  var large = (a1 - a0) > 180 ? 1 : 0;
+  return "M " + p0.x.toFixed(1) + " " + p0.y.toFixed(1) + " A " + r + " " + r + " 0 " + large + " 1 " + p1.x.toFixed(1) + " " + p1.y.toFixed(1);
+}
+function wedge(r0, r1, a0, a1) {
+  var p0 = polar(r0, a0), p1 = polar(r0, a1), p2 = polar(r1, a1), p3 = polar(r1, a0);
+  var large = (a1 - a0) > 180 ? 1 : 0;
+  return "M " + p0.x.toFixed(1) + " " + p0.y.toFixed(1) +
+    " L " + p3.x.toFixed(1) + " " + p3.y.toFixed(1) +
+    " A " + r1 + " " + r1 + " 0 " + large + " 1 " + p2.x.toFixed(1) + " " + p2.y.toFixed(1) +
+    " L " + p1.x.toFixed(1) + " " + p1.y.toFixed(1) +
+    " A " + r0 + " " + r0 + " 0 " + large + " 0 " + p0.x.toFixed(1) + " " + p0.y.toFixed(1) + " Z";
+}
+var STATUS_STROKE = { fine: "#8FC08A", decision: "#D4A057", stale: "#A9A2DE", unknown: "#CBC4B6" };
+var STATUS_FILL = { fine: "rgba(143,192,138,.13)", decision: "rgba(212,160,87,.15)", stale: "rgba(169,162,222,.11)", unknown: "rgba(203,196,182,.05)" };
+
+/* ------------------------------------------------------------------ *
+ * The sky                                                            *
+ * ------------------------------------------------------------------ */
+function drawSky() {
+  sky.textContent = "";
+
+  /* faint horizon rings — a picture of depth, nothing more */
+  [130, 190, 252].forEach(function (r) {
+    sky.appendChild(svg("circle", { cx: CX, cy: CY, r: r, fill: "none", stroke: "rgba(232,220,200,.07)", "stroke-width": 1 }));
+  });
+
+  SERVICES.forEach(function (s, i) {
+    var a0 = i * 60 - 30 + GAP, a1 = i * 60 + 30 - GAP;
+    var isSel = s.id === selected;
+    var dim = altitude === 3 && !isSel;
+
+    /* the wedge only exists once you are low enough to see services */
+    if (altitude >= 2) {
+      sky.appendChild(svg("path", {
+        d: wedge(R_IN, R_BAND - 14, a0, a1),
+        fill: isSel && altitude === 3 ? STATUS_FILL[s.status] : (isSel ? "rgba(114,177,177,.10)" : "rgba(232,220,200,.035)"),
+        stroke: isSel ? "#72b1b1" : "none",
+        "stroke-width": isSel ? 1.5 : 0,
+        opacity: dim ? 0.35 : 1
+      }));
+    }
+
+    /* the status band: pattern carries the state as well as colour */
+    var bandW = altitude === 1 ? 26 : 12;
+    if (s.status === "stale") {
+      /* an arc that stops short: Worlds has heard nothing for the missing part */
+      var stop = a0 + (a1 - a0) * 0.55;
+      sky.appendChild(svg("path", { d: arc(R_BAND, a0, stop), fill: "none", stroke: STATUS_STROKE[s.status], "stroke-width": bandW, "stroke-dasharray": "14 9" }));
+      sky.appendChild(svg("path", { d: arc(R_BAND, stop, a1), fill: "none", stroke: STATUS_STROKE[s.status], "stroke-width": 2, "stroke-dasharray": "2 9", opacity: 0.5 }));
+    } else if (s.status === "unknown") {
+      sky.appendChild(svg("path", { d: arc(R_BAND, a0, a1), fill: "none", stroke: STATUS_STROKE[s.status], "stroke-width": 2, "stroke-dasharray": "2 9", opacity: 0.7 }));
+    } else {
+      sky.appendChild(svg("path", { d: arc(R_BAND, a0, a1), fill: "none", stroke: STATUS_STROKE[s.status], "stroke-width": bandW }));
+    }
+    if (s.status === "decision") {
+      var m = polar(R_BAND, i * 60);
+      sky.appendChild(svg("path", {
+        d: "M " + m.x + " " + (m.y - 11) + " L " + (m.x + 10) + " " + (m.y + 8) + " L " + (m.x - 10) + " " + (m.y + 8) + " Z",
+        fill: "#D4A057"
+      }));
+    }
+
+    /* labels: the word always shows; the name and age appear when you are lower */
+    var mid = i * 60;
+    var wp = polar(R_OUT - 4, mid);
+    sky.appendChild(svg("text", {
+      x: wp.x, y: wp.y + 9, "text-anchor": "middle", fill: STATUS_STROKE[s.status],
+      class: "lbl-word", opacity: dim ? 0.5 : 1
+    }, "lbl-word")).textContent = s.short;
+
+    if (altitude >= 2) {
+      var np = polar(178, mid);
+      sky.appendChild(svg("text", { x: np.x, y: np.y + 8, "text-anchor": "middle", fill: "#EDE7DB", class: "lbl-name", opacity: dim ? 0.5 : 1 }, "lbl-name")).textContent = s.name;
+      var hp = polar(150, mid);
+      sky.appendChild(svg("text", { x: hp.x, y: hp.y + 6, "text-anchor": "middle", fill: "#A79F91", class: "lbl-heard", opacity: dim ? 0.5 : 1 }, "lbl-heard")).textContent =
+        s.heard ? "heard " + s.heard : "never heard";
+    }
+  });
+
+  /* the lens in the middle: whatever you have descended far enough to see */
+  sky.appendChild(svg("circle", { cx: CX, cy: CY, r: R_IN - 6, fill: "rgba(8,12,22,.85)", stroke: "rgba(232,220,200,.18)", "stroke-width": 1 }));
+  var centre = centreText();
+  sky.appendChild(svg("text", { x: CX, y: CY - 8, "text-anchor": "middle", fill: "#EDE7DB", class: "lbl-cent" }, "lbl-cent")).textContent = centre.main;
+  sky.appendChild(svg("text", { x: CX, y: CY + 26, "text-anchor": "middle", fill: "#CBC4B6", class: "lbl-cent-sub" }, "lbl-cent-sub")).textContent = centre.sub;
+  if (centre.sub2) {
+    sky.appendChild(svg("text", { x: CX, y: CY + 50, "text-anchor": "middle", fill: "#A79F91", class: "lbl-heard" }, "lbl-heard")).textContent = centre.sub2;
+  }
+}
+
+function centreText() {
+  if (altitude === 1) return { main: "1 needs you", sub: "4 fine · 1 quiet · 1 silent" };
+  var s = BY_ID[selected];
+  if (altitude === 2) return { main: s.short, sub: s.name, sub2: s.heard ? "heard " + s.heard : "never heard" };
+  return { main: s.short, sub: s.heard ? "heard " + s.heard : "never heard" };
+}
+
+function drawCaption() {
+  var s = BY_ID[selected];
+  var txt = {
+    1: "A ring of six sectors, one per service. Four fine arcs, one triangle for the decision, one dashed arc that stops short of now (Files), and one empty outline that has never been filled (Weather).",
+    2: "The same ring, unfolded: six named sectors with their state and how long ago each was last heard. Files' arc stops short of now; Weather's outline is empty.",
+    3: "Ground level. The sky has folded back to the one service you descended onto: " + s.name + ", " + s.word + ". The facts are on the surface below."
+  };
+  document.getElementById("skyCaption").textContent = txt[altitude];
+}
+
+/* ------------------------------------------------------------------ *
+ * Rail + compass                                                     *
+ * ------------------------------------------------------------------ */
+function buildRail() {
+  var stops = document.getElementById("stops");
+  stops.textContent = "";
+  LEVELS.forEach(function (l) {
+    var b = el("button", "stop");
+    b.setAttribute("type", "button");
+    b.setAttribute("data-stop", String(l.n));
+    b.setAttribute("data-fk", "stop:" + l.n);
+    b.appendChild(el("b", null, l.ft + " — " + l.name));
+    b.appendChild(el("span", null, l.blurb));
+    b.addEventListener("click", function () { setAltitude(l.n, true); });
+    stops.appendChild(b);
+  });
+}
+
+function buildCompass() {
+  var box = document.getElementById("compass");
+  box.textContent = "";
+  SERVICES.forEach(function (s) {
+    var b = el("button", "chip");
+    b.setAttribute("type", "button");
+    b.setAttribute("data-chip", s.id);
+    b.setAttribute("data-fk", "chip:" + s.id);
+    var shape = el("span", "shape shape--" + s.status);
+    shape.setAttribute("aria-hidden", "true");
+    b.appendChild(shape);
+    b.appendChild(el("span", null, s.name));
+    b.appendChild(el("small", null, s.word));
+    b.addEventListener("click", function () { selectService(s.id, true); });
+    box.appendChild(b);
+  });
+}
+
+function syncRail() {
+  document.querySelectorAll(".stop").forEach(function (b) {
+    b.setAttribute("aria-pressed", Number(b.getAttribute("data-stop")) === altitude ? "true" : "false");
+  });
+  document.getElementById("ascend").disabled = altitude === 1;
+  document.getElementById("descend").disabled = altitude === 3;
+
+  var readout = document.getElementById("readout");
+  readout.textContent = "";
+  var needsYou = SERVICES.filter(function (s) { return s.status === "decision" && !decisions.backups; }).length;
+  var p1 = el("p");
+  p1.appendChild(el("b", null, "At " + LEVELS[altitude - 1].ft + ". "));
+  p1.appendChild(document.createTextNode(LEVELS[altitude - 1].name + ". " + LEVELS[altitude - 1].blurb));
+  readout.appendChild(p1);
+
+  var ul = el("ul");
+  ul.appendChild(el("li", null, "You can see: 6 services · " + needsYou + " needs a decision · 1 stale (Files) · 1 never heard (Weather)."));
+  ul.appendChild(el("li", null, "The agent can see the same six facts" + (decisions.backups === "authorise" ? ", and has been told you authorised a retry — it still may not retry" : "") + "."));
+  ul.appendChild(el("li", null, altitude === 3 ? "Ground level: the fact, its source and its age are below." : "Actions and permissions live at ground level; descend to reach them."));
+  readout.appendChild(ul);
+}
+
+/* ------------------------------------------------------------------ *
+ * The surface                                                        *
+ * ------------------------------------------------------------------ */
+function readerCards(s) {
+  var grid = el("div", "grid2");
+  var you = el("div", "card reader reader--you");
+  you.appendChild(el("h4", null, "Your copy"));
+  you.appendChild(el("p", null, s.fact || "No reading exists."));
+  you.appendChild(el("p", "same", s.source + " · " + (s.heard ? "heard " + s.heard + " (" + s.heardWord + ")" : "never heard")));
+  if (s.privateNote) you.appendChild(el("p", "same", s.privateNote));
+  grid.appendChild(you);
+
+  var agent = el("div", "card reader reader--agent");
+  agent.appendChild(el("h4", null, "The agent's copy"));
+  agent.appendChild(el("p", null, s.fact || "No reading exists."));
+  agent.appendChild(el("p", "same", s.source + " · " + (s.heard ? "heard " + s.heard + " (" + s.heardWord + ")" : "never heard")));
+  var diffs = el("ul", "diff");
+  s.agentDiff.forEach(function (d) { diffs.appendChild(el("li", null, d)); });
+  if (s.privateNote) diffs.appendChild(el("li", null, "Your private note is not in this copy — you can see that it is missing, which is the point."));
+  agent.appendChild(diffs);
+  grid.appendChild(agent);
+  return grid;
+}
+
+function permsBlock(s) {
+  var perms = el("div", "perms");
+  [["agent", "Agent may"], ["human", "Human may"]].forEach(function (p) {
+    var pb = el("div", "permbox");
+    pb.appendChild(el("h4", null, p[1]));
+    var ul = el("ul");
+    (p[0] === "agent" ? s.agentMay : s.humanMay).forEach(function (t) { ul.appendChild(el("li", null, t)); });
+    pb.appendChild(ul);
+    perms.appendChild(pb);
+  });
+  return perms;
+}
+
+function lampPanel(s) {
+  var box = el("div", "embed");
+  var head = el("div", "embedHead");
+  head.appendChild(el("h4", null, "Inside Worlds: " + s.embed.title));
+  var out = el("a", "linkout", "Open in the owning app ↗");
+  out.href = s.embed.url;
+  head.appendChild(out);
+  box.appendChild(head);
+
+  if (embedBroken) {
+    box.appendChild(el("p", "honest", "This app cannot be embedded right now — its page refuses to be framed. Worlds says so instead of showing a blank rectangle. The link above still opens it in the owning app."));
+    var again = el("button", "btn", "Try embedding again");
+    again.setAttribute("data-fk", "embed:retry");
+    again.addEventListener("click", function () {
+      pendingFocus = "embed:sim"; embedBroken = false; announce("Trying to embed Home lights again."); renderSurface();
+    });
+    box.appendChild(el("div", "btnRow")).appendChild(again);
+    return box;
+  }
+
+  var grid = el("div", "lamps");
+  lamps.forEach(function (l, i) {
+    var b = el("button", "lamp");
+    b.setAttribute("aria-pressed", l.on ? "true" : "false");
+    b.setAttribute("data-fk", "lamp:" + i);
+    b.appendChild(el("span", null, l.name));
+    b.appendChild(el("span", "lState", l.on ? "On" : "Off"));
+    b.addEventListener("click", function () {
+      lamps[i].on = !lamps[i].on;
+      announce("Demo lamps: " + lamps[i].name + " is now " + (lamps[i].on ? "on" : "off") + ". A drawing only — the shared fact does not change.");
+      renderSurface();
+    });
+    grid.appendChild(b);
+  });
+  box.appendChild(grid);
+  var on = lamps.filter(function (l) { return l.on; }).length;
+  box.appendChild(el("p", "note", "Demo panel: " + on + " of 7 lamps on. Switching one here is a drawing; it does not rewrite “7 of 7 lights reachable” and nothing is sent to the house."));
+  var sim = el("button", "btn", "Simulate can’t embed");
+  sim.setAttribute("data-fk", "embed:sim");
+  sim.addEventListener("click", function () {
+    pendingFocus = "embed:retry"; embedBroken = true; renderSurface();
+    announce("Embedding Home lights is now simulated as unavailable. The fallback link is shown.");
+  });
+  box.appendChild(el("div", "btnRow")).appendChild(sim);
+  return box;
+}
+
+function decisionPanel() {
+  var wrapEl = el("div");
+  var made = decisions.backups;
+  if (made) {
+    wrapEl.appendChild(el("p", "honest", made === "flagged"
+      ? "Recorded: kept flagged. Worlds keeps it in front of you and has done nothing else."
+      : made === "prepare"
+        ? "Recorded: the agent is asked to prepare a retry. A proposal only — nothing has been dispatched."
+        : "Recorded: you authorised one retry. Not dispatched in this mockup, and the agent still may not retry."));
+    var undo = el("button", "btn", "Record a different outcome");
+    undo.setAttribute("data-fk", "decision:undo");
+    undo.addEventListener("click", function () {
+      decisions.backups = null; pendingFocus = "decision:flagged"; announce("The Backups decision is open again."); syncAll();
+    });
+    wrapEl.appendChild(el("div", "btnRow")).appendChild(undo);
+    return wrapEl;
+  }
+  wrapEl.appendChild(el("p", null, "Three files could not be copied in the 06:00 run. Worlds will not choose for you:"));
+  var row = el("div", "btnRow");
+  [
+    ["flagged", "Keep it flagged", "btn btn--safe"],
+    ["prepare", "Ask the agent to prepare a retry (proposal only)", "btn"],
+    ["authorise", "Authorise one retry (you alone)", "btn btn--danger"]
+  ].forEach(function (o) {
+    var b = el("button", o[2], o[1]);
+    b.setAttribute("data-fk", "decision:" + o[0]);
+    b.addEventListener("click", function () {
+      decisions.backups = o[0];
+      pendingFocus = "decision:undo";
+      announce("Backups decision recorded: " + o[1] + ".");
+      syncAll();
+    });
+    row.appendChild(b);
+  });
+  wrapEl.appendChild(row);
+  wrapEl.appendChild(el("p", "note", "The safe option is first. A production build would run “Authorise” through the governed flow: request, approve, dispatch at most once, with a durable outcome of SUCCEEDED, FAILED or UNKNOWN."));
+  return wrapEl;
+}
+
+function renderSurface() {
+  var host = document.getElementById("surface");
+  var key = focusedKey();
+  var note = surfaceNote;
+  surfaceNote = null;
+  host.textContent = "";
+  var s = BY_ID[selected];
+
+  var head = el("div", "surfaceHead");
+  var left = el("div");
+  left.style.display = "flex";
+  left.style.alignItems = "center";
+  left.style.gap = "8px";
+  var shape = el("span", "shape shape--" + s.status);
+  shape.setAttribute("aria-hidden", "true");
+  left.appendChild(shape);
+  var h = el("h3", null, s.name);
+  left.appendChild(h);
+  head.appendChild(left);
+  head.appendChild(el("span", "word word--" + s.status, s.word));
+  host.appendChild(head);
+
+  if (altitude === 1) {
+    host.appendChild(el("p", null, "From 30,000 ft Worlds shows you the shape of the morning: one thing needs you (Backups), and the sky says plainly that Files has gone quiet and Weather has never spoken."));
+    host.appendChild(el("p", "honest", "Descending unfolds the rest. Nothing is hidden from you here — it simply is not unfolded yet. The same six facts are always one control away."));
+    host.appendChild(el("div", "btnRow")).appendChild(makeDescend("Descend to 3,000 ft"));
+    return;
+  }
+
+  var dl = el("dl", "facts");
+  function row(term, value, cls) {
+    dl.appendChild(el("dt", null, term));
+    dl.appendChild(el("dd", cls || null, value));
+  }
+  row("The fact", s.fact || "No reading exists. Weather has never answered, so Worlds states none.", s.fact ? null : "honest honest--unknown");
+  row("Source", s.source);
+  row("Freshness", s.heard ? "Heard at " + s.heard + " — " + s.heardWord + (s.status === "stale" ? ". Stale: this may no longer be true." : ". Fresh.") : "Never heard — unknown.");
+  host.appendChild(dl);
+
+  if (altitude === 2) {
+    host.appendChild(el("p", "honest", "At 3,000 ft you can read the fact, its source and its age. The permissions split and any action live at ground level."));
+    if (s.embed) {
+      host.appendChild(el("p", null, "Home lights opens inside Worlds once you are at ground level. Even up here, the owning app is one link away:"));
+      var lo = el("a", "linkout", "Open " + s.embed.title + " in the owning app ↗");
+      lo.href = s.embed.url;
+      host.appendChild(lo);
+    }
+    if (s.noReading) host.appendChild(el("p", "honest honest--unknown", "Weather has no reading, so descending will not reveal one. Ground level shows the absence itself: the source line that says nothing was ever configured, and who may act."));
+    host.appendChild(el("div", "btnRow")).appendChild(makeDescend("Descend to ground"));
+    return;
+  }
+
+  /* ground */
+  if (note) host.appendChild(el("p", "honest", note));
+  host.appendChild(readerCards(s));
+  host.appendChild(permsBlock(s));
+  host.appendChild(el("p", "note", "The two permission lists stay apart on purpose: what the agent may do never silently grows into what a person may do."));
+
+  var right = el("div");
+  right.style.marginTop = "14px";
+  if (s.embed) right.appendChild(lampPanel(s));
+  else {
+    var box = el("div", "embed");
+    box.appendChild(el("h4", null, "Inside Worlds: no app here"));
+    box.appendChild(el("p", "note", s.noReading
+      ? "Weather has no owning app configured either, so there is nowhere to embed and nowhere to link out to. Worlds says that rather than showing an empty frame."
+      : "This service has no embed descriptor yet. Worlds shows its facts; its own screens stay in the owning app."));
+    right.appendChild(box);
+  }
+  host.appendChild(right);
+
+  if (s.decision) host.appendChild(decisionPanel());
+  if (s.status === "stale") {
+    var rc = el("button", "btn", "Re-check Files now");
+    rc.setAttribute("data-fk", "recheck:files");
+    rc.addEventListener("click", function () {
+      pendingFocus = "recheck:files";
+      announce("Re-checked Files. Still stale: the newest reading is still 05:14.");
+      renderSurfaceWithNote("Re-check done. Still stale — the newest reading Worlds holds is still 05:14, three hours old. No new answer arrived, and none was invented to fill the gap.");
+    });
+    host.appendChild(el("div", "btnRow")).appendChild(rc);
+  }
+  if (s.noReading) {
+    var rc2 = el("button", "btn", "Re-check Weather now");
+    rc2.setAttribute("data-fk", "recheck:weather");
+    rc2.addEventListener("click", function () {
+      pendingFocus = "recheck:weather";
+      announce("Re-checked Weather. Still no answer. Nothing new is known.");
+      renderSurfaceWithNote("Re-check done. Weather still has not answered. This stays unknown until the service says something — ascending and descending cannot change that.");
+    });
+    host.appendChild(el("div", "btnRow")).appendChild(rc2);
+  }
+
+  host.appendChild(sharedDetails());
+  restoreFocus(key);
+}
+
+var surfaceNote = null;
+function renderSurfaceWithNote(text) {
+  surfaceNote = text;
+  renderSurface();
+}
+
+function makeDescend(label) {
+  var b = el("button", "btn", label);
+  b.setAttribute("data-fk", "descendInline");
+  b.addEventListener("click", function () { setAltitude(altitude + 1, true); });
+  return b;
+}
+
+/* ------------------------------------------------------------------ *
+ * The shared surface — every fact, both sets of permissions          *
+ * ------------------------------------------------------------------ */
+function sharedDetails() {
+  var d = el("details", "shared");
+  d.id = "shared";
+  d.appendChild(el("summary", null, "The shared surface — all six facts, source, age and permissions"));
+
+  var all = el("div", "allfacts");
+  SERVICES.forEach(function (s) {
+    var one = el("div", "onefact");
+    var head = el("div", "head");
+    var shape = el("span", "shape shape--" + s.status);
+    shape.setAttribute("aria-hidden", "true");
+    head.appendChild(shape);
+    head.appendChild(el("h4", null, s.name));
+    head.appendChild(el("span", "word word--" + s.status, s.word));
+    one.appendChild(head);
+    var dl = el("dl", "facts");
+    dl.appendChild(el("dt", null, "Fact"));
+    dl.appendChild(el("dd", s.fact || "No reading exists — Weather has never answered.", null));
+    dl.appendChild(el("dt", null, "Source"));
+    dl.appendChild(el("dd", null, s.source));
+    dl.appendChild(el("dt", null, "Freshness"));
+    dl.appendChild(el("dd", null, s.heard ? "Heard " + s.heard + " (" + s.heardWord + ")" + (s.status === "stale" ? " — stale" : "") : "Never heard — unknown"));
+    one.appendChild(dl);
+    one.appendChild(permsBlock(s));
+    all.appendChild(one);
+  });
+  d.appendChild(all);
+  return d;
+}
+
+/* ------------------------------------------------------------------ *
+ * State changes                                                      *
+ * ------------------------------------------------------------------ */
+function setAltitude(n, speak) {
+  n = Math.max(1, Math.min(3, n));
+  if (n === altitude) return;
+  altitude = n;
+  if (speak) announce("Altitude: " + LEVELS[n - 1].ft + " — " + LEVELS[n - 1].name + ". " + LEVELS[n - 1].blurb);
+  syncAll();
+}
+
+function selectService(id, speak) {
+  selected = id;
+  if (speak) announce("Selected " + BY_ID[id].name + ", " + BY_ID[id].word + ".");
+  syncAll();
+}
+
+function syncAll() {
+  var key = focusedKey();
+  drawSky();
+  drawCaption();
+  syncRail();
+  syncCompass();
+  renderSurface();
+  restoreFocus(key);
+}
+
+function syncCompass() {
+  SERVICES.forEach(function (s) {
+    var b = document.querySelector('[data-chip="' + s.id + '"]');
+    b.setAttribute("aria-pressed", s.id === selected ? "true" : "false");
+    b.setAttribute("aria-label", s.name + " — " + s.word + (s.id === selected ? " (selected)" : ""));
+  });
+}
+
+/* ------------------------------------------------------------------ *
+ * Wiring                                                             *
+ * ------------------------------------------------------------------ */
+document.getElementById("ascend").addEventListener("click", function () { setAltitude(altitude - 1, true); });
+document.getElementById("descend").addEventListener("click", function () { setAltitude(altitude + 1, true); });
+document.getElementById("openShared").addEventListener("click", function () {
+  if (altitude !== 3) { altitude = 3; }
+  syncAll();
+  var d = document.getElementById("shared");
+  if (d) { d.open = true; d.scrollIntoView({ block: "start" }); d.querySelector("summary").focus(); }
+  announce("Shared surface opened: all six facts with source, age and permissions.");
+});
+
+/* Pointer convenience: clicking a sector selects that service, and
+   clicking the middle of the sky descends one step. */
+sky.addEventListener("click", function (e) {
+  var pt = sky.getBoundingClientRect();
+  var x = (e.clientX - pt.left) / pt.width * 640;
+  var y = (e.clientY - pt.top) / pt.height * 640;
+  var dx = x - CX, dy = y - CY;
+  var dist = Math.sqrt(dx * dx + dy * dy);
+  if (dist < R_IN * 0.75) { setAltitude(altitude + 1, true); return; }
+  if (dist < 60 || dist > R_OUT + 30) return;
+  var deg = (Math.atan2(dy, dx) * 180 / Math.PI + 90 + 360) % 360;
+  var idx = Math.round(deg / 60) % 6;
+  selectService(SERVICES[idx].id, true);
+});
+
+/* Touch convenience: swipe up to descend, down to ascend. */
+(function swipe() {
+  var y0 = null;
+  document.querySelector(".skywrap").addEventListener("touchstart", function (e) {
+    y0 = e.touches[0].clientY;
+  }, { passive: true });
+  document.querySelector(".skywrap").addEventListener("touchend", function (e) {
+    if (y0 == null) return;
+    var dy = e.changedTouches[0].clientY - y0;
+    y0 = null;
+    if (Math.abs(dy) < 40) return;
+    setAltitude(altitude + (dy < 0 ? 1 : -1), true);
+  }, { passive: true });
+})();
+
+buildRail();
+buildCompass();
+syncAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Strata — Worlds vNext (MOCKUP)</title>
+<style>
+:root{--ink:#2a1f14;--sand:#f4e6c8;--clay:#d9b98a;--rock:#6f533a;--bed:#3b2c20;--acc:#0d5c63;--need:#a8321a;--stale:#7a5b00;--unk:#4a3f8f}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--sand);color:var(--ink);font:16px/1.4 system-ui,sans-serif;overflow-x:hidden}
+button,a,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.top{position:sticky;top:0;z-index:5;background:#fff8e6;border-bottom:3px solid var(--ink);padding:8px 12px}
+.row{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+h1{margin:0;font-size:1.3rem}
+.mock{background:var(--ink);color:var(--sand);padding:2px 8px;font:700 .8rem monospace;letter-spacing:.1em}
+.time{margin-left:auto;font:.8rem monospace}
+.dig{display:block;margin-top:6px}
+.dig label{font-weight:700}
+#depth{width:100%;height:44px;accent-color:var(--acc);cursor:pointer}
+.ticks{display:flex;justify-content:space-between;font-size:.8rem}
+.ticks span{flex:1;text-align:center}.ticks span[aria-current=true]{font-weight:700;text-decoration:underline}
+.who{min-height:44px;padding:0 14px;border:2px solid var(--ink);background:#fff;border-radius:22px;cursor:pointer;font-weight:700}
+#read{padding:8px 12px;border-bottom:1px solid var(--rock);background:#fff3d6}
+.band{padding:12px;border-bottom:2px solid rgba(0,0,0,.25)}
+.band h2{margin:0 0 2px;font-size:1rem;display:flex;justify-content:space-between;gap:8px}
+.band p.sub{margin:0 0 8px;font-size:.85rem;opacity:.85}
+.b0{background:var(--sand)}.b1{background:var(--clay)}.b2{background:var(--rock);color:#fff}.b2 .sub{color:#fff}
+.stones{display:grid;gap:8px}
+.stone{display:block;width:100%;min-height:56px;text-align:left;padding:8px 12px;border:2px solid var(--ink);border-radius:16px 6px 14px 8px;background:rgba(255,255,255,.75);color:var(--ink);cursor:pointer;transition:transform .25s,background .25s}
+.stone:hover{transform:translateY(-2px)}
+.stone[aria-expanded=true]{background:#fff;box-shadow:4px 4px 0 var(--ink)}
+.stone.need{border-width:4px;border-color:var(--need)}
+.stone.stale{border-style:dashed}.stone.unknown{border-style:dotted;border-width:4px}
+.stone .n{font-weight:800}
+.tag{font:700 .72rem monospace;text-transform:uppercase;border:1px solid currentColor;padding:0 5px;margin-right:6px}
+.need .tag{color:var(--need)}.stale .tag{color:var(--stale)}.unknown .tag{color:var(--unk)}.fine .tag{color:var(--acc)}
+.det{display:block;font-size:.88rem;margin-top:2px}
+.bar{display:block;height:10px;background:#0002;border:1px solid var(--ink);margin:4px 0}.bar i{display:block;height:100%;background:var(--acc);transition:width .4s}
+.pit{margin:0 0 10px;padding:12px;background:var(--bed);color:var(--sand);border:2px solid var(--ink);border-radius:4px;animation:dig .25s ease-out}
+@keyframes dig{from{opacity:0;transform:scaleY(.9)}to{opacity:1;transform:none}}
+.pit h3{margin:0 0 4px}
+.btn{min-height:44px;min-width:44px;padding:6px 14px;background:var(--sand);color:var(--ink);border:2px solid var(--ink);border-radius:6px;cursor:pointer;margin:4px 6px 4px 0;font-weight:700}
+.btn:disabled{opacity:.6;border-style:dashed;cursor:not-allowed}
+.why{display:block;font-size:.85rem;margin:2px 0 6px}
+.win{margin:10px 0;border:2px solid var(--sand);border-radius:6px;background:#1c140d}
+.win .tb{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;padding:6px 10px;border-bottom:2px solid var(--sand);font:.78rem monospace}
+.win .bd{padding:12px}
+.fallback{display:inline-flex;align-items:center;min-height:44px;color:#ffd98a}
+.bulbs{display:flex;flex-wrap:wrap;gap:8px}
+.bulb{width:44px;height:44px;border-radius:50%;border:2px solid var(--sand);background:#000;color:var(--sand);cursor:pointer}
+.bulb[aria-pressed=true]{background:#ffd98a;color:#000}
+.prog{height:10px;background:#555;margin:8px 0}.prog i{display:block;height:100%;background:#ffd98a}
+h2.log{margin:12px 12px 4px;font-size:1rem}
+#log{list-style:none;margin:0;padding:0 12px 24px;font:.82rem monospace}
+#log li{padding:3px 0;border-bottom:1px dotted var(--rock)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="row"><h1>Strata</h1><span class="mock">MOCKUP</span><span class="time">Tue 13 Oct · 08:14 · concept, not approved, not built</span></div>
+  <div class="row" style="margin-top:6px"><button class="who" id="who" aria-pressed="false"></button></div>
+  <div class="dig">
+    <label for="depth">Dig depth: <span id="dlabel"></span></label>
+    <input type="range" id="depth" min="0" max="2" step="1" value="0" aria-describedby="ticks">
+    <div class="ticks" id="ticks"><span>Now</span><span>Sources &amp; age</span><span>Who may</span></div>
+  </div>
+</div>
+<div id="read" role="status" aria-live="polite"></div>
+<main id="strata"></main>
+<h2 class="log">Change log</h2>
+<ol id="log" aria-label="Change log"></ol>
+<script>
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const S={depth:0,actor:'human',open:null,failed:3,bulbs:[1,1,1,1,1,1,1],playing:false,pos:42,track:0,log:[],asked:{}};
+const TRACKS=['Morning Static (sample)','Kettle Song (sample)'];
+// band 0 heard within minutes, 1 heard hours ago, 2 never heard
+const SV={
+ media:{n:'Media library',band:0,mins:1,age:'1 minute ago',src:'media-svc/library',fact:'new episodes: 2',may:{agent:['play/pause'],human:['play/pause','open app']}},
+ backups:{n:'Backups',band:0,mins:2,age:'2 minutes ago',src:'backup-svc/last-run',fact:'files not copied',may:{agent:['retry'],human:['retry','skip']}},
+ lights:{n:'Home lights',band:0,mins:0,age:'just now',src:'hub/lights',fact:'7 of 7 reachable',may:{agent:['toggle bulbs'],human:['toggle bulbs']}},
+ board:{n:'Project board',band:0,mins:4,age:'4 minutes ago',src:'board-svc/cards',fact:'cards due this week: 3',may:{agent:[],human:['open app']}},
+ files:{n:'Files',band:1,mins:180,age:'3 hours ago (last heard 05:14)',src:'files-svc/index',fact:'last heard 3 hours ago, may be out of date',may:{agent:[],human:['ask for a re-check']}},
+ weather:{n:'Weather',band:2,mins:null,age:'never answered',src:'weather-svc (nothing ever received)',fact:'no reading exists',may:{agent:null,human:['ask for a re-check']}}
+};
+const BANDS=[['Surface','Heard within the last few minutes','b0'],['Sediment','Heard hours ago: may be out of date','b1'],['Bedrock','Never heard: nothing to show','b2']];
+const WORD={fine:'Fine',need:'Needs a human',stale:'Stale',unknown:'Unknown'};
+const DL=['Now','Sources & age','Who may'];
+const $=s=>document.querySelector(s);
+function st(id){return id==='backups'?(S.failed>0?'need':'fine'):({files:'stale',weather:'unknown'}[id]||'fine');}
+function line(id){const on=S.bulbs.filter(Boolean).length;
+ return {media:'2 new episodes',backups:S.failed>0?S.failed+' file'+(S.failed>1?'s':'')+' could not be copied':'resolved: nothing left to copy',lights:'7 of 7 reachable · '+on+' on',board:'3 cards due this week',files:'last heard 3 hours ago',weather:'never answered'}[id];}
+function factVal(id){return id==='backups'?S.failed+' files not copied':id==='lights'?'7 of 7 reachable · '+S.bulbs.filter(Boolean).length+' on':SV[id].fact;}
+function mayText(id,who){const m=SV[id].may[who];if(m===null)return 'nothing: no reading exists';return 'read'+(m.length?', '+m.join(', '):' only');}
+function log(t){S.log.unshift(t);if(S.log.length>8)S.log.pop();}
+function stoneBody(id){
+  const v=SV[id];
+  if(S.depth===0)return '<span class="det">'+line(id)+'</span>';
+  if(S.depth===1){
+    const w=v.mins===null?0:Math.max(3,100-Math.round(v.mins/1.8));
+    return '<span class="det">fact: '+factVal(id)+'</span><span class="det">source: '+v.src+'</span><span class="det">freshness: '+v.age+'</span><span class="bar" aria-hidden="true"><i style="width:'+w+'%"></i></span>';
+  }
+  return '<span class="det"><b>Agent may:</b> '+mayText(id,'agent')+'</span><span class="det"><b>Human may:</b> '+mayText(id,'human')+'</span>';
+}
+function pit(id){
+  const v=SV[id],h=S.actor==='human';
+  let x='<div class="pit" role="region" aria-label="Excavation: '+v.n+'"><h3>'+v.n+' — '+WORD[st(id)]+'</h3><p>'+line(id)+'. Source '+v.src+'; heard '+v.age+'.</p>';
+  const fb='<a class="fallback" href="https://example.invalid/'+id+'" target="_blank" rel="noopener">Open in the owning app ↗ (example.invalid/'+id+')</a>';
+  const frame=(t,b)=>'<div class="win" role="group" aria-label="Embedded: '+t+'"><div class="tb"><span>EMBEDDED · '+t+' (demo, not real)</span><span>sandboxed frame</span></div><div class="bd">'+b+'</div></div>'+fb;
+  if(id==='backups'){
+    x+='<button class="btn" data-act="retry"'+(S.failed>=2?'':' disabled')+'>Retry failed files</button>';
+    if(S.failed<2)x+='<span class="why">'+(S.failed===1?'Retry can copy no more: the last file is blocked and needs a human decision.':'Nothing left to retry.')+'</span>';
+    x+='<button class="btn" data-act="skip"'+(h&&S.failed===1?'':' disabled')+'>Skip last file</button>';
+    if(!(h&&S.failed===1))x+='<span class="why">'+(!h?'Only a human may skip a file; the agent may retry only.':S.failed===0?'Nothing left to skip.':'Retry first; skipping is for the final stubborn file.')+'</span>';
+    x+=fb;
+  }else if(id==='media'){
+    x+=frame('Media player','<strong>'+TRACKS[S.track]+'</strong><div class="prog" role="progressbar" aria-label="Playback position" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+S.pos+'"><i style="width:'+S.pos+'%"></i></div><button class="btn" data-act="prev" aria-label="Previous track">⏮</button><button class="btn" data-act="play">'+(S.playing?'Pause':'Play')+'</button><button class="btn" data-act="next" aria-label="Next track">⏭</button>');
+  }else if(id==='lights'){
+    x+=frame('Home lights','<div class="bulbs">'+S.bulbs.map((b,i)=>'<button class="bulb" data-bulb="'+i+'" aria-pressed="'+!!b+'" aria-label="Bulb '+(i+1)+' '+(b?'on':'off')+'">'+(i+1)+'</button>').join('')+'</div>');
+  }else{
+    x+='<div class="win" role="group" aria-label="Not embeddable"><div class="tb"><span>NOT EMBEDDABLE</span></div><div class="bd">This app offers no embed (or has nothing to show). Use the link out.</div></div>'+fb;
+    if(v.may[S.actor]&&v.may[S.actor].includes('ask for a re-check')){
+      x+='<br><button class="btn" data-act="ask">Ask for a re-check</button>'+(S.asked[id]?'<span class="why">Asked at 08:14. No new reading has arrived; nothing is invented.</span>':'');
+    }else if(S.actor==='agent'){x+='<span class="why">Agent: '+(id==='weather'?'there is nothing to read.':'read-only here.')+'</span>';}
+  }
+  return x+'</div>';
+}
+function render(){
+  const ids=Object.keys(SV),need=ids.filter(i=>st(i)==='need').length;
+  const counts=BANDS.map((b,i)=>ids.filter(k=>SV[k].band===i).length);
+  $('#who').textContent='Acting as: '+(S.actor==='human'?'Human (Rylee)':'Agent')+' — tap to switch';
+  $('#who').setAttribute('aria-pressed',S.actor==='agent');
+  $('#dlabel').textContent=DL[S.depth];
+  [...$('#ticks').children].forEach((t,i)=>t.setAttribute('aria-current',i===S.depth));
+  $('#read').innerHTML='<b>'+(need?need+' thing needs a human':'Nothing needs a human')+'.</b> Layers: surface '+counts[0]+', sediment '+counts[1]+' (stale), bedrock '+counts[2]+' (unknown).'+(need&&S.actor==='agent'?' As the agent you may retry, not skip.':'');
+  $('#strata').innerHTML=BANDS.map((b,bi)=>{
+    const m=ids.filter(k=>SV[k].band===bi).sort((a,c)=>(st(c)==='need')-(st(a)==='need'));
+    return '<section class="band '+b[2]+'" aria-label="'+b[0]+'"><h2><span>'+b[0]+'</span><span>'+m.length+' service'+(m.length>1?'s':'')+'</span></h2><p class="sub">'+b[1]+'</p><div class="stones">'+m.map(id=>
+      '<div><button class="stone '+st(id)+'" data-id="'+id+'" aria-expanded="'+(S.open===id)+'"><span class="n"><span class="tag">'+WORD[st(id)]+'</span>'+SV[id].n+'</span>'+stoneBody(id)+'</button>'+(S.open===id?pit(id):'')+'</div>').join('')+'</div></section>';
+  }).join('');
+  $('#log').innerHTML=S.log.map(l=>'<li>'+l+'</li>').join('')||'<li>No changes yet.</li>';
+}
+function keep(fn){
+  const a=document.activeElement,d=a&&a.dataset||{};
+  const key=d.id?'[data-id='+d.id+']':d.bulb?'[data-bulb="'+d.bulb+'"]':d.act?'[data-act='+d.act+']':a&&a.id==='who'?'#who':null;
+  fn();render();
+  if(key){const n=document.querySelector(key);if(n&&!n.disabled)n.focus();}
+}
+$('#depth').addEventListener('input',e=>{S.depth=+e.target.value;render();});
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button');if(!t)return;
+  keep(()=>{
+    if(t.id==='who'){S.actor=S.actor==='human'?'agent':'human';log('Now acting as '+S.actor+'.');}
+    else if(t.dataset.id){S.open=S.open===t.dataset.id?null:t.dataset.id;}
+    else if(t.dataset.bulb){const i=+t.dataset.bulb;S.bulbs[i]=S.bulbs[i]?0:1;log('Bulb '+(i+1)+' '+(S.bulbs[i]?'on':'off')+' ('+S.actor+').');}
+    else if(t.dataset.act==='retry'&&S.failed>=2){log(S.actor+' retried backups: '+S.failed+' → 1 failed file.');S.failed=1;}
+    else if(t.dataset.act==='skip'&&S.actor==='human'&&S.failed===1){S.failed=0;log('human skipped the last file: backups now fine.');}
+    else if(t.dataset.act==='play'){S.playing=!S.playing;log('Media '+(S.playing?'playing':'paused')+' ('+S.actor+').');}
+    else if(t.dataset.act==='next'||t.dataset.act==='prev'){S.track=1-S.track;S.pos=0;}
+    else if(t.dataset.act==='ask'){S.asked[S.open]=true;log('Asked '+SV[S.open].n+' for a re-check. No reading returned.');}
+  });
+});
+setInterval(()=>{if(S.playing&&S.open==='media'&&!reduce){S.pos=(S.pos+3)%100;const i=document.querySelector('.prog i');if(i)i.style.width=S.pos+'%';}},1000);
+render();
+</script>
+</body>
+</html>

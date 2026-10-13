@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Switchboard — Worlds vNext (MOCKUP)</title>
+<style>
+:root{--bg:#16130f;--panel:#221d16;--line:#4a4032;--cream:#f2e8d2;--dim:#b8aa8e;--brass:#e0b25a;--ok:#8fd19e;--need:#ff8a5c;--warn:#f0d264;--unk:#a9b4ff}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--cream);font:16px/1.4 Georgia,"Times New Roman",serif;overflow-x:hidden}
+button,a{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--brass);outline-offset:2px}
+header{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:12px;border-bottom:1px solid var(--line)}
+h1{font-size:1.25rem;margin:0;letter-spacing:.08em;text-transform:uppercase}
+.mock{border:2px dashed var(--brass);color:var(--brass);padding:2px 8px;font:700 .8rem monospace;letter-spacing:.1em}
+.clock{margin-left:auto;color:var(--dim);font:.85rem monospace}
+#summary{padding:10px 12px;font-size:1.05rem;background:var(--panel);border-bottom:1px solid var(--line)}
+#summary b{color:var(--brass)}
+.bay{position:relative;display:grid;grid-template-columns:96px 1fr;gap:44px;padding:14px 12px}
+#cords{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.ops,.jacks{display:flex;flex-direction:column;gap:10px;position:relative;z-index:1}
+.op{min-height:88px;min-width:44px;border:2px solid var(--line);background:var(--panel);border-radius:10px;padding:6px;text-align:center;cursor:pointer}
+.op small{display:block;color:var(--dim);font-size:.72rem}
+.op[aria-pressed=true]{border-color:var(--brass);background:#3a2f1c;box-shadow:0 0 0 3px #e0b25a33}
+.jack{min-height:60px;width:100%;text-align:left;border:2px solid var(--line);background:var(--panel);border-radius:8px;padding:6px 10px;cursor:pointer;display:block}
+.jack[aria-pressed=true]{border-color:var(--cream);background:#2e271c}
+.jack .n{font-weight:700}
+.jack .s{display:block;font-size:.85rem;color:var(--dim)}
+.badge{display:inline-block;font:700 .72rem monospace;padding:1px 6px;border-radius:3px;border:1px solid currentColor;margin-right:6px;text-transform:uppercase}
+.fine{color:var(--ok)}.need{color:var(--need)}.stale{color:var(--warn)}.unknown{color:var(--unk)}
+.cordnote{display:block;font-size:.78rem;color:var(--brass)}
+.cord{fill:none;stroke-width:4;stroke-linecap:round}
+.cord.act{stroke:var(--brass)}.cord.read{stroke:var(--dim);stroke-dasharray:10 7;stroke-width:3}.cord.none{stroke:var(--unk);stroke-dasharray:1 9;stroke-width:5}
+.cord.draw{stroke-dasharray:600;animation:draw .5s ease-out forwards}
+@keyframes draw{from{stroke-dashoffset:600}to{stroke-dashoffset:0}}
+nav.tabs{display:flex;gap:8px;padding:0 12px}
+nav.tabs button{min-height:44px;padding:0 16px;background:none;border:2px solid var(--line);border-bottom:0;border-radius:8px 8px 0 0;cursor:pointer}
+nav.tabs button[aria-selected=true]{background:var(--panel);border-color:var(--brass)}
+#view{margin:0 12px 12px;padding:12px;background:var(--panel);border:2px solid var(--brass);border-radius:0 8px 8px 8px}
+h2{font-size:1.1rem;margin:0 0 6px}
+.btn{min-height:44px;min-width:44px;padding:6px 14px;background:#3a2f1c;border:2px solid var(--brass);border-radius:6px;cursor:pointer;margin:4px 6px 4px 0}
+.btn:disabled{opacity:.55;border-style:dashed;cursor:not-allowed}
+.why{display:block;font-size:.85rem;color:var(--dim);margin:2px 0 6px}
+.win{margin:10px 0;border:2px solid var(--cream);border-radius:8px;background:#0e0c09}
+.win .bar{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;padding:6px 10px;border-bottom:2px solid var(--cream);font:.8rem monospace}
+.win .body{padding:12px}
+.fallback{display:inline-flex;align-items:center;min-height:44px;color:var(--brass)}
+.bulbs{display:flex;flex-wrap:wrap;gap:8px}
+.bulb{width:44px;height:44px;border-radius:50%;border:2px solid var(--dim);background:#1b1812;cursor:pointer;font-size:.75rem}
+.bulb[aria-pressed=true]{background:var(--warn);color:#000;border-color:var(--warn)}
+.prog{height:10px;background:#333;border-radius:5px;overflow:hidden;margin:8px 0}.prog i{display:block;height:100%;background:var(--brass)}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th,td{text-align:left;padding:6px 4px;border-bottom:1px solid var(--line);vertical-align:top}
+.facts{display:grid;gap:8px}
+.fact{border:1px solid var(--line);border-radius:6px;padding:8px}
+.fact dl{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;margin:4px 0 0;font-size:.85rem}
+.fact dt{color:var(--dim)}.fact dd{margin:0}
+#log{margin:0 12px 24px;padding:0;list-style:none;font:.82rem monospace;color:var(--dim)}
+#log li{padding:3px 0;border-bottom:1px dotted var(--line)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.cord.draw{stroke-dasharray:none}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Switchboard</h1><span class="mock">MOCKUP</span>
+  <span class="clock">Tue 13 Oct · 08:14 · concept, not approved, not built</span>
+</header>
+<div id="summary" role="status" aria-live="polite"></div>
+<div class="bay" id="bay">
+  <svg id="cords" aria-hidden="true"></svg>
+  <div class="ops" role="group" aria-label="Who is plugged in"></div>
+  <div class="jacks" role="group" aria-label="Services"></div>
+</div>
+<nav class="tabs" role="tablist" aria-label="Lower panel">
+  <button role="tab" id="t-panel" aria-selected="true">Service</button>
+  <button role="tab" id="t-facts" aria-selected="false">Shared facts</button>
+</nav>
+<section id="view" role="tabpanel" aria-live="polite"></section>
+<h2 style="margin:0 12px 6px">Change log</h2>
+<ol id="log" aria-label="Change log"></ol>
+<script>
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const S = {
+  actor:'human', sel:'backups', tab:'panel', failed:3, bulbs:[1,1,1,1,1,1,1], playing:false, pos:42, track:0, log:[], asked:{files:false,weather:false}, cordKey:''
+};
+const TRACKS=['Morning Static (sample)','Kettle Song (sample)'];
+// may: actions per actor; "read" is implicit when anything can be seen
+const SV={
+ media:{n:'Media library',age:'1 min ago',src:'media-svc/library',may:{agent:['play/pause'],human:['play/pause','open app']}},
+ backups:{n:'Backups',age:'2 min ago',src:'backup-svc/last-run',may:{agent:['retry'],human:['retry','skip']}},
+ lights:{n:'Home lights',age:'just now',src:'hub/lights',may:{agent:['toggle bulbs'],human:['toggle bulbs']}},
+ files:{n:'Files',age:'3 hours ago (last heard 05:14)',src:'files-svc/index',may:{agent:[],human:['ask for a re-check']}},
+ board:{n:'Project board',age:'4 min ago',src:'board-svc/cards',may:{agent:[],human:['open app']}},
+ weather:{n:'Weather',age:'never answered',src:'weather-svc (no reading ever)',may:{agent:null,human:['ask for a re-check']}}
+};
+const ORDER=['media','backups','lights','files','board','weather'];
+function state(id){
+  if(id==='backups') return S.failed>0?'need':'fine';
+  return {files:'stale',weather:'unknown'}[id]||'fine';
+}
+const WORD={fine:'Fine',need:'Needs a human',stale:'Stale',unknown:'Unknown'};
+function line(id){
+  const on=S.bulbs.filter(Boolean).length;
+  return {media:'2 new episodes',backups:S.failed>0?S.failed+' file'+(S.failed>1?'s':'')+' could not be copied':'all files copied (or skipped by a human)',lights:on+' of 7 on · 7 of 7 reachable',files:'last heard 3 hours ago, may be out of date',board:'3 cards due this week',weather:'never answered, no reading to show'}[id];
+}
+function cordKind(id){
+  const m=SV[id].may[S.actor];
+  if(m===null) return 'none';
+  return m.length?'act':'read';
+}
+const CORDTEXT={act:'cord: may act',read:'cord: read only',none:'no cord: nothing to read'};
+function log(t){S.log.unshift(t);if(S.log.length>8)S.log.pop();}
+const $=s=>document.querySelector(s);
+
+function render(){
+  // summary
+  const need=ORDER.filter(i=>state(i)==='need').length;
+  const warn=ORDER.filter(i=>['stale','unknown'].includes(state(i))).length;
+  const who=S.actor==='human'?'Plugged in as Rylee (human)':'Plugged in as the agent';
+  $('#summary').innerHTML='<b>'+who+'.</b> '+(need?'1 thing needs a human'+(S.actor==='agent'?' (agent may only retry)':''):'Nothing needs a human')+'; '+warn+' services cannot be trusted right now (Files stale, Weather unknown).';
+  // operators
+  $('.ops').innerHTML=['human','agent'].map(a=>'<button class="op" data-actor="'+a+'" aria-pressed="'+(S.actor===a)+'">'+(a==='human'?'Human':'Agent')+'<small>'+(a==='human'?'Rylee':'helper')+'</small></button>').join('');
+  // jacks
+  $('.jacks').innerHTML=ORDER.map(id=>{const st=state(id),k=cordKind(id);
+    return '<button class="jack" data-id="'+id+'" aria-pressed="'+(S.sel===id)+'"><span class="n">'+SV[id].n+'</span><span class="s"><span class="badge '+st+'">'+WORD[st]+'</span>'+line(id)+'</span><span class="cordnote">'+CORDTEXT[k]+'</span></button>';}).join('');
+  $('#t-panel').setAttribute('aria-selected',S.tab==='panel');$('#t-facts').setAttribute('aria-selected',S.tab==='facts');
+  $('#view').innerHTML=S.tab==='panel'?panel():facts();
+  $('#log').innerHTML=S.log.map(l=>'<li>'+l+'</li>').join('')||'<li>No changes yet.</li>';
+  drawCords();
+}
+function drawCords(){
+  const bay=$('#bay'),svg=$('#cords'),br=bay.getBoundingClientRect();
+  const op=$('.op[aria-pressed=true]').getBoundingClientRect();
+  const x1=op.right-br.left,y1=op.top+op.height/2-br.top;
+  const key=S.actor;const anim=!reduce&&key!==S.cordKey;S.cordKey=key;
+  svg.innerHTML=[...document.querySelectorAll('.jack')].map(j=>{
+    const r=j.getBoundingClientRect(),x2=r.left-br.left,y2=r.top+r.height/2-br.top,k=cordKind(j.dataset.id),mx=(x1+x2)/2;
+    const d='M'+x1+' '+y1+' C'+mx+' '+y1+' '+mx+' '+y2+' '+x2+' '+y2;
+    return '<path class="cord '+k+(anim&&k==='act'?' draw':'')+'" d="'+d+'"/><circle cx="'+x2+'" cy="'+y2+'" r="6" fill="'+(k==='act'?'#e0b25a':'#16130f')+'" stroke="#b8aa8e" stroke-width="2"/>'+(k==='none'?'<text x="'+(x2-18)+'" y="'+(y2+5)+'" fill="#a9b4ff" font-size="16">?</text>':'');
+  }).join('')+'<circle cx="'+x1+'" cy="'+y1+'" r="8" fill="#e0b25a"/>';
+}
+function btn(act,label,ok,why){return '<button class="btn" data-act="'+act+'"'+(ok?'':' disabled')+'>'+label+'</button>'+(ok?'':'<span class="why">'+why+'</span>');}
+function embedFrame(title,inner,id){
+  return '<div class="win" role="group" aria-label="Embedded: '+title+'"><div class="bar"><span>EMBEDDED · '+title+' (demo, not real)</span><span>sandboxed frame</span></div><div class="body">'+inner+'</div></div>'+fallback(id);
+}
+function fallback(id){return '<a class="fallback" href="https://example.invalid/'+id+'" target="_blank" rel="noopener">Open in the owning app ↗ (example.invalid/'+id+')</a>';}
+function panel(){
+  const id=S.sel,v=SV[id],st=state(id),h=S.actor==='human';
+  let h1='<h2>'+v.n+' — <span class="'+st+'">'+WORD[st]+'</span></h2><p>'+line(id)+'. Heard '+v.age+'.</p>';
+  if(id==='backups'){
+    h1+=btn('retry','Retry failed files',S.failed>=2,S.failed===1?'Retry can copy no more: the last file is blocked and needs a human decision.':'Nothing left to retry.');
+    h1+=btn('skip','Skip last file',h&&S.failed===1,!h?'Only a human may skip a file; the agent may retry only.':(S.failed===0?'Nothing left to skip.':'Retry first; skipping is for the final stubborn file.'));
+    h1+=fallback('backups');
+    if(S.failed===0)h1+='<p class="fine">Resolved. Cord colour is not the only signal: state reads “Fine”.</p>';
+  }else if(id==='media'){
+    h1+=embedFrame('Media player','<strong>'+TRACKS[S.track]+'</strong><div class="prog" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+S.pos+'" aria-label="Playback position"><i style="width:'+S.pos+'%"></i></div><button class="btn" data-act="prev" aria-label="Previous track">⏮</button><button class="btn" data-act="play">'+(S.playing?'Pause':'Play')+'</button><button class="btn" data-act="next" aria-label="Next track">⏭</button>','media');
+  }else if(id==='lights'){
+    h1+=embedFrame('Home lights','<div class="bulbs">'+S.bulbs.map((b,i)=>'<button class="bulb" data-bulb="'+i+'" aria-pressed="'+!!b+'" aria-label="Bulb '+(i+1)+' '+(b?'on':'off')+'">'+(i+1)+'</button>').join('')+'</div>','lights');
+  }else{
+    h1+='<div class="win" role="group" aria-label="Not embeddable"><div class="bar"><span>NOT EMBEDDABLE</span></div><div class="body">This app does not offer an embed (or has nothing to show). Use the link out.</div></div>'+fallback(id);
+    if(v.may[S.actor]&&v.may[S.actor].includes('ask for a re-check')){
+      h1+='<br>'+btn('ask','Ask for a re-check',true,'')+(S.asked[id]?'<span class="why">Asked at 08:14. No new reading has arrived; nothing is invented.</span>':'');
+    }else if(S.actor==='agent'){h1+='<span class="why">Agent: '+(id==='weather'?'there is nothing to read.':'read-only here.')+'</span>';}
+  }
+  return h1;
+}
+function facts(){
+  const f=[
+   ['Media: new episodes',  '2','media',SV.media],
+   ['Backups: files not copied',String(S.failed),'backups',SV.backups],
+   ['Lights: reachable / on','7 of 7 reachable · '+S.bulbs.filter(Boolean).length+' on','lights',SV.lights],
+   ['Files: last heard','3 hours ago (may be out of date)','files',SV.files],
+   ['Board: cards due this week','3','board',SV.board],
+   ['Weather: current reading','none. never answered','weather',SV.weather]];
+  return '<h2>What both of you can see</h2><div class="facts">'+f.map(x=>{const m=x[3].may;
+   return '<div class="fact"><strong>'+x[0]+': '+x[1]+'</strong><dl><dt>Source</dt><dd>'+x[3].src+'</dd><dt>Freshness</dt><dd>'+x[3].age+'</dd><dt>Agent may</dt><dd>'+(m.agent===null?'nothing (no reading exists)':'read'+(m.agent.length?', '+m.agent.join(', '):' only'))+'</dd><dt>Human may</dt><dd>read, '+m.human.join(', ')+'</dd></dl></div>';}).join('')+'</div>';
+}
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button');if(!t)return;
+  if(t.dataset.actor){S.actor=t.dataset.actor;log('Plugged in as '+S.actor+'.');}
+  else if(t.dataset.id){S.sel=t.dataset.id;S.tab='panel';}
+  else if(t.id==='t-panel')S.tab='panel';
+  else if(t.id==='t-facts')S.tab='facts';
+  else if(t.dataset.bulb){const i=+t.dataset.bulb;S.bulbs[i]=S.bulbs[i]?0:1;log('Bulb '+(i+1)+' '+(S.bulbs[i]?'on':'off')+' ('+S.actor+').');}
+  else if(t.dataset.act==='retry'&&S.failed>=2){log(S.actor+' retried backups: '+S.failed+' → 1 failed file.');S.failed=1;}
+  else if(t.dataset.act==='skip'&&S.actor==='human'&&S.failed===1){S.failed=0;log('human skipped the last file: backups now fine.');}
+  else if(t.dataset.act==='play'){S.playing=!S.playing;log('Media '+(S.playing?'playing':'paused')+' ('+S.actor+').');}
+  else if(t.dataset.act==='next'||t.dataset.act==='prev'){S.track=1-S.track;S.pos=0;}
+  else if(t.dataset.act==='ask'){S.asked[S.sel]=true;log('Asked '+SV[S.sel].n+' for a re-check. No reading returned.');}
+  else return;
+  const f=document.activeElement&&document.activeElement.dataset;const key=f&&(f.actor?'[data-actor='+f.actor+']':f.id?'[data-id='+f.id+']':f.bulb?'[data-bulb="'+f.bulb+'"]':f.act?'[data-act='+f.act+']':t.id?'#'+t.id:'');
+  render();if(key){const n=document.querySelector(key);if(n)n.focus();}
+});
+setInterval(()=>{if(S.playing&&S.sel==='media'&&!reduce){S.pos=(S.pos+3)%100;const i=document.querySelector('.prog i');if(i)i.style.width=S.pos+'%';}},1000);
+addEventListener('resize',drawCords);
+render();
+</script>
+</body>
+</html>

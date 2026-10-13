@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>NOWLINE — Worlds concept prototype (MOCKUP)</title>
+<meta name="color-scheme" content="dark" />
+<style>
+  /* ============================================================
+     NOWLINE — one self-contained, offline concept prototype.
+     No fonts, images or network. Everything is drawn in CSS/SVG.
+     Palette follows Worlds' warm-neutral dark house theme.
+     ============================================================ */
+
+  :root {
+    --canvas:#141211; --void:#0d0c0b; --panel:#1c1917; --elevated:#23201d;
+    --raised:#2c2724; --line:rgba(236,231,223,.12); --line-strong:rgba(236,231,223,.24);
+    --text:#ece7df; --text-2:#c2bbb1; --muted:#98918a;
+    --teal:#72b1b1; --teal-deep:#0c2a2a; --amber:#d4a057;
+    --focus:#72b1b1; --danger:#d98a7a;
+    --radius:14px; --radius-sm:9px;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --serif:Georgia,"Times New Roman",serif;
+    --mono:ui-monospace,"SFMono-Regular","Cascadia Code",Menlo,Consolas,monospace;
+  }
+
+  * { box-sizing:border-box; }
+  html,body { margin:0; padding:0; }
+  body {
+    background:
+      radial-gradient(120% 80% at 50% -10%, #1b1816 0%, var(--canvas) 55%, var(--void) 100%);
+    color:var(--text); font-family:var(--sans); font-size:16px; line-height:1.55;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden;
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  h1,h2,h3 { font-family:var(--serif); font-weight:600; line-height:1.2; margin:0; }
+  p { margin:0; }
+  a { color:var(--teal); }
+
+  /* Visible focus everywhere (accessibility contract §2.4). */
+  :focus-visible, a:focus-visible, button:focus-visible, input:focus-visible,
+  [tabindex]:focus-visible {
+    outline:2px solid var(--focus); outline-offset:2px; border-radius:4px;
+  }
+  .skip {
+    position:absolute; left:12px; top:-60px; z-index:60;
+    background:var(--teal); color:var(--teal-deep); font-weight:700;
+    padding:12px 18px; min-height:44px; border-radius:0 0 10px 10px;
+    text-decoration:none; transition:top .15s ease;
+  }
+  .skip:focus { top:0; }
+
+  .wrap { max-width:1180px; margin:0 auto; padding:0 18px; }
+
+  /* ---------- Masthead ---------- */
+  header.mast { padding:22px 0 4px; }
+  .mast-row { display:flex; flex-wrap:wrap; align-items:baseline; gap:10px 16px; }
+  .brand { font-family:var(--serif); font-size:clamp(1.9rem,6vw,2.9rem); letter-spacing:.02em; }
+  .brand .dot { color:var(--teal); }
+  .kicker { color:var(--text-2); font-size:.86rem; letter-spacing:.14em; text-transform:uppercase; }
+  .mockup {
+    display:inline-flex; align-items:center; gap:7px;
+    background:repeating-linear-gradient(45deg,#3a2f1c,#3a2f1c 8px,#332916 8px,#332916 16px);
+    color:#f0d9a8; border:1px solid #6b5a33; border-radius:999px;
+    padding:5px 13px; font-weight:800; letter-spacing:.16em; font-size:.72rem;
+  }
+  .tagline { color:var(--text-2); max-width:62ch; margin-top:10px; font-size:1.02rem; }
+  .tagline em { color:var(--text); font-style:normal; border-bottom:1px solid var(--teal); }
+
+  /* ---------- Lens switch ---------- */
+  .lens { display:flex; align-items:center; gap:8px; margin-left:auto; }
+  .lens .lbl { color:var(--muted); font-size:.78rem; text-transform:uppercase; letter-spacing:.12em; }
+  .seg { display:flex; background:var(--panel); border:1px solid var(--line); border-radius:999px; padding:3px; }
+  .seg button {
+    min-height:44px; min-width:44px; padding:8px 16px; border:0; cursor:pointer;
+    background:transparent; color:var(--text-2); border-radius:999px;
+    font:inherit; font-size:.9rem; font-weight:600;
+  }
+  .seg button[aria-pressed="true"] { background:var(--teal); color:var(--teal-deep); }
+
+  /* ---------- The sweep rail (main gesture) ---------- */
+  .rail-sec { margin-top:18px; background:linear-gradient(180deg,var(--panel),#191614);
+    border:1px solid var(--line); border-radius:var(--radius); padding:14px 16px 16px; }
+  .rail-top { display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; }
+  .rail-title { font-family:var(--serif); font-size:1.12rem; }
+  .asof { font-family:var(--mono); font-size:1.05rem; color:var(--text);
+    background:var(--void); border:1px solid var(--line-strong); border-radius:8px; padding:6px 12px; }
+  .asof b { color:var(--teal); }
+  .presets { display:flex; flex-wrap:wrap; gap:8px; margin-left:auto; }
+  .chip {
+    min-height:44px; padding:9px 14px; border-radius:999px; cursor:pointer;
+    background:var(--raised); color:var(--text-2); border:1px solid var(--line);
+    font:inherit; font-size:.86rem;
+  }
+  .chip:hover { color:var(--text); border-color:var(--line-strong); }
+
+  .sweep { margin-top:12px; }
+  input[type="range"].hand {
+    -webkit-appearance:none; appearance:none; width:100%; height:44px; margin:0;
+    background:transparent; cursor:ew-resize; display:block;
+  }
+  input[type="range"].hand::-webkit-slider-runnable-track {
+    height:10px; border-radius:6px; border:1px solid var(--line-strong);
+    background:linear-gradient(90deg,#241f1c,#2f2925 60%,#3a3129);
+  }
+  input[type="range"].hand::-moz-range-track {
+    height:10px; border-radius:6px; border:1px solid var(--line-strong);
+    background:linear-gradient(90deg,#241f1c,#2f2925 60%,#3a3129);
+  }
+  input[type="range"].hand::-webkit-slider-thumb {
+    -webkit-appearance:none; appearance:none; width:26px; height:38px; margin-top:-15px;
+    border-radius:8px; background:var(--teal); border:2px solid #0a2424;
+    box-shadow:0 0 0 3px rgba(114,177,177,.28); cursor:ew-resize;
+  }
+  input[type="range"].hand::-moz-range-thumb {
+    width:22px; height:34px; border-radius:8px; background:var(--teal);
+    border:2px solid #0a2424; box-shadow:0 0 0 3px rgba(114,177,177,.28); cursor:ew-resize;
+  }
+  .rail-scale { display:flex; justify-content:space-between; font-family:var(--mono);
+    font-size:.74rem; color:var(--muted); margin-top:2px; }
+  .gesture-hint { color:var(--muted); font-size:.84rem; margin-top:8px; }
+  kbd { font-family:var(--mono); background:var(--void); border:1px solid var(--line-strong);
+    border-bottom-width:2px; border-radius:5px; padding:1px 6px; font-size:.78rem; color:var(--text-2); }
+
+  /* ---------- The read (instrument readout) ---------- */
+  .read { margin-top:14px; border:1px solid var(--line); border-radius:var(--radius);
+    background:linear-gradient(180deg,rgba(114,177,177,.06),rgba(114,177,177,.015)); padding:14px 16px; }
+  .read-head { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+  .read h2 { font-size:1.05rem; }
+  .read .asof-mini { color:var(--muted); font-size:.82rem; font-family:var(--mono); }
+  .read-line { margin-top:6px; font-size:1.04rem; color:var(--text); }
+  .read-line .num { font-family:var(--mono); color:var(--teal); font-weight:700; }
+  .counts { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+  .count { border:1px solid var(--line); border-radius:999px; padding:5px 12px; font-size:.84rem;
+    color:var(--text-2); background:var(--void); }
+  .count b { color:var(--text); font-family:var(--mono); }
+
+  /* ---------- Strip chart / field ---------- */
+  .field-sec { margin-top:16px; }
+  .field-head { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; }
+  .field-head h2 { font-size:1.15rem; }
+  .legend { display:flex; flex-wrap:wrap; gap:6px 14px; margin-top:10px; font-size:.82rem; color:var(--text-2); }
+  .legend span { display:inline-flex; align-items:center; gap:7px; }
+  .glyph { width:15px; height:15px; border-radius:50%; flex:0 0 auto; display:inline-block; }
+  .g-fresh { background:var(--teal); border:1px solid var(--teal); }
+  .g-stale { background:transparent; border:2px dashed var(--amber); }
+  .g-unknown { background:transparent; border:2px solid var(--muted); }
+  .g-unheard { background:transparent; border:2px dotted #6a655f; }
+
+  .chart { position:relative; margin-top:14px; background:var(--void);
+    border:1px solid var(--line); border-radius:var(--radius); padding:8px 8px 8px 8px; }
+  .nowline { position:absolute; top:6px; bottom:26px; width:2px; background:var(--teal);
+    box-shadow:0 0 12px rgba(114,177,177,.5); pointer-events:none; z-index:3; }
+  .nowline::after { content:"as of"; position:absolute; top:-2px; left:6px; font-family:var(--mono);
+    font-size:.62rem; letter-spacing:.14em; color:var(--teal); }
+  .lane {
+    position:relative; display:block; width:100%; text-align:left; cursor:pointer;
+    background:transparent; border:0; border-bottom:1px dashed rgba(236,231,223,.07);
+    color:var(--text); font:inherit; padding:12px 10px 12px 10px; min-height:64px; border-radius:8px;
+  }
+  .lane:last-of-type { border-bottom:0; }
+  .lane:hover { background:rgba(236,231,223,.035); }
+  .lane-top { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+  .lane-name { font-weight:600; font-size:.98rem; }
+  .lane-status { font-family:var(--mono); font-size:.74rem; letter-spacing:.06em; text-transform:uppercase;
+    padding:3px 9px; border-radius:999px; border:1px solid var(--line-strong); color:var(--text-2); background:var(--void); }
+  .lane-status[data-s="stale"] { color:#f0cf9c; border-color:#6b5a33; }
+  .lane-status[data-s="unknown"] { color:#cfcac4; border-style:dashed; }
+  .lane-status[data-s="attention"] { color:#f2b8a8; border-color:#6e4238; }
+  .lane-status[data-s="unheard"] { color:#8c877f; border-style:dotted; }
+  .lane-sub { display:block; color:var(--muted); font-size:.83rem; margin-top:3px; }
+  .track { display:block; position:relative; height:18px; margin-top:9px; border-radius:4px;
+    background:repeating-linear-gradient(90deg,rgba(236,231,223,.05),rgba(236,231,223,.05) 1px,transparent 1px,transparent 20px); }
+  .marker { position:absolute; top:50%; transform:translate(-50%,-50%); display:flex; align-items:center; gap:6px; }
+  .marker .m-time { font-family:var(--mono); font-size:.7rem; color:var(--text-2); white-space:nowrap;
+    background:var(--canvas); padding:1px 5px; border-radius:4px; border:1px solid var(--line); }
+  .marker .m-dot { width:13px; height:13px; border-radius:50%; }
+  .marker[data-s="fresh"] .m-dot { background:var(--teal); box-shadow:0 0 8px rgba(114,177,177,.6); }
+  .marker[data-s="stale"] .m-dot { background:transparent; border:2px dashed var(--amber); }
+  .marker[data-s="unknown"] .m-dot { background:transparent; border:2px solid var(--muted); }
+  .marker[data-s="unheard"] { opacity:.5; }
+  .marker[data-s="unheard"] .m-dot { background:transparent; border:2px dotted #6a655f; }
+  .lane[data-nosignal="1"] .track {
+    background:repeating-linear-gradient(45deg,rgba(152,145,138,.10),rgba(152,145,138,.10) 6px,transparent 6px,transparent 12px);
+  }
+  .nosignal-note { position:absolute; inset:0; display:flex; align-items:center; padding-left:8px;
+    font-family:var(--mono); font-size:.72rem; color:var(--muted); letter-spacing:.05em; }
+  .open-cue { color:var(--teal); font-size:.78rem; margin-top:4px; display:inline-block; }
+
+  /* ---------- Two-column lower area ---------- */
+  .cols { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); gap:16px; margin-top:16px; }
+  @media (max-width:860px){ .cols { grid-template-columns:1fr; } }
+
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:15px 16px; }
+  .panel h2 { font-size:1.08rem; }
+  .panel .soft { color:var(--muted); font-size:.85rem; margin-top:4px; }
+
+  /* ledger */
+  ol.ledger { list-style:none; margin:12px 0 0; padding:0; display:flex; flex-direction:column; gap:9px; }
+  .fact { border:1px solid var(--line); border-radius:var(--radius-sm); background:var(--void); padding:11px 12px; }
+  .fact-top { display:flex; align-items:baseline; gap:9px; flex-wrap:wrap; }
+  .fact-name { font-weight:600; }
+  .fact-sum { color:var(--text-2); font-size:.88rem; margin-top:3px; }
+  .fact-meta { display:flex; flex-wrap:wrap; gap:6px 10px; margin-top:8px; font-size:.78rem; color:var(--muted); }
+  .fact-meta code { font-family:var(--mono); color:var(--text-2); }
+  .may { display:flex; flex-wrap:wrap; gap:6px; margin-top:9px; }
+  .badge { font-size:.72rem; padding:3px 9px; border-radius:999px; border:1px solid var(--line-strong); }
+  .badge.agent { color:var(--text-2); background:rgba(114,177,177,.10); }
+  .badge.human { color:#f0d9a8; background:rgba(212,160,87,.12); border-color:#6b5a33; }
+  .fact-actions { margin-top:10px; display:flex; flex-wrap:wrap; gap:8px; }
+  .btn { min-height:44px; padding:10px 15px; border-radius:10px; cursor:pointer; font:inherit;
+    font-size:.88rem; font-weight:600; background:var(--teal); color:var(--teal-deep); border:1px solid var(--teal); }
+  .btn.ghost { background:transparent; color:var(--text); border-color:var(--line-strong); }
+  .btn.warm { background:var(--amber); color:#2a1d06; border-color:var(--amber); }
+  .btn[disabled]{ opacity:.6; cursor:not-allowed; }
+
+  /* shared facts / agent lens */
+  .shared-note { margin-top:10px; font-size:.9rem; color:var(--text-2); }
+  .shared-note b { color:var(--text); }
+  .perm-grid { margin-top:12px; display:flex; flex-direction:column; gap:8px; }
+  .perm-row { border:1px solid var(--line); border-radius:var(--radius-sm); padding:10px 12px; background:var(--void); }
+  .perm-row .svc { font-weight:600; font-size:.9rem; }
+  .perm-cols { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:7px; }
+  @media (max-width:520px){ .perm-cols { grid-template-columns:1fr; } }
+  .perm-cols ul { margin:4px 0 0; padding-left:16px; font-size:.82rem; color:var(--text-2); }
+  .perm-cols .h { font-size:.7rem; text-transform:uppercase; letter-spacing:.12em; }
+  .perm-cols .h.agent { color:var(--teal); }
+  .perm-cols .h.human { color:var(--amber); }
+  .private-tag { font-size:.72rem; color:#f0d9a8; border:1px dashed #6b5a33; border-radius:999px; padding:2px 9px; }
+
+  /* ---------- Embedded app window ---------- */
+  .embed-sec { margin-top:16px; }
+  .embed { border:1px solid var(--line-strong); border-radius:var(--radius); overflow:hidden; background:var(--elevated); }
+  .embed-chrome { display:flex; align-items:center; gap:10px; padding:10px 13px; background:var(--raised); border-bottom:1px solid var(--line); }
+  .embed-lights { display:flex; gap:6px; }
+  .embed-lights i { width:10px; height:10px; border-radius:50%; background:#4a423c; display:block; }
+  .embed-title { font-weight:600; font-size:.92rem; }
+  .embed-sim { font-family:var(--mono); font-size:.68rem; letter-spacing:.1em; color:#f0d9a8;
+    border:1px dashed #6b5a33; border-radius:999px; padding:3px 9px; }
+  .embed-body { padding:15px 16px; }
+  .lights-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; margin-top:8px; }
+  @media (max-width:420px){ .lights-grid { grid-template-columns:1fr; } }
+  .light { display:flex; align-items:center; justify-content:space-between; gap:10px;
+    border:1px solid var(--line); border-radius:10px; background:var(--void); padding:8px 10px; min-height:48px; }
+  .light .nm { font-size:.9rem; }
+  .switch { min-width:64px; min-height:44px; border-radius:999px; border:1px solid var(--line-strong);
+    background:var(--raised); color:var(--text-2); font:inherit; font-size:.78rem; font-weight:700; cursor:pointer; }
+  .switch[aria-pressed="true"] { background:var(--amber); color:#2a1d06; border-color:var(--amber); }
+  .embed-foot { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:13px;
+    padding-top:12px; border-top:1px solid var(--line); }
+  .embed-foot .scene { font-size:.85rem; color:var(--text-2); }
+  .fallback-card { border:1px dashed var(--line-strong); border-radius:var(--radius-sm); padding:14px; background:var(--void); }
+  .fallback-card h3 { font-size:1rem; }
+  .fallback-card p { color:var(--text-2); font-size:.88rem; margin-top:6px; }
+
+  /* ---------- Sheet (non-modal detail / decision) ---------- */
+  .sheet {
+    position:fixed; z-index:40; right:16px; top:16px; bottom:16px; width:min(430px,94vw);
+    background:var(--elevated); border:1px solid var(--line-strong); border-radius:var(--radius);
+    box-shadow:0 24px 60px rgba(0,0,0,.5); display:flex; flex-direction:column;
+  }
+  @media (max-width:560px){
+    /* stays under half the viewport, so it is legitimately non-modal */
+    .sheet { right:0; left:0; top:auto; bottom:0; width:auto; max-height:46vh; border-radius:16px 16px 0 0; }
+  }
+  .sheet-head { display:flex; align-items:flex-start; gap:12px; padding:15px 16px 10px; }
+  .sheet-head h2 { font-size:1.12rem; }
+  .sheet-x { margin-left:auto; min-width:44px; min-height:44px; border-radius:10px; border:1px solid var(--line-strong);
+    background:var(--raised); color:var(--text); font-size:1.1rem; cursor:pointer; }
+  .sheet-body { padding:0 16px 18px; overflow:auto; }
+  .kv { display:grid; grid-template-columns:auto 1fr; gap:6px 12px; margin-top:8px; font-size:.88rem; }
+  .kv dt { color:var(--muted); }
+  .kv dd { margin:0; color:var(--text-2); }
+  .kv dd code { font-family:var(--mono); color:var(--text); }
+  .decision { margin-top:14px; display:flex; flex-direction:column; gap:9px; }
+  .decision label { display:flex; gap:11px; align-items:flex-start; border:1px solid var(--line);
+    border-radius:var(--radius-sm); padding:11px 12px; background:var(--void); cursor:pointer; min-height:44px; }
+  .decision input { margin-top:4px; width:20px; height:20px; accent-color:var(--teal); }
+  .decision .d-t { font-weight:600; font-size:.92rem; }
+  .decision .d-s { color:var(--muted); font-size:.82rem; margin-top:2px; }
+  .disclosure { margin-top:12px; font-size:.82rem; color:var(--muted); }
+  .outcome { margin-top:12px; border-left:3px solid var(--teal); background:rgba(114,177,177,.07);
+    padding:10px 12px; border-radius:0 8px 8px 0; font-size:.9rem; }
+
+  /* ---------- footer + live region ---------- */
+  footer.foot { margin:26px 0 40px; color:var(--muted); font-size:.82rem; }
+  footer.foot b { color:var(--text-2); }
+  .sr { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden;
+    clip:rect(0 0 0 0); white-space:nowrap; border:0; }
+  [hidden]{ display:none !important; }
+
+  /* Motion is opt-in and light; reduced-motion gets none of it. */
+  @media (prefers-reduced-motion: no-preference) {
+    .marker .m-dot { transition:background .25s ease, border-color .25s ease, box-shadow .25s ease; }
+    .nowline { transition:left .08s linear; }
+    .lane { transition:background .15s ease; }
+    .sheet { animation:rise .18s ease-out; }
+    .count b { transition:color .2s ease; }
+  }
+  @keyframes rise { from { transform:translateY(8px); opacity:0; } to { transform:none; opacity:1; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the reading</a>
+
+<header class="mast">
+  <div class="wrap">
+    <h1 class="sr">Nowline — a Worlds concept prototype (mockup)</h1>
+    <div class="mast-row">
+      <p class="brand">Now<span class="dot">·</span>line</p>
+      <span class="mockup" role="note">MOCKUP · CONCEPT · NOT BUILT</span>
+      <div class="lens" role="group" aria-label="Whose lens">
+        <span class="lbl">Lens</span>
+        <div class="seg">
+          <button type="button" id="lens-you" aria-pressed="true">You</button>
+          <button type="button" id="lens-agent" aria-pressed="false">Agent</button>
+        </div>
+      </div>
+    </div>
+    <p class="kicker">Worlds — one instrument, swept across the morning</p>
+    <p class="tagline">Worlds doesn't hand you a page of tiles. It hands you a <em>strip chart of when it last heard from each service</em>, and one hand you sweep across the morning. Everything left of the hand is what Worlds knew <em>as of that moment</em>; everything right of it simply hadn't arrived yet. Nothing is invented to look fuller.</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- MAIN GESTURE: sweep the as-of hand -->
+  <section class="rail-sec" aria-labelledby="rail-h">
+    <div class="rail-top">
+      <h2 id="rail-h" class="rail-title">The sweep</h2>
+      <span class="asof" aria-hidden="true">reading as of <b id="asof-clock">08:14</b></span>
+      <div class="presets" role="group" aria-label="Jump the reading">
+        <button type="button" class="chip" data-jump="194">Now · 08:14</button>
+        <button type="button" class="chip" data-jump="160">The backup failure · 07:40</button>
+        <button type="button" class="chip" data-jump="60">This morning · 06:00</button>
+        <button type="button" class="chip" data-jump="0">First light · 05:00</button>
+      </div>
+    </div>
+    <div class="sweep">
+      <label class="sr" for="hand">Reading as of (sweep across the morning)</label>
+      <input class="hand" id="hand" type="range" min="0" max="194" step="1" value="194"
+             aria-describedby="gesture-hint" />
+      <div class="rail-scale" aria-hidden="true"><span>05:00</span><span>06:00</span><span>07:00</span><span>08:14</span></div>
+      <p class="gesture-hint" id="gesture-hint">Drag the hand, or use <kbd>←</kbd><kbd>→</kbd> <kbd>Home</kbd> <kbd>End</kbd> while it has focus. Sweeping back re-reads the whole morning: facts that hadn't arrived yet go hollow, and a fact that is stale now can be fresh then. Drag <em>forward</em> past now and nothing new appears — Worlds won't invent a reading.</p>
+    </div>
+  </section>
+
+  <!-- THE READ: updates live with the sweep -->
+  <section class="read" aria-labelledby="read-h">
+    <div class="read-head">
+      <h2 id="read-h">The read</h2>
+      <span class="asof-mini">as of <span id="read-clock">08:14</span> · Tuesday 13 October</span>
+    </div>
+    <p class="read-line" id="read-line"></p>
+    <div class="counts" id="counts" aria-hidden="false"></div>
+  </section>
+
+  <main id="main" class="field-sec">
+    <div class="field-head">
+      <h2 id="field-h">Six services, as Worlds last heard them</h2>
+      <span class="soft" style="color:var(--muted);font-size:.85rem">one lane each — select a lane for its source, freshness and who may act</span>
+    </div>
+
+    <div class="legend" aria-label="Status key">
+      <span><i class="glyph g-fresh" aria-hidden="true"></i> fresh — heard recently</span>
+      <span><i class="glyph g-stale" aria-hidden="true"></i> stale — we haven't heard in a while</span>
+      <span><i class="glyph g-unknown" aria-hidden="true"></i> unknown — never answered</span>
+      <span><i class="glyph g-unheard" aria-hidden="true"></i> not yet heard at this reading</span>
+    </div>
+
+    <div class="chart" id="chart" role="group" aria-labelledby="field-h">
+      <span class="nowline" id="nowline" aria-hidden="true"></span>
+      <!-- lanes are rendered by script -->
+    </div>
+  </main>
+
+  <div class="cols">
+    <!-- FACT LEDGER -->
+    <section class="panel" aria-labelledby="ledger-h">
+      <h2 id="ledger-h">The ledger</h2>
+      <p class="soft">The same facts, as a list. Freshness and source are stated on every row — never implied by colour.</p>
+      <ol class="ledger" id="ledger"></ol>
+    </section>
+
+    <!-- SHARED FACTS / AGENT LENS -->
+    <aside class="panel" aria-labelledby="shared-h" aria-live="off">
+      <h2 id="shared-h">The shared surface</h2>
+      <p class="soft">What an agent sees is what you see here: the same facts, the same source, the same freshness.</p>
+      <p class="shared-note" id="shared-note"></p>
+      <div class="perm-grid" id="perm-grid"></div>
+    </aside>
+  </div>
+
+  <!-- EMBEDDED APP -->
+  <section class="embed-sec panel" aria-labelledby="embed-h" style="margin-top:16px">
+    <h2 id="embed-h">An app, open inside Worlds</h2>
+    <p class="soft">Home lights runs as an embedded panel here, under Worlds' own accessibility floor. The owning app stays one link away.</p>
+    <div class="embed" id="embed" style="margin-top:12px"></div>
+  </section>
+
+  <footer class="foot">
+    <p><b>MOCKUP.</b> This is a concept prototype, not an approved or built feature. All six services are fixed sample data for comparison (Tuesday 13 October, 08:14). Nothing on this page is a real reading and nothing here is dispatched anywhere.</p>
+  </footer>
+</div>
+
+<!-- Non-modal sheet: fact detail / backup decision.
+     No scrim and no focus trap on purpose: the accessibility contract asks
+     provenance drawers to keep the background readable and interactive. -->
+<section class="sheet" id="sheet" role="dialog" aria-modal="false" aria-labelledby="sheet-h" hidden>
+  <div class="sheet-head">
+    <div>
+      <p class="kicker" id="sheet-kind" style="margin:0 0 4px">Fact</p>
+      <h2 id="sheet-h" tabindex="-1">Fact</h2>
+    </div>
+    <button type="button" class="sheet-x" id="sheet-close" aria-label="Close panel">✕</button>
+  </div>
+  <div class="sheet-body" id="sheet-body"></div>
+</section>
+
+<p class="sr" role="status" aria-live="polite" id="live"></p>
+
+<script>
+"use strict";
+/* =====================================================================
+   NOWLINE — one page, no dependencies.
+   State is tiny: an as-of minute, a lens, a couple of recorded decisions.
+   Every render recomputes derived facts from scratch, so the strip chart,
+   the read, the ledger and the shared surface can never disagree.
+   ===================================================================== */
+
+var DAY_START = 5 * 60;      // 05:00 -> minute 0
+var NOW_MIN   = 8 * 60 + 14; // 08:14 -> minute 194
+var FRESH_FOR = 60;          // a fact is "stale" once it is over an hour old at the as-of moment
+
+function fmt(min) {           // absolute minutes-since-midnight -> "HH:MM"
+  var h = Math.floor(min / 60), m = min % 60;
+  return (h < 10 ? "0" : "") + h + ":" + (m < 10 ? "0" : "") + m;
+}
+function fmtAsof(rel) { return fmt(DAY_START + rel); }  // relative minute -> clock
+
+/* ---- the fixed sample data (identical across every concept) ---- */
+var FACTS = [
+  {
+    id: "media", name: "Media library", heard: 182,             // 08:02
+    condition: "fine", summary: "2 new episodes waiting",
+    source: "Media library · room/0 service", freshnessNote: "heard 12 min ago",
+    detail: "Two unwatched episodes of a series you follow arrived overnight. Nothing here needs you.",
+    privateNote: null,
+    agentMay: ["read the new-episode count", "queue an episode to watch later"],
+    humanMay: ["play an episode", "mark it watched", "hide the series"]
+  },
+  {
+    id: "backups", name: "Backups", heard: 160,                 // 07:40
+    condition: "needs_attention", summary: "3 files could not be copied — this needs your decision",
+    source: "Backups · room/0 service", freshnessNote: "heard 34 min ago",
+    detail: "The nightly copy finished but three files were refused. The failure list is available; the fix is a consequential provider action.",
+    privateNote: "these are the files I pulled off the old external drive",
+    agentMay: ["read the list of 3 uncopied files", "prepare a retry request (proposal only)", "explain the likely cause"],
+    humanMay: ["authorise a retry", "keep it flagged for later", "mark it handled", "export the failure list"]
+  },
+  {
+    id: "lights", name: "Home lights", heard: 193,              // 08:13
+    condition: "fine", summary: "7 of 7 reachable",
+    source: "Home lights · room/0 service", freshnessNote: "heard 1 min ago",
+    detail: "Every lamp is answering. The panel below is an embedded demo so you can act without leaving Worlds.",
+    privateNote: null,
+    agentMay: ["read reachable count and lamp states", "propose a scene (proposal only)"],
+    humanMay: ["switch a lamp", "run a scene", "open the owning app"]
+  },
+  {
+    id: "files", name: "Files", heard: 14,                      // 05:14
+    condition: "fine", summary: "index last rebuilt cleanly",
+    source: "Files · room/0 service", freshnessNote: "stale since 05:14",
+    detail: "Files itself is fine, but Worlds has not heard from it in 3 hours. Freshness is a property of the reading, not of the service.",
+    privateNote: null,
+    agentMay: ["read the last index summary", "ask for a fresh check (proposal only)"],
+    humanMay: ["ask for a fresh check", "open the owning app"]
+  },
+  {
+    id: "board", name: "Project board", heard: 180,             // 08:00
+    condition: "fine", summary: "3 cards due this week",
+    source: "Project board · room/0 service", freshnessNote: "heard 14 min ago",
+    detail: "Three cards come due before Sunday. None is overdue yet.",
+    privateNote: null,
+    agentMay: ["read due cards", "draft a note on a card (proposal only)"],
+    humanMay: ["reorder cards", "mark a card done", "open the owning app"]
+  },
+  {
+    id: "weather", name: "Weather", heard: null,               // never answered
+    condition: "unknown", summary: "never answered — nothing is known",
+    source: "Weather · room/0 service (configured)", freshnessNote: "no contact since it was added",
+    detail: "Weather has never replied. Worlds does not guess a forecast; the honest state is unknown.",
+    privateNote: null,
+    agentMay: ["read that the service is unknown", "propose a reachability check"],
+    humanMay: ["try to reach it", "check its configuration", "open the owning app"]
+  }
+];
+
+var LAMP_NAMES = ["Kitchen","Hall","Study","Bedroom","Porch","Workshop","Bath"];
+
+var state = {
+  asof: NOW_MIN,            // absolute minute
+  lens: "you",              // "you" | "agent"
+  lamps: [true,true,false,true,false,true,true],
+  embedUnavailable: false,
+  decisions: {},            // id -> { text }
+  embedTouched: false
+};
+
+/* ---- derived reading for one fact at the current as-of moment ---- */
+function readFact(f, asof) {
+  if (f.heard === null) {
+    return { state:"unknown", heardLabel:"—", line:"unknown — never answered", why:"no contact has ever been made" };
+  }
+  var heardAbs = DAY_START + f.heard;
+  if (heardAbs > asof) {
+    return { state:"unheard", heardLabel:"—", line:"not yet heard at this reading", why:"last heard "+fmt(heardAbs) };
+  }
+  var age = asof - heardAbs;
+  var fresh = age <= FRESH_FOR;
+  // Status and freshness are two different axes: a pending decision keeps its
+  // "needs your decision" word even if the reading has grown old around it.
+  var st = (f.condition === "needs_attention") ? "needs_attention" : (fresh ? f.condition : "stale");
+  var ageTxt = age < 60 ? (age + " min ago") : (Math.round(age / 60 * 10) / 10 + " h ago");
+  return { state: st, heardLabel: fmt(heardAbs), line: (fresh ? "fresh — heard " + ageTxt : "stale — last heard " + ageTxt),
+           why: "last heard " + fmt(heardAbs) };
+}
+
+function statusWord(s) {
+  return { fine:"fine", stale:"stale", unknown:"unknown", attention:"needs your decision", unheard:"not yet heard" }[s];
+}
+
+/* ============================ RENDER ============================ */
+function render() {
+  renderSweep();
+  renderRead();
+  renderChart();
+  renderLedger();
+  renderShared();
+}
+
+function renderSweep() {
+  var hand = document.getElementById("hand");
+  hand.value = String(state.asof - DAY_START);
+  hand.setAttribute("aria-valuetext", fmtAsof(state.asof - DAY_START) + ", Tuesday 13 October");
+  document.getElementById("asof-clock").textContent = fmtAsof(state.asof - DAY_START);
+  document.getElementById("read-clock").textContent = fmtAsof(state.asof - DAY_START);
+  var frac = (state.asof - DAY_START) / (NOW_MIN - DAY_START);
+  var nl = document.getElementById("nowline");
+  // Align the hand with the tracks: 8px chart padding + 10px lane padding,
+  // then the same 0..1 fraction across the remaining track width.
+  nl.style.left = "calc(18px + (100% - 36px) * " + frac + ")";
+}
+
+function renderRead() {
+  var known = 0, stale = 0, unknown = 0, attention = 0, unheard = 0, oldest = null;
+  FACTS.forEach(function(f){
+    var r = readFact(f, state.asof);
+    if (r.state === "unknown") unknown++;
+    else if (r.state === "unheard") unheard++;
+    else { known++; if (oldest === null || f.heard < oldest.heard) oldest = f; }
+    if (r.state === "stale") stale++;
+    if (f.condition === "needs_attention" && (r.state === "needs_attention")) attention++;
+  });
+  var line = document.getElementById("read-line");
+  var asofTxt = fmtAsof(state.asof - DAY_START);
+  line.innerHTML =
+    "As of <span class='num'>" + asofTxt + "</span>, Worlds has heard from " +
+    "<span class='num'>" + known + "</span> of <span class='num'>6</span> services. " +
+    (stale ? "<span class='num'>" + stale + "</span> " + (stale === 1 ? "is" : "are") + " stale. " : "") +
+    (unheard ? "<span class='num'>" + unheard + "</span> hadn't been heard yet. " : "") +
+    (unknown ? "<span class='num'>" + unknown + "</span> has never answered. " : "") +
+    (attention ? "<span class='num'>" + attention + "</span> still needs your decision. " : "") +
+    (oldest ? "The oldest thing you had heard was " + oldest.name + ", at <span class='num'>" + fmt(DAY_START + oldest.heard) + "</span>." :
+              "Nothing at all had been heard yet.");
+
+  var c = document.getElementById("counts");
+  c.innerHTML = "";
+  [["heard from", known],["stale", stale],["unknown", unknown],["not yet heard", unheard],["needs you", attention]]
+    .forEach(function(pair){
+      var span = document.createElement("span");
+      span.className = "count";
+      span.innerHTML = pair[0] + " <b>" + pair[1] + "</b>";
+      c.appendChild(span);
+    });
+}
+
+function renderChart() {
+  var chart = document.getElementById("chart");
+  while (chart.children.length > 1) chart.removeChild(chart.lastChild);
+  FACTS.forEach(function(f){
+    var r = readFact(f, state.asof);
+    var lane = document.createElement("button");
+    lane.type = "button";
+    lane.className = "lane";
+    lane.setAttribute("data-nosignal", f.heard === null ? "1" : "0");
+    var decided = state.decisions[f.id];
+    var sub = f.summary + (decided ? " · you recorded: " + decided.text : "");
+    var pct = f.heard === null ? 0 : (f.heard / (NOW_MIN - DAY_START)) * 100;
+    var markerHtml = f.heard === null
+      ? '<span class="nosignal-note">' + "no signal has ever crossed this lane — unknown" + '</span>'
+      : '<span class="marker" data-s="' + r.state + '" style="left:' + pct + '%">' +
+          '<span class="m-dot" aria-hidden="true"></span>' +
+          '<span class="m-time">' + r.heardLabel + '</span>' +
+        '</span>';
+    lane.innerHTML =
+      '<span class="lane-top">' +
+        '<span class="lane-name">' + f.name + '</span>' +
+        '<span class="lane-status" data-s="' + r.state + '">' + statusWord(r.state) + '</span>' +
+      '</span>' +
+      '<span class="lane-sub">' + sub + '</span>' +
+      '<span class="track">' + markerHtml + '</span>' +
+      '<span class="open-cue">' + (f.id === "backups" && !decided ? "Review the decision →" : "Source, freshness and who may act →") + '</span>';
+    lane.setAttribute("aria-label", f.name + ". " + statusWord(r.state) + ". " + f.summary + ". " + r.line + ". Open details.");
+    if (decided) lane.setAttribute("aria-label", lane.getAttribute("aria-label") + " You recorded: " + decided.text);
+    lane.addEventListener("click", function(){ openFact(f.id); });
+    chart.appendChild(lane);
+  });
+}
+
+function renderLedger() {
+  var ol = document.getElementById("ledger");
+  ol.innerHTML = "";
+  // attention first, then stale, then unknown, then the rest — so the list
+  // recomposes with the sweep just as the chart does.
+  var order = { attention:0, stale:1, unknown:2, unheard:3, fine:4 };
+  var rows = FACTS.map(function(f){ return { f:f, r:readFact(f, state.asof) }; })
+    .sort(function(a,b){ return (order[a.r.state]-order[b.r.state]) || (b.f.heard||-1)-(a.f.heard||-1); });
+  rows.forEach(function(item){
+    var f = item.f, r = item.r;
+    var li = document.createElement("li");
+    li.className = "fact";
+    var decided = state.decisions[f.id];
+    var mayHuman = state.lens === "you"
+      ? '<div class="may">' + f.humanMay.map(function(x){ return '<span class="badge human">you may · ' + x + '</span>'; }).join("") + '</div>'
+      : '<div class="may"><span class="badge human">human only · ' + f.humanMay.length + ' actions, not available to the agent</span></div>';
+    var priv = (state.lens === "you" && f.privateNote)
+      ? '<p class="fact-sum" style="margin-top:7px"><span class="private-tag">private to you</span> ' + f.privateNote + '</p>' : '';
+    li.innerHTML =
+      '<div class="fact-top"><span class="fact-name">' + f.name + '</span>' +
+        '<span class="lane-status" data-s="' + r.state + '">' + statusWord(r.state) + '</span></div>' +
+      '<p class="fact-sum">' + f.summary + (decided ? " — you recorded: " + decided.text : "") + '</p>' + priv +
+      '<div class="fact-meta"><span>source <code>' + f.source + '</code></span>' +
+        '<span>freshness <code>' + r.line + '</code></span></div>' +
+      '<div class="may">' + f.agentMay.map(function(x){ return '<span class="badge agent">agent may · ' + x + '</span>'; }).join("") + '</div>' +
+      mayHuman +
+      '<div class="fact-actions">' +
+        '<button type="button" class="btn ghost" data-open="' + f.id + '">Open fact</button>' +
+        (f.id === "backups" && !decided ? '<button type="button" class="btn warm" data-open="backups">Decide…</button>' : "") +
+        (f.id === "files" ? '<button type="button" class="btn ghost" data-recheck="files">Ask for a fresh check</button>' : "") +
+        (f.id === "weather" ? '<button type="button" class="btn ghost" data-recheck="weather">Try to reach it</button>' : "") +
+      '</div>';
+    ol.appendChild(li);
+  });
+  ol.querySelectorAll("[data-open]").forEach(function(b){
+    b.addEventListener("click", function(){ openFact(b.getAttribute("data-open")); });
+  });
+  ol.querySelectorAll("[data-recheck]").forEach(function(b){
+    b.addEventListener("click", function(){ recheck(b.getAttribute("data-recheck"), b); });
+  });
+}
+
+function renderShared() {
+  var note = document.getElementById("shared-note");
+  var grid = document.getElementById("perm-grid");
+  if (state.lens === "you") {
+    note.innerHTML = "Every fact below reaches the agent with the <b>same numbers, the same source, and the same freshness</b> as it reaches you. The agent does not get a private view — and it cannot see the note you keep to yourself, or which moment you happen to be reading.";
+  } else {
+    note.innerHTML = "This is the agent's view, unchanged: <b>six facts, six sources, six freshness values</b>. Nothing is redacted from you by switching here — you are seeing exactly the agent's surface.";
+  }
+  grid.innerHTML = "";
+  FACTS.forEach(function(f){
+    var r = readFact(f, state.asof);
+    var row = document.createElement("div");
+    row.className = "perm-row";
+    row.innerHTML =
+      '<div class="svc">' + f.name + ' <span class="lane-status" data-s="' + r.state + '" style="margin-left:6px">' + statusWord(r.state) + '</span></div>' +
+      '<div class="perm-cols">' +
+        '<div><span class="h agent">Agent may</span><ul>' + f.agentMay.map(function(x){ return "<li>" + x + "</li>"; }).join("") + '</ul></div>' +
+        '<div><span class="h human">You may</span><ul>' + f.humanMay.map(function(x){ return "<li>" + x + "</li>"; }).join("") + '</ul></div>' +
+      '</div>';
+    grid.appendChild(row);
+  });
+}
+
+/* ============================ EMBEDDED APP ============================ */
+function renderEmbed() {
+  var box = document.getElementById("embed");
+  if (state.embedUnavailable) {
+    box.innerHTML =
+      '<div class="embed-chrome"><span class="embed-lights" aria-hidden="true"><i></i><i></i><i></i></span>' +
+      '<span class="embed-title">Home lights</span>' +
+      '<span class="embed-sim">NOT EMBEDDED</span></div>' +
+      '<div class="embed-body"><div class="fallback-card">' +
+        '<h3>Home lights can\'t open inside Worlds right now</h3>' +
+        '<p>Some services don\'t allow embedding. When that happens Worlds doesn\'t pretend — it shows the honest reason and a way through.</p>' +
+        '<p style="margin-top:10px"><a href="https://example.invalid/home-lights" rel="noopener">Open Home lights in the owning app ↗</a></p>' +
+        '<div class="fact-actions" style="margin-top:10px"><button type="button" class="btn ghost" id="embed-again">Try embedding again</button></div>' +
+      '</div></div>';
+    document.getElementById("embed-again").addEventListener("click", function(){
+      state.embedUnavailable = false; renderEmbed();
+      document.getElementById("embed-h").focus();
+    });
+    return;
+  }
+  var on = state.lamps.filter(Boolean).length;
+  var lights = LAMP_NAMES.map(function(nm, i){
+    return '<div class="light"><span class="nm">' + nm + '</span>' +
+      '<button type="button" class="switch" data-lamp="' + i + '" aria-pressed="' + (state.lamps[i] ? "true":"false") + '" ' +
+      'aria-label="' + nm + ' light, ' + (state.lamps[i] ? "on" : "off") + '">' + (state.lamps[i] ? "ON" : "OFF") + '</button></div>';
+  }).join("");
+  box.innerHTML =
+    '<div class="embed-chrome"><span class="embed-lights" aria-hidden="true"><i></i><i></i><i></i></span>' +
+      '<span class="embed-title">Home lights — embedded in Worlds</span>' +
+      '<span class="embed-sim">EMBEDDED DEMO · SIMULATED</span></div>' +
+    '<div class="embed-body">' +
+      '<p class="soft" style="color:var(--muted);font-size:.85rem">A 7-lamp panel drawn inside Worlds. This demo contacts no real device.</p>' +
+      '<div class="lights-grid">' + lights + '</div>' +
+      '<div class="embed-foot">' +
+        '<span class="scene" id="scene">' + on + ' of 7 on' + (state.embedTouched ? ' · you changed this in the demo (not a real reading)' : '') + '</span>' +
+        '<a href="https://example.invalid/home-lights" rel="noopener" style="margin-left:auto">Open in the owning app ↗</a>' +
+        '<button type="button" class="btn ghost" id="embed-break" style="min-height:44px">Simulate “can’t embed”</button>' +
+      '</div>' +
+    '</div>';
+  box.querySelectorAll("[data-lamp]").forEach(function(b){
+    b.addEventListener("click", function(){
+      var i = Number(b.getAttribute("data-lamp"));
+      state.lamps[i] = !state.lamps[i];
+      state.embedTouched = true;
+      renderEmbed();
+      box.querySelector('[data-lamp="' + i + '"]').focus();
+    });
+  });
+  document.getElementById("embed-break").addEventListener("click", function(){
+    state.embedUnavailable = true; renderEmbed();
+    document.getElementById("embed-h").focus();
+  });
+}
+
+/* ============================ SHEET ============================ */
+var lastFocus = null;
+var lastFactName = null;
+function openSheet() {
+  document.getElementById("sheet").hidden = false;
+}
+function closeSheet() {
+  document.getElementById("sheet").hidden = true;
+  // The invoking control may have been re-rendered away (the ledger and the
+  // chart rebuild on every change), so recover focus deliberately.
+  if (lastFocus && document.contains(lastFocus)) { lastFocus.focus(); return; }
+  var lane = null;
+  if (lastFactName) {
+    lane = Array.prototype.find.call(document.querySelectorAll(".lane"), function(l){
+      var n = l.querySelector(".lane-name");
+      return n && n.textContent === lastFactName;
+    });
+  }
+  (lane || document.getElementById("read-h")).focus();
+}
+function openFact(id) {
+  var f = FACTS.find(function(x){ return x.id === id; });
+  if (!f) return;
+  lastFocus = document.activeElement;
+  lastFactName = f.name;
+  var r = readFact(f, state.asof);
+  document.getElementById("sheet-kind").textContent = (id === "backups" && !state.decisions[id]) ? "Decision" : "Fact · source and authority";
+  document.getElementById("sheet-h").textContent = f.name;
+  var body = document.getElementById("sheet-body");
+  var decided = state.decisions[id];
+
+  var html =
+    '<p class="soft" style="color:var(--text-2)">' + f.detail + '</p>' +
+    '<dl class="kv">' +
+      '<dt>Source</dt><dd><code>' + f.source + '</code></dd>' +
+      '<dt>Freshness</dt><dd><code>' + r.line + '</code> (' + r.why + ')</dd>' +
+      '<dt>Status</dt><dd><code>' + statusWord(r.state) + '</code> — stated in words, not colour</dd>' +
+      '<dt>As of</dt><dd><code>' + fmtAsof(state.asof - DAY_START) + '</code>, Tuesday 13 October</dd>' +
+    '</dl>' +
+    '<div class="perm-cols" style="margin-top:12px">' +
+      '<div><span class="h agent">Agent may</span><ul>' + f.agentMay.map(function(x){return "<li>"+x+"</li>";}).join("") + '</ul></div>' +
+      '<div><span class="h human">You may</span><ul>' + f.humanMay.map(function(x){return "<li>"+x+"</li>";}).join("") + '</ul></div>' +
+    '</div>';
+
+  if (f.privateNote && state.lens === "you") {
+    html += '<p class="fact-sum" style="margin-top:12px"><span class="private-tag">private to you</span> ' + f.privateNote + '</p>';
+  }
+  if (id === "backups" && !decided) {
+    html +=
+      '<div class="decision" role="radiogroup" aria-label="Your decision">' +
+        '<label><input type="radio" name="bk" value="keep" checked>' +
+          '<span><span class="d-t">Keep it flagged for later</span><span class="d-s">No action is taken. Backups stays “needs your decision” and will not be forgotten.</span></span></label>' +
+        '<label><input type="radio" name="bk" value="propose">' +
+          '<span><span class="d-t">Ask the agent to prepare a retry</span><span class="d-s">The agent may <em>propose</em>; only you can authorise. Nothing is dispatched from a proposal.</span></span></label>' +
+        '<label><input type="radio" name="bk" value="authorise">' +
+          '<span><span class="d-t">Authorise the retry now</span><span class="d-s">A consequential provider action. In this mockup it is recorded only — nothing leaves this page.</span></span></label>' +
+      '</div>' +
+      '<div class="fact-actions"><button type="button" class="btn warm" id="bk-confirm">Record my decision</button>' +
+      '<button type="button" class="btn ghost" id="bk-cancel">Cancel</button></div>' +
+      '<p class="disclosure">Authority is one path: request → approve → dispatch at most once → SUCCEEDED, FAILED or UNKNOWN. A retry is a new decision, never an automatic repeat.</p>';
+  } else if (decided) {
+    html += '<div class="outcome"><b>Recorded:</b> ' + decided.text + '. <span style="color:var(--muted)">Mockup only — no real action anywhere.</span> ' +
+            '<button type="button" class="btn ghost" id="bk-again" style="margin-top:8px">Change decision</button></div>';
+  } else if (id === "files" || id === "weather") {
+    html += '<div class="fact-actions" style="margin-top:12px"><button type="button" class="btn ghost" id="rc">' +
+            (id === "files" ? 'Ask for a fresh check' : 'Try to reach it') + '</button></div>' +
+            '<p class="disclosure" id="rc-note">A check would go out as a request. It will not change the fact unless the service actually answers.</p>';
+  } else {
+    html += '<div class="fact-actions" style="margin-top:12px"><a class="btn ghost" href="https://example.invalid/' + id + '" rel="noopener">Open in the owning app ↗</a></div>';
+  }
+
+  body.innerHTML = html;
+  openSheet();
+  document.getElementById("sheet-h").focus();
+
+  if (id === "backups" && !decided) {
+    document.getElementById("bk-confirm").addEventListener("click", function(){
+      var v = document.querySelector('input[name="bk"]:checked').value;
+      var txt = v === "keep" ? "keep it flagged for later"
+              : v === "propose" ? "asked the agent to prepare a retry (proposal only)"
+              : "authorised a retry (recorded in the mockup)";
+      state.decisions.backups = { text: txt };
+      render();
+      live("Backups decision recorded: " + txt + ". The read, the chart and the ledger have updated.");
+      closeSheet();
+    });
+    document.getElementById("bk-cancel").addEventListener("click", closeSheet);
+  }
+  if (decided) {
+    document.getElementById("bk-again").addEventListener("click", function(){
+      delete state.decisions.backups; render(); openFact("backups");
+    });
+  }
+  var rc = document.getElementById("rc");
+  if (rc) rc.addEventListener("click", function(){ recheck(id, rc, true); });
+}
+
+/* Honest re-check: it never fabricates a reading. */
+function recheck(id, btn, inSheet) {
+  var note = inSheet ? document.getElementById("rc-note") : null;
+  if (btn) { btn.disabled = true; btn.textContent = "Checking…"; }
+  window.setTimeout(function(){
+    if (btn) { btn.disabled = false; btn.textContent = (id === "files" ? "Ask for a fresh check" : "Try to reach it"); }
+    var msg = id === "weather"
+      ? "Weather did not answer. It is still unknown — no forecast has been invented."
+      : "Files did not answer yet. It is still stale — last heard 05:14, 3 hours ago.";
+    if (note) note.textContent = msg;
+    live(msg);
+  }, 450);
+}
+
+function live(msg) {
+  var el = document.getElementById("live");
+  el.textContent = "";
+  window.setTimeout(function(){ el.textContent = msg; }, 30);
+}
+
+/* ============================ WIRING ============================ */
+function setAsof(absMin, announce) {
+  state.asof = Math.max(DAY_START, Math.min(NOW_MIN, Math.round(absMin)));
+  render();
+  if (announce) {
+    live("Reading as of " + fmtAsof(state.asof - DAY_START) + ". " +
+         document.getElementById("read-line").textContent);
+  }
+}
+function setLens(lens) {
+  state.lens = lens;
+  document.getElementById("lens-you").setAttribute("aria-pressed", String(lens === "you"));
+  document.getElementById("lens-agent").setAttribute("aria-pressed", String(lens === "agent"));
+  render();
+  live(lens === "agent" ? "Agent lens. You are now seeing exactly the agent's surface." : "Your lens. Private notes are visible again.");
+}
+
+document.getElementById("hand").addEventListener("input", function(e){
+  setAsof(DAY_START + Number(e.target.value), false);   // no announcement while dragging
+});
+document.getElementById("hand").addEventListener("change", function(e){
+  setAsof(DAY_START + Number(e.target.value), true);     // announce on commit
+});
+document.querySelectorAll("[data-jump]").forEach(function(b){
+  b.addEventListener("click", function(){ setAsof(DAY_START + Number(b.getAttribute("data-jump")), true); });
+});
+document.getElementById("lens-you").addEventListener("click", function(){ setLens("you"); });
+document.getElementById("lens-agent").addEventListener("click", function(){ setLens("agent"); });
+document.getElementById("sheet-close").addEventListener("click", closeSheet);
+document.addEventListener("keydown", function(e){
+  if (e.key === "Escape" && !document.getElementById("sheet").hidden) { closeSheet(); }
+});
+
+render();
+renderEmbed();
+document.getElementById("read-h").setAttribute("tabindex", "-1");
+document.getElementById("embed-h").setAttribute("tabindex", "-1");
+</script>
+</body>
+</html>

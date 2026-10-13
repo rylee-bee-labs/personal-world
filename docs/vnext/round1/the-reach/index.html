@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>THE REACH — Worlds concept (MOCKUP)</title>
+<style>
+/* ===========================================================================
+   THE REACH — a Worlds vNext concept. MOCKUP: not built, not approved.
+   One surface, one seam. Six services hang on one thread; your hand moves
+   along it; facts you carry across the seam become yours to decide on.
+   No network, no build, no external fonts or images.
+   =========================================================================== */
+
+:root {
+  --ink:        #f3ede2;
+  --ink-dim:    #b9ae9d;
+  --ink-faint:  #857c6d;
+  --bg:         #14110e;
+  --panel:      #1d1915;
+  --panel-2:    #241f1a;
+  --line:       #3a332b;
+  --agent:      #93bcd8;   /* cool: the agent's side */
+  --human:      #e3a869;   /* warm: your side */
+  --warn:       #d98d6a;
+  --fresh:      #9db98f;
+  --radius:     14px;
+  --tap:        44px;
+  --pad:        clamp(12px, 3vw, 22px);
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(1200px 620px at 78% -10%, #241d17 0%, transparent 62%),
+    radial-gradient(900px 520px at 4% 0%, #1b2028 0%, transparent 58%),
+    var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.45;
+  overflow-x: hidden;
+}
+
+:where(a) { color: var(--human); }
+
+:focus-visible {
+  outline: 3px solid var(--human);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* --- skip link ----------------------------------------------------------- */
+.skip {
+  position: absolute; left: -9999px; top: 0; z-index: 99;
+  background: var(--ink); color: #14110e; padding: 12px 16px;
+  font-weight: 650; text-decoration: none; border-radius: 0 0 10px 0;
+}
+.skip:focus { left: 0; }
+
+/* --- header --------------------------------------------------------------- */
+header { padding: clamp(16px, 4vw, 34px) var(--pad) 0; }
+
+.mockup-flag {
+  display: inline-flex; align-items: center; gap: 8px;
+  border: 2px dashed var(--human);
+  color: var(--human);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font: 650 12px/1 var(--mono);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+h1 {
+  font-size: clamp(30px, 8vw, 58px);
+  letter-spacing: -.02em;
+  margin: 14px 0 4px;
+  font-weight: 700;
+}
+h1 .thin { font-weight: 300; color: var(--ink-dim); }
+
+.lede {
+  margin: 0 0 12px; color: var(--ink-dim);
+  font-size: clamp(15px, 3.4vw, 19px); max-width: 46ch;
+}
+
+.clock {
+  font: 500 13px/1.5 var(--mono);
+  color: var(--ink-faint);
+  letter-spacing: .04em;
+}
+
+/* --- headline (recomposes on every action) -------------------------------- */
+.headline {
+  margin: 14px 0 0;
+  padding: 14px 16px;
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--human);
+  border-radius: var(--radius);
+  font-size: clamp(15px, 3.6vw, 18px);
+  max-width: 78ch;
+}
+.headline b { font-weight: 700; }
+.headline .num { font: 700 1.15em var(--mono); color: var(--human); }
+.headline .sub { display: block; color: var(--ink-dim); font-size: .86em; margin-top: 4px; }
+
+/* --- the table ----------------------------------------------------------- */
+main { padding: clamp(14px, 3vw, 26px) var(--pad) 40px; }
+
+.table {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+@media (min-width: 900px) {
+  .table { grid-template-columns: minmax(0, 1fr) 34px minmax(0, 1fr); }
+}
+
+.side {
+  min-width: 0;
+  background: linear-gradient(180deg, var(--panel), #191510);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--pad);
+}
+.side h2 {
+  margin: 0 0 2px; font-size: 15px; letter-spacing: .02em;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.side .who {
+  font: 650 11px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase;
+  padding: 5px 9px; border-radius: 999px; border: 1px solid currentColor;
+}
+.side.agent .who { color: var(--agent); }
+.side.human .who { color: var(--human); }
+.side .side-note { margin: 6px 0 12px; color: var(--ink-faint); font-size: 13px; }
+
+/* the seam: the line facts are carried across */
+.seam {
+  position: relative;
+  border-top: 2px dashed var(--line);
+  align-self: stretch;
+}
+.seam span {
+  position: absolute; left: 50%; top: 10px; transform: translateX(-50%);
+  font: 650 10px/1 var(--mono); letter-spacing: .18em; color: var(--ink-faint);
+  background: var(--bg); padding: 4px 8px; white-space: nowrap;
+}
+@media (min-width: 900px) {
+  .seam {
+    border-top: 0;
+    border-left: 2px dashed var(--line);
+    min-height: 100%;
+  }
+  .seam span { top: 26px; left: 50%; }
+}
+
+/* --- the thread + nodes (agent side) -------------------------------------- */
+.thread-wrap { position: relative; }
+.thread {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  pointer-events: none; overflow: visible;
+}
+.thread polyline {
+  fill: none; stroke: var(--agent); stroke-width: 2;
+  stroke-linejoin: round; stroke-linecap: round; opacity: .45;
+}
+.thread .stale-seg { stroke-dasharray: 7 7; }
+.thread .unknown-seg { stroke-dasharray: 2 8; opacity: .75; }
+.thread line.held { stroke: var(--human); stroke-width: 2; stroke-dasharray: 5 6; opacity: .8; }
+
+.nodes { list-style: none; margin: 0; padding: 0; }
+
+.node {
+  position: relative;
+  margin-bottom: 12px;
+  transition: transform .18s ease-out;
+  will-change: transform;
+}
+.node:nth-child(even) { margin-left: clamp(0px, 4vw, 34px); }
+@media (max-width: 899px) { .node:nth-child(even) { margin-left: 0; } }
+
+.node-card {
+  width: 100%; text-align: left;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 12px;
+  min-height: var(--tap);
+  color: inherit; font: inherit; cursor: pointer;
+  display: grid; gap: 4px;
+}
+.node-card:hover { border-color: var(--agent); }
+.node-card .top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.node-card .name { font-weight: 650; font-size: 15px; }
+.node-card .heard { color: var(--ink-dim); font-size: 12.5px; }
+.node.near .node-card { border-color: var(--agent); box-shadow: 0 0 0 1px var(--agent) inset; }
+
+/* state chips: word first, always. colour is only ever a second signal. */
+.state {
+  font: 650 10.5px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase;
+  padding: 4px 8px; border-radius: 999px; border: 1px solid currentColor;
+  white-space: nowrap;
+}
+.state.fine { color: var(--fresh); }
+.state.stale { color: var(--warn); border-style: dashed; }
+.state.unknown { color: var(--ink-faint); border-style: dotted; }
+.state.worth { color: var(--human); }
+.state.carried { color: var(--human); border-style: solid; opacity: .8; }
+
+@media (prefers-contrast: more) {
+  .state { border-width: 2px; }
+  .thread polyline { opacity: .9; }
+}
+
+/* --- fact chips ---------------------------------------------------------- */
+.facts-in-node { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 8px; }
+
+.chip {
+  display: flex; align-items: flex-start; gap: 10px; width: 100%;
+  min-height: var(--tap); text-align: left;
+  background: #221d18; border: 1px dashed var(--line); border-radius: 11px;
+  padding: 10px 12px; color: inherit; font: inherit; cursor: grab;
+  touch-action: none;
+}
+.chip:hover { border-color: var(--human); }
+.chip .grip { color: var(--ink-faint); font: 600 13px/1.4 var(--mono); flex: none; }
+.chip .txt { min-width: 0; }
+.chip .txt b { display: block; font-weight: 600; font-size: 14px; }
+.chip .src { display: block; color: var(--ink-faint); font: 11.5px/1.5 var(--mono); margin-top: 2px; }
+.chip.dragging { opacity: .28; }
+
+.ghost {
+  position: fixed; z-index: 60; pointer-events: none;
+  box-shadow: 0 18px 40px rgba(0,0,0,.55);
+  transform-origin: 20px 22px;
+  rotate: -1.6deg;
+  border-style: solid; border-color: var(--human);
+  background: #2a231c;
+}
+
+.seats { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; min-height: 80px; }
+.seats.hot { outline: 2px dashed var(--human); outline-offset: 6px; border-radius: var(--radius); }
+.seats-empty {
+  color: var(--ink-faint); font-size: 13px; border: 1px dashed var(--line);
+  border-radius: 12px; padding: 14px;
+}
+
+.seat {
+  background: var(--panel-2); border: 1px solid var(--human); border-radius: 12px;
+  padding: 10px 12px; display: grid; gap: 8px;
+}
+.seat h3 { margin: 0; font-size: 14.5px; font-weight: 650; }
+.seat .perms { display: grid; gap: 2px; font-size: 12px; color: var(--ink-dim); }
+.seat .perms span b { color: var(--ink-faint); font-weight: 600; }
+.seat .done { color: var(--fresh); font-size: 13px; }
+.seat .row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* --- buttons -------------------------------------------------------------- */
+.btn {
+  min-height: var(--tap); min-width: var(--tap);
+  padding: 10px 14px; border-radius: 10px; cursor: pointer;
+  border: 1px solid var(--line); background: #2a241d; color: var(--ink);
+  font: 600 13.5px/1.2 var(--sans);
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn:hover { border-color: var(--human); }
+.btn.primary { background: var(--human); color: #1a1207; border-color: var(--human); }
+.btn.ghost { background: transparent; }
+.btn.small { min-height: var(--tap); font-size: 13px; padding: 10px 12px; }
+
+/* --- embedded apps -------------------------------------------------------- */
+.app {
+  margin-top: 16px; background: #191510; border: 1px solid var(--line);
+  border-radius: 12px; padding: 12px; display: grid; gap: 10px;
+}
+.app-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.app-head h3 { margin: 0; font-size: 14px; letter-spacing: .01em; }
+.app-kind {
+  font: 650 9.5px/1 var(--mono); letter-spacing: .16em; text-transform: uppercase;
+  color: var(--agent); border: 1px solid currentColor; padding: 4px 7px; border-radius: 999px;
+}
+.app-note { color: var(--ink-faint); font-size: 12px; margin: 0; }
+.fallback {
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: var(--tap); padding: 10px 12px; border-radius: 10px;
+  border: 1px solid var(--line); background: transparent;
+  font-size: 12.5px; text-decoration: none; color: var(--human);
+}
+.fallback:hover { border-color: var(--human); }
+.fallback .url { font: 11px/1 var(--mono); color: var(--ink-faint); word-break: break-all; }
+
+/* tape deck */
+.deck { display: grid; gap: 10px; }
+.deck .screen {
+  background: #0f0d0b; border: 1px solid var(--line); border-radius: 10px;
+  padding: 10px; display: grid; gap: 8px;
+}
+.deck .title { font-size: 14px; font-weight: 650; }
+.deck .meta { color: var(--ink-faint); font: 11.5px/1.5 var(--mono); }
+.wave { width: 100%; height: 44px; display: block; }
+.wave rect { fill: var(--line); }
+.wave rect.played { fill: var(--human); }
+.transport { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.time { font: 12px/1 var(--mono); color: var(--ink-dim); }
+.queue { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.queue li { display: flex; align-items: center; gap: 8px; }
+.queue .name { flex: 1 1 auto; min-width: 0; font-size: 13px; overflow-wrap: anywhere; }
+.queue .badge {
+  font: 650 10px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase;
+  border: 1px solid var(--line); border-radius: 999px; padding: 4px 7px; color: var(--ink-faint);
+}
+.queue .badge.new { color: var(--human); border-color: var(--human); }
+
+/* switchboard */
+.bulbs { display: flex; flex-wrap: wrap; gap: 8px; }
+.bulb {
+  min-height: var(--tap); min-width: var(--tap); padding: 10px 12px;
+  border-radius: 10px; border: 1px solid var(--line); background: #221d18;
+  color: var(--ink-dim); font: 600 12.5px/1.2 var(--sans); cursor: pointer;
+}
+.bulb[aria-pressed="true"] { color: #1a1207; background: var(--human); border-color: var(--human); }
+
+/* --- shared facts table --------------------------------------------------- */
+#facts { margin-top: 22px; }
+.section-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+.section-head h2 { margin: 0; font-size: 18px; }
+.section-head p { margin: 0; color: var(--ink-faint); font-size: 12.5px; max-width: 60ch; }
+
+.tablewrap {
+  border: 1px solid var(--line); border-radius: var(--radius);
+  overflow-x: auto; background: var(--panel);
+}
+table { border-collapse: collapse; width: 100%; min-width: 720px; font-size: 13px; }
+caption { text-align: left; padding: 12px 14px; color: var(--ink-faint); font-size: 12.5px; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+thead th { color: var(--ink-faint); font: 650 10.5px/1.3 var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr.taken { background: rgba(227,168,105,.07); }
+tbody tr.hit { background: rgba(147,188,216,.1); }
+td.fact b { font-weight: 600; }
+td.src, td.heard { font: 11.5px/1.5 var(--mono); color: var(--ink-dim); }
+.side-badge {
+  display: inline-block; font: 650 10px/1 var(--mono); letter-spacing: .1em;
+  text-transform: uppercase; padding: 4px 8px; border-radius: 999px; border: 1px solid currentColor;
+  white-space: nowrap;
+}
+.side-badge.agent { color: var(--agent); }
+.side-badge.you { color: var(--human); }
+
+/* --- footer / how-to ------------------------------------------------------ */
+.howto { margin-top: 22px; }
+.howto ul { margin: 6px 0 0; padding-left: 18px; color: var(--ink-dim); font-size: 13.5px; }
+.howto li { margin-bottom: 6px; }
+kbd {
+  font: 600 11.5px/1 var(--mono); border: 1px solid var(--line); border-bottom-width: 2px;
+  border-radius: 5px; padding: 3px 6px; color: var(--ink); background: #221d18;
+}
+
+footer {
+  border-top: 1px solid var(--line); margin-top: 26px; padding: 16px var(--pad) 30px;
+  color: var(--ink-faint); font-size: 12.5px;
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* On a phone the shared-facts table becomes stacked records — the page itself
+   never scrolls sideways; each fact keeps its row labels. */
+@media (max-width: 719px) {
+  table { min-width: 0; }
+  thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  table, tbody, tr, td { display: block; width: 100%; }
+  tbody tr { border-bottom: 1px solid var(--line); padding: 6px 0; }
+  tbody tr:last-child { border-bottom: 0; }
+  td { border-bottom: 0; padding: 4px 12px; }
+  td::before {
+    content: attr(data-label);
+    display: block; color: var(--ink-faint);
+    font: 650 10px/1.4 var(--mono); letter-spacing: .12em; text-transform: uppercase;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#facts">Skip to the shared facts</a>
+
+<header>
+  <p class="mockup-flag" id="mockup">MOCKUP — concept only, not built, not approved</p>
+  <h1>THE <span class="thin">REACH</span></h1>
+  <p class="lede">
+    Worlds is one surface with one seam down the middle. Your services hang on a
+    single thread; your hand moves along it and everything nearby leans in.
+    A fact only changes the world when you carry it across the seam.
+  </p>
+  <p class="clock" id="clock">Tuesday 13 October 2026 · 08:14 — the snapshot this mockup was drawn at</p>
+  <p class="headline" id="headline"></p>
+</header>
+
+<main>
+  <div class="table" id="table">
+
+    <!-- ============================ AGENT SIDE ============================ -->
+    <section class="side agent" aria-labelledby="agent-h">
+      <h2 id="agent-h"><span class="who">Agent side</span> What the agent can see</h2>
+      <p class="side-note">
+        Every mark here is a fact the agent can read. It carries its own source and the
+        moment it was last heard. The agent cannot act on any of them without you.
+      </p>
+
+      <div class="thread-wrap" id="thread-wrap">
+        <svg class="thread" id="thread" aria-hidden="true" focusable="false">
+          <polyline id="thread-line" points=""></polyline>
+          <line id="held-line" class="held" x1="0" y1="0" x2="0" y2="0"></line>
+        </svg>
+        <ol class="nodes" id="nodes"></ol>
+      </div>
+    </section>
+
+    <div class="seam" id="seam"><span>THE SEAM</span></div>
+
+    <!-- ============================= YOUR SIDE ============================= -->
+    <section class="side human" aria-labelledby="human-h">
+      <h2 id="human-h"><span class="who">Your side</span> What is yours to decide</h2>
+      <p class="side-note">
+        Facts you have carried across the land here, with what you may do about each one.
+        Carry one back at any time.
+      </p>
+
+      <ul class="seats" id="seats" aria-label="Facts carried to your side"></ul>
+      <p class="seats-empty" id="seats-empty">
+        Nothing is waiting on you yet. Reach for a fact on the other side and drag it over.
+      </p>
+
+      <!-- embedded app 1 -->
+      <div class="app" id="app-deck">
+        <div class="app-head">
+          <span class="app-kind">Embedded app</span>
+          <h3>Tape Deck — Media library</h3>
+        </div>
+        <p class="app-note">
+          Drawn inside Worlds. It is not a screenshot and it talks to nothing: the only
+          real navigation here is the fallback below.
+        </p>
+        <div class="deck">
+          <div class="screen">
+            <span class="title" id="deck-title">Nothing queued</span>
+            <span class="meta" id="deck-meta">—</span>
+            <svg class="wave" id="wave" viewBox="0 0 40 10" preserveAspectRatio="none" aria-hidden="true"></svg>
+            <div class="transport">
+              <button class="btn primary" id="deck-toggle" type="button">Play</button>
+              <button class="btn ghost" id="deck-finish" type="button" hidden>Finish this episode</button>
+              <span class="time" id="deck-time">0:00</span>
+            </div>
+          </div>
+          <ul class="queue" id="deck-queue"></ul>
+        </div>
+        <a class="fallback" id="deck-fallback"
+           href="https://example.invalid/apps/media-library/episodes" rel="noopener">
+          <span>Open in Jellyfin, the owning app&nbsp;↗
+            <span class="url">https://example.invalid/apps/media-library/episodes</span>
+          </span>
+        </a>
+      </div>
+
+      <!-- embedded app 2 -->
+      <div class="app" id="app-lights">
+        <div class="app-head">
+          <span class="app-kind">Embedded app</span>
+          <h3>Switchboard — Home lights</h3>
+        </div>
+        <p class="app-note">7 of 7 bulbs answered at 08:08. Switching one writes a new fact onto your side.</p>
+        <div class="bulbs" id="bulbs"></div>
+        <a class="fallback"
+           href="https://example.invalid/apps/home-lights" rel="noopener">
+          <span>Open in Home Assistant, the owning app&nbsp;↗
+            <span class="url">https://example.invalid/apps/home-lights</span>
+          </span>
+        </a>
+      </div>
+    </section>
+  </div>
+
+  <!-- =========================== SHARED FACTS =========================== -->
+  <section id="facts" tabindex="-1" aria-labelledby="facts-h">
+    <div class="section-head">
+      <h2 id="facts-h">Shared facts</h2>
+      <p>
+        The same rows an agent reads, shown to you in words: what it is, where it came from,
+        how long ago it was heard, and — in two separate columns — who may act on it.
+      </p>
+    </div>
+    <div class="tablewrap">
+      <table id="facts-table">
+        <caption>
+          Sample data from a fixed mockup snapshot (Tuesday 13 October 2026, 08:14).
+          No reading here is live. Freshness ages from the moment it was last heard.
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Service</th>
+            <th scope="col">Fact</th>
+            <th scope="col">Source</th>
+            <th scope="col">Last heard</th>
+            <th scope="col">Agent may</th>
+            <th scope="col">You may</th>
+            <th scope="col">Lives on</th>
+          </tr>
+        </thead>
+        <tbody id="facts-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="howto" aria-labelledby="howto-h">
+    <div class="section-head">
+      <h2 id="howto-h">How to drive it</h2>
+      <p>This is a working prototype, not a picture. Everything below works.</p>
+    </div>
+    <ul>
+      <li><b>Reach.</b> Move the pointer along the thread — the marks nearest your hand lean
+        toward it, the thread follows them, and the nearest service's rows light up in the
+        shared facts table. Keyboard: <kbd>Tab</kbd> into the thread, then <kbd>↑</kbd> <kbd>↓</kbd>
+        to walk the reach from mark to mark.</li>
+      <li><b>Carry a fact across the seam.</b> Drag any fact onto your side, or focus it and
+        press <kbd>Enter</kbd>. One carry moves it in three places at once: the thread, the
+        shared facts row (its permissions are re-read), and the headline.</li>
+      <li><b>Play something.</b> The Tape Deck inside Worlds plays the two new episodes.
+        Playing one resolves a fact, which updates the queue, the ledger and the headline.</li>
+      <li><kbd>Esc</kbd> abandons a carry in flight. Every control is a real button, and every
+        button is at least 44&nbsp;×&nbsp;44&nbsp;px.</li>
+    </ul>
+  </section>
+</main>
+
+<footer>
+  MOCKUP — a Worlds vNext concept drawn for comparison. Every reading is the fixed sample
+  data in the brief, not a live service, and nothing here is connected to anything.
+</footer>
+
+<p class="sr-only" id="live" role="status" aria-live="polite"></p>
+
+<script>
+(() => {
+  "use strict";
+
+  // ---------------------------------------------------------------------------
+  // The snapshot. Everything ages from 08:14 on Tuesday 13 October 2026.
+  // ---------------------------------------------------------------------------
+  const SNAPSHOT = new Date(2026, 9, 13, 8, 14, 0);
+  const t0 = Date.now();
+
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const $ = (id) => document.getElementById(id);
+
+  // ---------------------------------------------------------------------------
+  // The facts. Fixed sample data. `heard` is minutes before the snapshot; null
+  // means the service never answered. `agent`/`you` are written as words because
+  // the whole point of the shared surface is that they are not the same thing.
+  // ---------------------------------------------------------------------------
+  const facts = [
+    {
+      id: "media-new", svc: "Media library", short: "Media",
+      text: "Two new episodes since you were last here",
+      source: "Media Connect · GET /library/sections",
+      heard: 6, state: "fine", stateWord: "fine",
+      agent: "read only — it may not start playback",
+      you: "play, mark heard",
+      side: "agent",
+    },
+    {
+      id: "backups-blocked", svc: "Backups", short: "Backups",
+      text: "3 files could not be copied — the destination refused them",
+      source: "Backups Connect · last run 07:40",
+      heard: 34, state: "worth", stateWord: "needs a decision",
+      agent: "read and report — it cannot choose for you",
+      you: "decide: retry, keep, or inspect",
+      side: "agent",
+    },
+    {
+      id: "backups-run", svc: "Backups", short: "Backups",
+      text: "The 07:40 run finished; 4 of 5 jobs copied everything else",
+      source: "Backups Connect · GET /runs/latest",
+      heard: 34, state: "fine", stateWord: "fine",
+      agent: "read and report",
+      you: "read",
+      side: "agent",
+    },
+    {
+      id: "lights-reach", svc: "Home lights", short: "Lights",
+      text: "7 of 7 bulbs reachable",
+      source: "Lights Connect · GET /lights/status",
+      heard: 6, state: "fine", stateWord: "fine",
+      agent: "read only — it may not switch anything",
+      you: "switch any lamp",
+      side: "agent",
+    },
+    {
+      id: "files-share", svc: "Files", short: "Files",
+      text: "The share reported 11,284 files at 05:14. It has not spoken since.",
+      source: "Files Connect · GET /share/stats",
+      heard: 180, state: "stale", stateWord: "stale",
+      agent: "read — and only as old news",
+      you: "read — and only as old news",
+      side: "agent",
+    },
+    {
+      id: "board-due", svc: "Project board", short: "Board",
+      text: "3 cards are due this week",
+      source: "Project board Connect · GET /cards?due=week",
+      heard: 21, state: "fine", stateWord: "fine",
+      agent: "read and draft a note",
+      you: "move, assign, close",
+      side: "agent",
+    },
+    {
+      id: "weather-now", svc: "Weather", short: "Weather",
+      text: "Conditions at home. No reading has ever arrived; nothing is guessed here.",
+      source: "Weather Connect · no response, ever",
+      heard: null, state: "unknown", stateWord: "unknown",
+      agent: "nothing — there is no fact to act on",
+      you: "nothing, until it answers",
+      side: "agent",
+    },
+  ];
+
+  const byId = Object.fromEntries(facts.map((f) => [f.id, f]));
+
+  // ---------------------------------------------------------------------------
+  // Nodes: the six services on the thread. One node may hold several facts.
+  // ---------------------------------------------------------------------------
+  const nodes = [];
+  for (const f of facts) {
+    let n = nodes.find((x) => x.svc === f.svc);
+    if (!n) { n = { svc: f.svc, short: f.short, ids: [] }; nodes.push(n); }
+    n.ids.push(f.id);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Freshness, in words. Stale is a state; unknown is the absence of a state.
+  // ---------------------------------------------------------------------------
+  function ageText(f) {
+    if (f.heard === null) return "never answered";
+    const mins = f.heard + Math.floor((Date.now() - t0) / 60000);
+    if (mins < 1) return "just now";
+    if (mins < 60) return mins + " min ago";
+    const h = Math.floor(mins / 60), m = mins % 60;
+    return h + "h" + (m ? " " + m + "m" : "") + " ago";
+  }
+  function heardText(f) {
+    if (f.heard === null) return "never — no reading to age";
+    const mins = f.heard + Math.floor((Date.now() - t0) / 60000);
+    const d = new Date(SNAPSHOT.getTime() - mins * 60000);
+    return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+  }
+
+  function announce(msg) { $("live").textContent = msg; }
+
+  // ---------------------------------------------------------------------------
+  // Render: nodes on the agent side
+  // ---------------------------------------------------------------------------
+  const nodesEl = $("nodes");
+  const threadLine = $("thread-line");
+  const heldLine = $("held-line");
+
+  function chipHtml(f) {
+    return (
+      '<button class="chip" type="button" data-fact="' + f.id + '">' +
+      '<span class="grip" aria-hidden="true">⠿</span>' +
+      '<span class="txt"><b>' + esc(f.text) + "</b>" +
+      '<span class="src">' + esc(f.source) + " · heard " + esc(ageText(f)) + "</span></span>" +
+      "</button>"
+    );
+  }
+
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  }
+  function cssEscape(s) { return String(s).replace(/["\\]/g, "\\$&"); }
+
+  // A fact that has been carried to your side is no longer something the agent
+  // can read here, so the mark drops its chip and says so in words.
+  function agentFacts(n) { return n.ids.map((id) => byId[id]).filter((f) => f.side === "agent"); }
+
+  const STATE_RANK = { fine: 0, unknown: 1, stale: 2, worth: 3 };
+
+  function nodeLead(n) {
+    const open = agentFacts(n);
+    if (!open.length) return null;
+    return open.sort((a, b) => (STATE_RANK[b.state] ?? 9) - (STATE_RANK[a.state] ?? 9))[0];
+  }
+
+  function nodeStateHtml(n) {
+    const lead = nodeLead(n);
+    if (!lead) return '<span class="state carried">carried over</span>';
+    return '<span class="state ' + lead.state + '">' + esc(lead.stateWord) + "</span>";
+  }
+
+  function nodeSummary(n) {
+    const open = agentFacts(n);
+    if (!open.length) return "every fact here is on your side — the agent holds nothing";
+    return open.map((f) => f.text.split(".")[0].toLowerCase() + " · " + ageText(f)).join(" · ");
+  }
+
+  function renderNodes() {
+    nodesEl.innerHTML = nodes.map((n, i) =>
+      '<li class="node" data-svc="' + esc(n.svc) + '" data-i="' + i + '">' +
+      '<button class="node-card" type="button" data-svc="' + esc(n.svc) + '">' +
+      '<span class="top"><span class="name">' + esc(n.svc) + "</span>" +
+      nodeStateHtml(n) + "</span>" +
+      '<span class="heard">' + esc(nodeSummary(n)) + "</span>" +
+      "</button>" +
+      (agentFacts(n).length
+        ? '<ul class="facts-in-node">' + agentFacts(n).map((f) => "<li>" + chipHtml(f) + "</li>").join("") + "</ul>"
+        : "") +
+      "</li>"
+    ).join("");
+  }
+
+  // Freshness alone must be able to repaint the marks (ages grow on the clock).
+  function refreshNodeWords() {
+    for (const n of nodes) {
+      const el = nodesEl.querySelector(".node[data-svc='" + cssEscape(n.svc) + "'] .state");
+      if (el) el.outerHTML = nodeStateHtml(n);
+      const heard = nodesEl.querySelector(".node[data-svc='" + cssEscape(n.svc) + "'] .heard");
+      if (heard) heard.textContent = nodeSummary(n);
+    }
+    for (const f of agentFacts({ ids: facts.map((x) => x.id) })) {
+      const src = nodesEl.querySelector('.chip[data-fact="' + cssEscape(f.id) + '"] .src');
+      if (src) src.textContent = f.source + " · heard " + ageText(f);
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Render: your side (the seats)
+  // ---------------------------------------------------------------------------
+  const seatsEl = $("seats");
+
+  function seatHtml(f) {
+    return (
+      '<li class="seat" data-seat="' + f.id + '">' +
+      "<h3>" + esc(f.text) + "</h3>" +
+      '<p class="perms"><span><b>Agent may:</b> ' + esc(f.agent) + "</span>" +
+      "<span><b>You may:</b> " + esc(f.you) + "</span></p>" +
+      '<div class="row" data-actions="' + f.id + '"></div>' +
+      "</li>"
+    );
+  }
+
+  function renderSeats() {
+    const held = facts.filter((f) => f.side === "you");
+    $("seats-empty").hidden = held.length > 0;
+    seatsEl.innerHTML = held.map(seatHtml).join("");
+    for (const f of held) paintActions(f);
+  }
+
+  function paintActions(f) {
+    const row = seatsEl.querySelector('[data-actions="' + cssEscape(f.id) + '"]');
+    if (!row) return;
+    if (f.done) {
+      row.innerHTML = '<p class="done">' + esc(f.done) + "</p>" +
+        '<button class="btn small ghost" type="button" data-back="' + f.id + '">Carry back to the agent</button>';
+      return;
+    }
+    const buttons = (f.actions || []).map((a) =>
+      '<button class="btn small' + (a.primary ? " primary" : "") + '" type="button" ' +
+      'data-do="' + f.id + '" data-choice="' + esc(a.key) + '">' + esc(a.label) + "</button>"
+    ).join("");
+    row.innerHTML = buttons +
+      '<button class="btn small ghost" type="button" data-back="' + f.id + '">Carry back to the agent</button>';
+  }
+
+  // ---------------------------------------------------------------------------
+  // Render: the shared facts table
+  // ---------------------------------------------------------------------------
+  const factsBody = $("facts-body");
+
+  function renderFacts(hitSvc) {
+    factsBody.innerHTML = facts.map((f) => {
+      const stateWord = f.state === "stale" ? "stale — last heard " + ageText(f)
+        : f.state === "unknown" ? "unknown — never answered"
+        : f.stateWord;
+      const cls = (f.side === "you" ? "taken " : "") + (hitSvc === f.svc ? "hit " : "");
+      return (
+        '<tr class="' + cls + '" data-row="' + f.id + '">' +
+        '<td data-label="Service">' + esc(f.short) + "</td>" +
+        '<td class="fact" data-label="Fact"><b>' + esc(f.text) + "</b><br>" +
+        '<span class="state ' + f.state + '">' + esc(stateWord) + "</span></td>" +
+        '<td class="src" data-label="Source">' + esc(f.source) + "</td>" +
+        '<td class="heard" data-label="Last heard">' + esc(ageText(f)) +
+        (f.heard === null ? "" : "<br>at " + esc(heardText(f))) + "</td>" +
+        '<td data-label="Agent may">' + esc(f.agent) + "</td>" +
+        '<td data-label="You may">' + esc(f.you) + "</td>" +
+        '<td data-label="Lives on"><span class="side-badge ' + (f.side === "you" ? "you" : "agent") + '">' +
+        (f.side === "you" ? "your side" : "agent side") + "</span></td>" +
+        "</tr>"
+      );
+    }).join("");
+  }
+
+  // ---------------------------------------------------------------------------
+  // The headline recomposes from state — never a stored string.
+  // ---------------------------------------------------------------------------
+  function renderHeadline() {
+    const waiting = facts.filter((f) => f.side === "you" && !f.done);
+    const stale = facts.filter((f) => f.state === "stale").length;
+    const unknown = facts.filter((f) => f.state === "unknown").length;
+    const readOnly = facts.filter((f) => f.side === "agent" && /read/.test(f.agent)).length;
+    const el = $("headline");
+    el.innerHTML =
+      "<b><span class=\"num\">" + waiting.length + "</span> " +
+      (waiting.length === 1 ? "fact is" : "facts are") + " on your side" +
+      (waiting.length ? ": " + esc(waiting.map((f) => f.short).join(", ")) : " — nothing is waiting") + "</b>" +
+      '<span class="sub">' + readOnly + " facts the agent can read but may not act on · " +
+      stale + " stale (" + esc(ageText(byId["files-share"])) + ", said plainly, not coloured) · " +
+      unknown + " unknown (" + esc(ageText(byId["weather-now"])) + ") · " +
+      "everything here is the sample snapshot, not a live reading.</span>";
+  }
+
+  // ---------------------------------------------------------------------------
+  // The thread: a polyline through the marks, redrawn as the reach moves.
+  // ---------------------------------------------------------------------------
+  function drawThread() {
+    const wrap = $("thread-wrap");
+    const base = wrap.getBoundingClientRect();
+    const pts = [];
+    for (const li of wrap.querySelectorAll(".node")) {
+      const card = li.querySelector(".node-card");
+      const r = card.getBoundingClientRect();
+      pts.push([
+        Math.round(r.left - base.left + r.width / 2),
+        Math.round(r.top - base.top + 16),
+      ]);
+    }
+    if (pts.length) {
+      threadLine.setAttribute("points", pts.map((p) => p.join(",")).join(" "));
+    }
+  }
+
+  // The reach: pointer proximity makes nearby marks lean toward the hand.
+  const wrap = $("thread-wrap");
+
+  function reachMove(x, y) {
+    if (reduced) return;
+    for (const li of wrap.querySelectorAll(".node")) {
+      const r = li.querySelector(".node-card").getBoundingClientRect();
+      const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+      const d = Math.hypot(x - cx, y - cy);
+      li.classList.toggle("near", d < 190);
+      const pull = Math.max(0, 1 - d / 190);
+      const dx = ((x - cx) / (d || 1)) * 7 * pull;
+      const dy = ((y - cy) / (d || 1)) * 7 * pull;
+      li.style.transform = "translate(" + dx.toFixed(1) + "px," + dy.toFixed(1) + "px)";
+    }
+    drawThread();
+  }
+
+  wrap.addEventListener("pointermove", (e) => reachMove(e.clientX, e.clientY));
+  wrap.addEventListener("pointerleave", () => {
+    for (const li of wrap.querySelectorAll(".node")) {
+      li.classList.remove("near"); li.style.transform = "";
+    }
+    drawThread();
+  });
+
+  // The nearest service's rows light up in the shared facts table.
+  wrap.addEventListener("pointerover", (e) => {
+    const card = e.target.closest(".node-card");
+    if (card) renderFacts(card.dataset.svc);
+  });
+  wrap.addEventListener("pointerout", (e) => {
+    if (!wrap.contains(e.relatedTarget)) renderFacts(null);
+  });
+
+  // Keyboard reach: walking focus from mark to mark leans the same marks.
+  wrap.addEventListener("focusin", (e) => {
+    const card = e.target.closest(".node-card");
+    if (!card) return;
+    renderFacts(card.dataset.svc);
+    if (reduced) return;
+    const target = card.getBoundingClientRect();
+    reachMove(target.left + target.width / 2, target.top + target.height / 2);
+  });
+  wrap.addEventListener("focusout", (e) => {
+    if (!wrap.contains(e.relatedTarget)) renderFacts(null);
+  });
+
+  // Arrow keys walk the reach down the thread.
+  wrap.addEventListener("keydown", (e) => {
+    if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+    const cards = Array.from(wrap.querySelectorAll(".node-card"));
+    const i = cards.indexOf(document.activeElement);
+    if (i === -1) return;
+    e.preventDefault();
+    cards[Math.min(cards.length - 1, Math.max(0, i + (e.key === "ArrowDown" ? 1 : -1)))].focus();
+  });
+
+  // ---------------------------------------------------------------------------
+  // Carrying a fact across the seam
+  // ---------------------------------------------------------------------------
+  let lastDragEnd = 0;
+
+  function moveFact(f, to, viaKeyboard) {
+    if (f.side === to) return;
+    const chip = nodesEl.querySelector('.chip[data-fact="' + cssEscape(f.id) + '"]');
+    const first = chip ? chip.getBoundingClientRect() : null;
+
+    f.side = to;
+    renderAll();
+
+    // FLIP: the fact visibly travels from where it was to where it now is.
+    const last = (to === "you"
+      ? seatsEl.querySelector('[data-seat="' + cssEscape(f.id) + '"]')
+      : nodesEl.querySelector('.chip[data-fact="' + cssEscape(f.id) + '"]'));
+    if (first && last && !reduced) {
+      const r = last.getBoundingClientRect();
+      const dx = first.left - r.left, dy = first.top - r.top;
+      last.style.transition = "none";
+      last.style.transform = "translate(" + dx + "px," + dy + "px)";
+      requestAnimationFrame(() => {
+        last.style.transition = "transform .32s cubic-bezier(.2,.8,.2,1)";
+        last.style.transform = "";
+      });
+    }
+
+    // Focus follows the fact, whichever side it landed on. (A pointer drag
+    // never steals focus; every button-initiated carry hands it on.)
+    const landed = (to === "you"
+      ? seatsEl.querySelector('[data-seat="' + cssEscape(f.id) + '"] button')
+      : nodesEl.querySelector('.chip[data-fact="' + cssEscape(f.id) + '"]'));
+    if (landed && (viaKeyboard || to === "agent")) landed.focus();
+
+    announce(
+      to === "you"
+        ? "Carried to your side: " + f.text + " You may: " + f.you + " The agent may: " + f.agent
+        : "Carried back to the agent side: " + f.text
+    );
+    drawHeld(f, to);
+  }
+
+  function drawHeld(f, to) {
+    const base = wrap.getBoundingClientRect();
+    const node = nodesEl.querySelector('.node[data-svc="' + cssEscape(f.svc) + '"] .node-card');
+    const seat = seatsEl.querySelector('[data-seat="' + cssEscape(f.id) + '"]');
+    if (!node || !seat) return;
+    const a = node.getBoundingClientRect(), b = seat.getBoundingClientRect();
+    heldLine.setAttribute("x1", Math.round(a.left - base.left + a.width * 0.5));
+    heldLine.setAttribute("y1", Math.round(a.top - base.top + a.height));
+    heldLine.setAttribute("x2", Math.round(b.left - base.left + b.width * 0.5));
+    heldLine.setAttribute("y2", Math.round(b.top - base.top));
+    heldLine.style.opacity = to === "you" ? ".9" : "0";
+  }
+
+  // pointer drag: a ghost carries the fact; the seats open when it is over them
+  let drag = null;
+
+  document.addEventListener("pointerdown", (e) => {
+    const chip = e.target.closest(".chip");
+    if (!chip || e.button !== 0) return;
+    const f = byId[chip.dataset.fact];
+    const r = chip.getBoundingClientRect();
+    drag = { id: f.id, chip, ghost: null, w: r.width,
+      dx: e.clientX - r.left, dy: e.clientY - r.top,
+      x0: e.clientX, y0: e.clientY, moved: 0, over: false };
+    chip.classList.add("dragging");
+    chip.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+
+  document.addEventListener("pointermove", (e) => {
+    if (!drag) return;
+    drag.moved = Math.max(drag.moved, Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0));
+    if (!drag.ghost && drag.moved > 6) {
+      // the ghost only appears once the hand is genuinely carrying something
+      const ghost = drag.chip.cloneNode(true);
+      ghost.classList.add("ghost");
+      ghost.style.width = drag.w + "px";
+      ghost.style.left = "0"; ghost.style.top = "0";
+      document.body.appendChild(ghost);
+      drag.ghost = ghost;
+    }
+    if (drag.ghost) {
+      drag.ghost.style.transform = "translate(" + (e.clientX - drag.dx) + "px," + (e.clientY - drag.dy) + "px)";
+    }
+    const s = seatsEl.getBoundingClientRect();
+    const over = e.clientX >= s.left && e.clientX <= s.right && e.clientY >= s.top && e.clientY <= s.bottom;
+    if (over !== drag.over) { drag.over = over; seatsEl.classList.toggle("hot", over); }
+  });
+
+  function endDrag(commit) {
+    if (!drag) return;
+    const d = drag; drag = null;
+    if (d.ghost) d.ghost.remove();
+    d.chip.classList.remove("dragging");
+    seatsEl.classList.remove("hot");
+    // A press that never travelled is a click, and the click carries the fact.
+    if (d.moved < 6) { lastDragEnd = 0; return; }
+    lastDragEnd = Date.now();
+    if (commit && d.over) moveFact(byId[d.id], "you");
+    else announce("Carry abandoned — the fact stayed on the agent side.");
+  }
+  document.addEventListener("pointerup", () => endDrag(true));
+  document.addEventListener("pointercancel", () => endDrag(false));
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && drag) { endDrag(false); announce("Carry abandoned."); }
+  });
+
+  // keyboard / click equivalent of the drag
+  nodesEl.addEventListener("click", (e) => {
+    if (Date.now() - lastDragEnd < 300) return;
+    const chip = e.target.closest(".chip");
+    if (!chip) return;
+    moveFact(byId[chip.dataset.fact], "you", true);
+    const seat = seatsEl.querySelector('[data-seat="' + cssEscape(chip.dataset.fact) + '"] button');
+    if (seat) seat.focus();
+  });
+
+  seatsEl.addEventListener("click", (e) => {
+    const back = e.target.closest("[data-back]");
+    if (back) { moveFact(byId[back.dataset.back], "agent"); return; }
+    const doBtn = e.target.closest("[data-do]");
+    if (doBtn) choose(byId[doBtn.dataset.do], doBtn.dataset.choice);
+  });
+
+  // ---------------------------------------------------------------------------
+  // Decisions: the point of a fact arriving on your side
+  // ---------------------------------------------------------------------------
+  function choose(f, key) {
+    const action = (f.actions || []).find((a) => a.key === key);
+    if (!action) return;
+    f.done = action.outcome;
+    renderAll();
+    drawHeld(f, "you");
+    announce(action.outcome);
+    const back = seatsEl.querySelector('[data-seat="' + cssEscape(f.id) + '"] [data-back]');
+    if (back) back.focus();
+  }
+
+  byId["backups-blocked"].actions = [
+    { key: "retry", label: "Retry the copy now", primary: true,
+      outcome: "Decided: retry the copy. The agent will report the result here when the run finishes." },
+    { key: "keep", label: "Keep what we have",
+      outcome: "Decided: keep the copies we already hold. The 3 files stay uncopied, on purpose." },
+    { key: "inspect", label: "Ask the agent to look closer",
+      outcome: "Asked. The agent may inspect and report — it still may not choose for you." },
+  ];
+
+  // ---------------------------------------------------------------------------
+  // Embedded app 1 — the Tape Deck
+  // ---------------------------------------------------------------------------
+  const episodes = [
+    { id: "e1", title: "S4 E2 — The Quiet Part", secs: 62, fresh: true },
+    { id: "e2", title: "S4 E3 — Twelve Signals", secs: 48, fresh: true },
+    { id: "e3", title: "S4 E1 — First Light", secs: 55, fresh: false },
+    { id: "e4", title: "S3 E9 — Long Way Round", secs: 41, fresh: false },
+  ];
+  let playing = null;   // episode object
+  let pos = 0;          // seconds
+  let timer = null;
+
+  function renderDeck() {
+    const cur = playing || episodes[0];
+    $("deck-title").textContent = cur.title;
+    $("deck-meta").textContent =
+      (playing ? "playing from inside Worlds · " : "sample queue · ") +
+      "source: Media Connect (mockup, no network)";
+    $("deck-toggle").textContent = playing ? "Pause" : "Play";
+    $("deck-finish").hidden = !playing;
+    $("deck-time").textContent = mmss(pos) + " / " + mmss(cur.secs);
+    drawWave(cur, pos / cur.secs);
+    $("deck-queue").innerHTML = episodes.map((e) =>
+      '<li><button class="btn small ghost" type="button" data-ep="' + e.id + '">' +
+      (playing && playing.id === e.id ? "Pause" : "Play") + "</button>" +
+      '<span class="name">' + esc(e.title) + "</span>" +
+      '<span class="badge' + (e.fresh ? " new" : "") + '">' + (e.fresh ? "new" : "heard") + "</span></li>"
+    ).join("");
+  }
+
+  function mmss(s) { return Math.floor(s / 60) + ":" + String(Math.floor(s % 60)).padStart(2, "0"); }
+
+  function drawWave(ep, ratio) {
+    const bars = 40;
+    const seed = [...ep.id].reduce((a, c) => a + c.charCodeAt(0), 0);
+    let html = "";
+    for (let i = 0; i < bars; i++) {
+      const h = 1 + ((seed * (i + 3) * 7919) % 90) / 100;
+      const x = i * (40 / bars);
+      html += '<rect x="' + x.toFixed(2) + '" y="' + ((1 - h) * 5).toFixed(2) + '" width="0.7" height="' +
+        (h * 10).toFixed(2) + '"' + (i / bars <= ratio ? ' class="played"' : "") + "/>";
+    }
+    $("wave").innerHTML = html;
+  }
+
+  function stop() {
+    playing = null;
+    if (timer) { clearInterval(timer); timer = null; }
+    renderDeck();
+  }
+
+  function play(ep) {
+    if (playing && playing.id === ep.id) { stop(); return; }
+    playing = ep;
+    pos = 0;
+    if (timer) clearInterval(timer);
+    // reduced motion: the transport still advances, but in visible steps
+    timer = setInterval(() => {
+      pos += reduced ? 8 : 1;
+      if (pos >= ep.secs) { finish(ep); return; }
+      renderDeck();
+    }, reduced ? 700 : 1000);
+    announce("Playing " + ep.title + " from the embedded Tape Deck.");
+    renderDeck();
+  }
+
+  // Reaching the end, by the clock or by hand, resolves a shared fact.
+  function finish(ep) {
+    pos = 0;
+    const was = playing && playing.id === ep.id;
+    stop();
+    heard(ep);
+    if (was) announce("Finished " + ep.title + ". The queue, the media mark and the shared facts row all changed.");
+  }
+
+  // Playing an episode resolves a shared fact, wherever it currently lives.
+  function heard(ep) {
+    ep.fresh = false;
+    const f = byId["media-new"];
+    const left = episodes.filter((e) => e.fresh).length;
+    if (left === 0) {
+      f.text = "No new episodes — you are up to date";
+      f.state = "fine";
+      f.stateWord = "fine";
+      if (f.side === "you") f.done = "Nothing to decide. The library is level with you.";
+      renderAll();
+      announce("The library is up to date. The shared facts row and the headline have changed.");
+      return;
+    }
+    f.text = left === 1 ? "One new episode since you were last here"
+                        : left + " new episodes since you were last here";
+    renderAll();
+    announce(left + " new episode" + (left === 1 ? "" : "s") +
+      " left. The queue, the media mark and the shared facts row all changed.");
+  }
+
+  $("deck-toggle").addEventListener("click", () => { playing ? stop() : play(episodes[0]); });
+  $("deck-finish").addEventListener("click", () => { if (playing) finish(playing); });
+  $("deck-queue").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-ep]");
+    if (b) play(episodes.find((x) => x.id === b.dataset.ep));
+  });
+
+  // ---------------------------------------------------------------------------
+  // Embedded app 2 — the Switchboard
+  // ---------------------------------------------------------------------------
+  const lamps = [
+    { id: "l1", name: "Kitchen", on: false },
+    { id: "l2", name: "Desk", on: true },
+    { id: "l3", name: "Front porch", on: false },
+    { id: "l4", name: "Studio", on: false },
+    { id: "l5", name: "Bedroom", on: false },
+    { id: "l6", name: "Hall", on: true },
+    { id: "l7", name: "Garage", on: false },
+  ];
+
+  function renderBulbs() {
+    $("bulbs").innerHTML = lamps.map((l) =>
+      '<button class="bulb" type="button" data-lamp="' + l.id + '" aria-pressed="' + l.on + '">' +
+      esc(l.name) + " · " + (l.on ? "on" : "off") + "</button>"
+    ).join("");
+  }
+
+  $("bulbs").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-lamp]");
+    if (!b) return;
+    const l = lamps.find((x) => x.id === b.dataset.lamp);
+    l.on = !l.on;
+    renderBulbs();
+    b.focus();
+    const name = l.name.toLowerCase();
+    const fid = "lamp-" + l.id;
+    if (l.on) {
+      if (!byId[fid]) {
+        const f = {
+          id: fid, svc: "Home lights", short: "Lights",
+          text: "You switched the " + name + " lamp on",
+          source: "Lights Connect · you, inside Worlds",
+          heard: 0, state: "fine", stateWord: "fine",
+          agent: "read only — it may not switch it back",
+          you: "switch it back off",
+          side: "you",
+        };
+        facts.push(f);
+        byId[fid] = f;                       // facts is also the lookup, not just the list
+        const n = nodes.find((x) => x.svc === "Home lights");
+        if (n) n.ids.push(fid);
+      } else {
+        byId[fid].side = "you";
+        byId[fid].heard = 0;
+        byId[fid].text = "You switched the " + name + " lamp on";
+      }
+      announce("The " + name + " lamp is on. That is a new fact on your side; the agent may read it but not change it.");
+    } else {
+      const f = byId[fid];
+      if (f) { f.side = "agent"; f.text = "The " + name + " lamp is off — you switched it off"; }
+      announce("The " + name + " lamp is off.");
+    }
+    renderAll();
+    drawHeld(byId[fid] || byId["lights-reach"], l.on ? "you" : "agent");
+  });
+
+  // ---------------------------------------------------------------------------
+  // One place that recomposes everything, so no view can drift from another.
+  // Focus is remembered across the recompose and handed back afterwards.
+  // ---------------------------------------------------------------------------
+  const FOCUS_ATTRS = ["data-do", "data-ep", "data-lamp", "data-fact", "data-back"];
+
+  function focusKey() {
+    const a = document.activeElement;
+    if (!a) return null;
+    if (a.classList.contains("node-card")) return "svc=" + a.dataset.svc;
+    for (const attr of FOCUS_ATTRS) {
+      if (a.hasAttribute(attr)) return attr + "=" + a.getAttribute(attr);
+    }
+    if (a.id) return "id=" + a.id;
+    return null;
+  }
+
+  function restoreFocus(key) {
+    if (!key) return;
+    const i = key.indexOf("=");
+    const attr = key.slice(0, i), val = key.slice(i + 1);
+    const el = document.querySelector("[" + attr + '="' + cssEscape(val) + '"]');
+    if (el && el.focus) el.focus();
+  }
+
+  function renderAll() {
+    const key = focusKey();
+    renderNodes();
+    renderSeats();
+    renderFacts(null);
+    renderHeadline();
+    renderDeck();
+    renderBulbs();
+    refreshNodeWords();
+    requestAnimationFrame(drawThread);
+    restoreFocus(key);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Live freshness: the snapshot stays fixed, the ages grow honestly.
+  // ---------------------------------------------------------------------------
+  function tick() {
+    refreshNodeWords();
+    renderFacts(null);
+    renderHeadline();
+    const mins = Math.floor((Date.now() - t0) / 60000);
+    $("clock").textContent = "Tuesday 13 October 2026 · 08:14 — the snapshot this mockup was drawn at" +
+      (mins > 0 ? " · " + mins + " min of drawing time have passed since" : "");
+  }
+  setInterval(tick, 30000);
+
+  window.addEventListener("resize", () => { drawThread(); renderAll(); });
+
+  renderAll();
+})();
+</script>
+</body>
+</html>

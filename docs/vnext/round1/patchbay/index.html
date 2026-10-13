@@ -1,0 +1,981 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PATCHBAY — Worlds vNext concept (MOCKUP)</title>
+<style>
+  /* ------------------------------------------------------------------ *
+   * PATCHBAY — a Worlds vNext concept prototype.
+   * One self-contained file. No network, no build step, no web fonts.
+   * Colours follow the repo themes (Station / Mulberry family).
+   * ------------------------------------------------------------------ */
+  :root{
+    --void:#0A0E18; --canvas:#0C101C; --hull:#131926; --panel:#1E2636;
+    --elevated:#273144; --raised:#2D3A4E;
+    --ink:#EDE7DB; --ink-2:#CDC6B8; --muted:#A8A092;
+    --teal:#72b1b1; --warm:#D4A057; --green:#8FC08A; --clay:#D08C7B; --violet:#A9A2DE;
+    --line:rgba(232,220,200,.14); --line-strong:rgba(232,220,200,.28);
+    --focus:#72b1b1; --r-sm:10px; --r-md:16px; --r-lg:24px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--canvas); color:var(--ink);
+    font:16px/1.5 system-ui,-apple-system,"Segoe UI",Avenir,sans-serif;
+    overflow-x:hidden;
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  h1,h2,h3{line-height:1.25;margin:0}
+  h1{font-size:clamp(28px,6vw,40px);letter-spacing:.01em}
+  h2{font-size:clamp(18px,3.4vw,22px)}
+  h3{font-size:17px}
+  p{margin:.5em 0}
+  .wrap{max-width:1180px;margin:0 auto;padding:16px}
+  :focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:6px}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+  .skip{
+    position:absolute;left:-9999px;top:0;background:var(--warm);color:#17130c;
+    padding:12px 16px;z-index:50;border-radius:0 0 var(--r-sm) 0;font-weight:600;
+  }
+  .skip:focus{left:0}
+  .sr-only{
+    position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;
+    clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0;
+  }
+
+  /* ---------- masthead ---------- */
+  .bar{background:var(--hull);border-bottom:1px solid var(--line)}
+  .bar .wrap{padding-bottom:20px}
+  .mock{
+    display:inline-block;margin:0 0 10px;padding:6px 12px;border-radius:999px;
+    background:rgba(212,160,87,.14);border:1px solid rgba(212,160,87,.5);
+    color:var(--warm);font-size:13px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+  }
+  .tagline{color:var(--ink-2);max-width:62ch;font-size:17px}
+  .stamp{color:var(--muted);font-size:14px;margin-top:10px}
+  .stamp b{color:var(--ink-2);font-weight:600}
+
+  /* ---------- summary strip ---------- */
+  .summary{
+    margin-top:18px;background:var(--panel);border:1px solid var(--line);
+    border-left:4px solid var(--teal);border-radius:var(--r-md);padding:14px 16px;
+  }
+  .summary p{margin:0;font-size:17px}
+  .summary .counts{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:10px;color:var(--muted);font-size:14px}
+  .summary .counts span b{color:var(--ink);font-weight:600}
+
+  /* ---------- board ---------- */
+  section{margin-top:26px}
+  .secHead{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 14px;margin-bottom:4px}
+  .secHead p{margin:0;color:var(--muted);font-size:14px;max-width:70ch}
+  .board{
+    position:relative;margin-top:14px;background:var(--void);
+    border:1px solid var(--line);border-radius:var(--r-lg);padding:16px;
+    background-image:radial-gradient(rgba(232,220,200,.07) 1px,transparent 1px);
+    background-size:22px 22px;
+    display:flex;gap:24px;align-items:stretch;
+  }
+  .cords{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+  .sockets{list-style:none;margin:0;padding:0;flex:1 1 auto;min-width:0;display:grid;gap:10px}
+  .sock{
+    position:relative;background:var(--panel);border:1px solid var(--line);
+    border-radius:var(--r-md);padding:10px 12px 10px 12px;
+  }
+  .sock[data-status="decision"]{border-left:4px solid var(--warm)}
+  .sock[data-status="stale"]{border-left:4px solid var(--violet)}
+  .sock[data-status="unknown"]{border-left:4px solid var(--muted);border-style:dashed}
+  .sock[data-status="fine"]{border-left:4px solid var(--green)}
+  .sockTop{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .sockName{min-height:44px;display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:16px;text-align:left}
+  .sockName:hover{color:var(--teal)}
+  .sockName[aria-current="true"]{color:var(--teal)}
+  .sockLine{color:var(--ink-2);font-size:14px;margin:2px 0 8px}
+  .word{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+  .word--fine{color:var(--green)} .word--stale{color:var(--violet)}
+  .word--decision{color:var(--warm)} .word--unknown{color:var(--ink-2)}
+  .shape{width:14px;height:14px;flex:0 0 auto;display:inline-block}
+  .shape--fine{background:var(--green);border-radius:3px}
+  .shape--decision{background:var(--warm);clip-path:polygon(50% 0,100% 100%,0 100%)}
+  .shape--stale{border:2px dashed var(--violet);border-radius:3px}
+  .shape--unknown{border:2px dotted var(--ink-2);border-radius:50%}
+  .routes{display:flex;flex-wrap:wrap;gap:8px}
+  .rt{
+    min-height:44px;padding:0 14px;border-radius:999px;border:1px solid var(--line-strong);
+    color:var(--ink-2);font-size:14px;display:inline-flex;align-items:center;gap:8px;
+  }
+  .rt:hover{border-color:var(--teal);color:var(--ink)}
+  .rt[aria-pressed="true"][data-route$=":you"]{background:rgba(114,177,177,.18);border-color:var(--teal);color:var(--ink)}
+  .rt[aria-pressed="true"][data-route$=":agent"]{background:rgba(212,160,87,.16);border-color:var(--warm);color:var(--ink)}
+  .rt .mark{font-size:12px;letter-spacing:.06em}
+  .plug{
+    width:44px;height:44px;flex:0 0 44px;display:grid;place-items:center;
+    cursor:grab;touch-action:none;
+  }
+  .plug::after{
+    content:"";width:16px;height:16px;border-radius:50%;background:var(--hull);
+    border:2px solid var(--line-strong);display:block;
+  }
+  .plug[data-live="y"]::after{border-color:var(--teal);background:var(--teal)}
+  .plug[data-live="a"]::after{border-color:var(--warm);background:var(--warm)}
+  .plug[data-live="ya"]::after{border-color:var(--warm);background:linear-gradient(90deg,var(--teal) 50%,var(--warm) 50%)}
+  .jacks{list-style:none;margin:0;padding:0;width:210px;flex:0 0 210px;display:grid;gap:12px;align-content:center}
+  .jack{
+    background:var(--hull);border:1px dashed var(--line-strong);border-radius:var(--r-md);
+    padding:12px;min-height:76px;
+  }
+  .jack[data-jack="you"]{border-color:rgba(114,177,177,.55)}
+  .jack[data-jack="agent"]{border-color:rgba(212,160,87,.55)}
+  .jack .jLabel{font-weight:600;font-size:15px}
+  .jack .jNote{color:var(--muted);font-size:13px;margin-top:2px}
+  .jack .jCount{display:block;margin-top:6px;font-size:13px;color:var(--ink-2)}
+  .jack[data-drop="1"]{background:var(--elevated);border-style:solid}
+  .sock[data-drop="1"]{background:var(--elevated)}
+
+  /* ---------- two lists ---------- */
+  .lists{display:grid;gap:16px;grid-template-columns:1fr 1fr}
+  .panelbox{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-md);padding:14px 16px}
+  .panelbox h3{display:flex;align-items:center;gap:8px}
+  .panelbox h3 .shape{width:12px;height:12px}
+  .ruled{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:8px}
+  .ruled li{border-top:1px solid var(--line);padding-top:8px}
+  .ruled a{color:var(--ink);text-decoration:none;display:block;min-height:44px;padding:6px 0}
+  .ruled a:hover{color:var(--teal)}
+  .ruled .meta{display:block;color:var(--muted);font-size:13px;margin-top:2px}
+  .ruled .caveat{color:var(--violet);font-weight:600}
+    .empty{color:var(--muted);font-style:italic}
+
+  /* ---------- bench ---------- */
+  .bench{margin-top:16px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden}
+  .benchHead{background:var(--hull);padding:12px 16px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between}
+  .benchBody{padding:16px;display:grid;gap:18px;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .factgrid{display:grid;gap:8px;margin:8px 0 0}
+  .factgrid dt{color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.06em}
+  .factgrid dd{margin:0 0 8px}
+  .perms{display:grid;gap:12px;grid-template-columns:1fr 1fr}
+  .permbox{border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px;background:var(--hull)}
+  .permbox h4{margin:0 0 6px;font-size:14px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-2)}
+  .permbox ul{margin:0;padding-left:20px;color:var(--ink-2);font-size:14px}
+  .permbox li{margin:4px 0}
+  .who{border-top:4px solid var(--teal)} .who--agent{border-top-color:var(--warm)}
+  .embed{border:1px solid var(--line-strong);border-radius:var(--r-md);background:var(--void);padding:12px}
+  .embedHead{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+  .embedHead h4{margin:0;font-size:15px}
+  .lamps{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px;margin-top:10px}
+  .lamp{
+    min-height:52px;border-radius:var(--r-sm);border:1px solid var(--line-strong);
+    background:var(--hull);color:var(--ink-2);font-size:14px;padding:6px 8px;text-align:left;
+  }
+  .lamp .lState{display:block;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+  .lamp[aria-pressed="true"]{border-color:var(--warm);background:rgba(212,160,87,.16);color:var(--ink)}
+  .lamp[aria-pressed="true"] .lState{color:var(--warm)}
+  .btn{
+    min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--line-strong);
+    background:var(--raised);color:var(--ink);display:inline-flex;align-items:center;gap:8px;font-size:15px;
+  }
+  .btn:hover{border-color:var(--teal)}
+  .btn--safe{background:rgba(114,177,177,.16);border-color:var(--teal)}
+  .btn--danger{background:rgba(208,140,123,.14);border-color:var(--clay)}
+  .btnRow{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .linkout{display:inline-flex;align-items:center;min-height:44px;color:var(--teal);font-weight:600}
+  .linkout:hover{text-decoration:underline}
+  .note{color:var(--muted);font-size:13px;margin-top:8px}
+  .honest{border-left:3px solid var(--violet);padding-left:10px;color:var(--ink-2)}
+  .honest--unknown{border-left-style:dotted;border-left-color:var(--ink-2)}
+
+  /* ---------- shared surface ---------- */
+  .facts{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));margin-top:14px}
+  .fact{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-md);padding:14px}
+  .fact h3{margin-bottom:4px}
+  .fact .head{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .reaches{font-size:14px;color:var(--ink-2)}
+  .reaches b{color:var(--ink)}
+  footer{margin-top:34px;padding:18px 0 40px;border-top:1px solid var(--line);color:var(--muted);font-size:14px}
+  footer ul{margin:8px 0 0;padding-left:20px}
+
+  @media (max-width:899px){
+    .board{flex-direction:column;gap:10px}
+    .cords,.jacks{display:none}
+    .sockTop{gap:8px}
+    .benchBody,.lists{grid-template-columns:1fr}
+    .perms{grid-template-columns:1fr}
+  }
+  @media (prefers-reduced-motion: no-preference){
+    .sock,.rt,.jack,.lamp,.btn,.plug{transition:background-color .18s ease,border-color .18s ease,color .18s ease,box-shadow .18s ease}
+    .cords path{transition:opacity .2s ease}
+  }
+  @media (prefers-contrast: more){
+    :root{--line:rgba(232,220,200,.34);--line-strong:rgba(232,220,200,.5);--muted:#CFC7B8}
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the board</a>
+
+<header class="bar">
+  <div class="wrap">
+    <p class="mock">Mockup · concept prototype · sample data · not approved, not built</p>
+    <h1>Patchbay</h1>
+    <p class="tagline">Worlds as a signal board. Every service is a socket; every reading can be patched to <b>you</b>, to the <b>agent</b>, or to <b>nobody</b>. Re-wiring changes who is told — it never changes what is true.</p>
+    <p class="stamp"><b>Tuesday 13 October, 08:14.</b> Fixed sample data. Nothing on this page is a real reading and no action is dispatched.</p>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <div class="summary" id="summary">
+    <p id="summaryLine">Loading the board…</p>
+    <p class="counts" id="summaryCounts"></p>
+  </div>
+
+  <section aria-labelledby="board-h">
+    <div class="secHead">
+      <h2 id="board-h">The board</h2>
+      <p>Pull a cord from a socket to a jack, or use the two switches on each socket. <b>Tab</b> reaches every switch; cords are the picture of the same wiring.</p>
+    </div>
+    <div class="board" id="board">
+      <svg class="cords" id="cords" aria-hidden="true" focusable="false"></svg>
+      <ul class="sockets" id="sockets"></ul>
+      <ul class="jacks" id="jacks">
+        <li class="jack" data-jack="you" id="jack-you">
+          <span class="jLabel">Your morning read</span>
+          <span class="jNote">What Worlds puts in front of you</span>
+          <span class="jCount" id="count-you">0 cords</span>
+        </li>
+        <li class="jack" data-jack="agent" id="jack-agent">
+          <span class="jLabel">Agent&rsquo;s context</span>
+          <span class="jNote">What the agent may read, unchanged</span>
+          <span class="jCount" id="count-agent">0 cords</span>
+        </li>
+        <li class="jack" data-jack="held" id="jack-held">
+          <span class="jLabel">Held — reaches nobody</span>
+          <span class="jNote">Unplugged: known to Worlds, told to no one</span>
+          <span class="jCount" id="count-held">0 services</span>
+        </li>
+      </ul>
+    </div>
+    <p class="note" id="boardNote">On a narrow screen the board folds into a list: same wiring, same switches, words instead of cords.</p>
+  </section>
+
+  <section aria-labelledby="read-h">
+    <div class="secHead">
+      <h2 id="read-h">Who gets told</h2>
+      <p>Both lists are built from the same facts. Each line links to that fact on the shared surface below.</p>
+    </div>
+    <div class="lists">
+      <div class="panelbox who">
+        <h3><span class="shape shape--fine" aria-hidden="true"></span> Your morning read</h3>
+        <ul class="ruled" id="list-you"></ul>
+      </div>
+      <div class="panelbox who who--agent">
+        <h3><span class="shape shape--decision" aria-hidden="true"></span> Agent&rsquo;s context</h3>
+        <ul class="ruled" id="list-agent"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="bench-h">
+    <div class="secHead">
+      <h2 id="bench-h">The bench</h2>
+      <p>The thing you have selected from the board. Nothing here is invented: if there is no reading, the bench says so.</p>
+    </div>
+    <div class="bench">
+      <div class="benchHead">
+        <h3 id="benchTitle">Bench</h3>
+        <p class="note" id="benchSub" style="margin:0"></p>
+      </div>
+      <div class="benchBody" id="benchBody"></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="surface-h">
+    <div class="secHead">
+      <h2 id="surface-h">The shared surface — the same facts for both readers</h2>
+      <p>You and the agent read from one list. Routing decides <em>who is told</em>; it never decides <em>what is true</em>. Every fact names its source and when Worlds last heard it, and the two permission lists are kept apart on purpose.</p>
+    </div>
+    <div class="facts" id="facts"></div>
+  </section>
+
+  <footer>
+    <p><b>Mockup limits, stated plainly.</b> This is a concept prototype with fixed sample data (Tuesday 13 October, 08:14). No service is contacted, no fact is fetched, no action is dispatched. The embedded panel is a drawing, and its switches change nothing outside itself.</p>
+    <ul>
+      <li>Two readings are not healthy: <b>Files is stale</b> — last heard at 05:14, three hours ago, so its reading may no longer be true. <b>Weather is unknown</b> — it has never answered, so no reading exists at all.</li>
+      <li>Status is always written as a word and drawn as a shape as well as a colour.</li>
+      <li>Aligned with the repository <a href="../../../accessibility/ACCESSIBILITY_CONTRACT.md">accessibility contract</a> (44px targets, keyboard reach, visible focus, reduced motion respected).</li>
+    </ul>
+  </footer>
+</main>
+
+<div class="sr-only" id="live" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+
+/* ------------------------------------------------------------------ *
+ * Fixed sample data. Everything the page says comes from here.      *
+ * ------------------------------------------------------------------ */
+var SERVICES = [
+  {
+    id: "media", name: "Media library", status: "fine", word: "Fine",
+    line: "2 new episodes ready to play",
+    detail: "Two new episodes arrived since yesterday evening. Nothing else changed.",
+    heard: "08:12", heardWord: "2 minutes ago", source: "Media library — its own read-only API",
+    fact: "Two new episodes are waiting in the library.",
+    agentMay: ["Read the catalogue", "Queue an episode for later"],
+    humanMay: ["Read the catalogue", "Play or queue an episode", "Remove a library folder"],
+    embed: null
+  },
+  {
+    id: "backups", name: "Backups", status: "decision", word: "Needs your decision",
+    line: "3 files could not be copied",
+    detail: "The 06:00 run finished. Three files could not be copied — permission denied. Nothing has been retried, and Worlds will not retry on its own.",
+    heard: "06:03", heardWord: "2 hours ago", source: "Backups — its own API, job of 06:00",
+    fact: "Three files could not be copied in this morning's run.",
+    agentMay: ["Read the run report", "Prepare a retry — proposal only, dispatches nothing"],
+    humanMay: ["Read the run report", "Authorise a retry — the only principal who may", "Change the job schedule"],
+    embed: null, decision: true
+  },
+  {
+    id: "lights", name: "Home lights", status: "fine", word: "Fine",
+    line: "7 of 7 lights reachable",
+    detail: "All seven lamps answered the last poll. Worlds can switch them; the demo panel below is a drawing of that app.",
+    heard: "08:10", heardWord: "4 minutes ago", source: "Home lights — the hub in the hall",
+    fact: "All seven lights answered; the house is reachable.",
+    agentMay: ["Read on/off state", "Turn a lamp on or off"],
+    humanMay: ["Read on/off state", "Turn a lamp on or off", "Rename or remove a lamp"],
+    embed: { title: "Home lights", url: "https://example.invalid/home-lights" }
+  },
+  {
+    id: "files", name: "Files", status: "stale", word: "Stale",
+    line: "Last heard 3 hours ago",
+    detail: "The newest reading Worlds holds from Files is from 05:14. It may no longer be true, so Worlds will not present it as current.",
+    heard: "05:14", heardWord: "3 hours ago", source: "Files — its own index; last successful answer 05:14",
+    fact: "The last reading from Files is three hours old and may be out of date.",
+    agentMay: ["Read the stored reading — marked stale", "Ask Files for a fresh answer"],
+    humanMay: ["Read the stored reading", "Ask Files for a fresh answer", "Mount or unmount a share"],
+    embed: null
+  },
+  {
+    id: "board", name: "Project board", status: "fine", word: "Fine",
+    line: "3 cards due this week",
+    detail: "Three cards are due before Friday. None of them is blocked.",
+    heard: "08:09", heardWord: "5 minutes ago", source: "Project board — its own API",
+    fact: "Three cards are due this week and none is blocked.",
+    agentMay: ["Read cards and due dates", "Draft a comment — never post it"],
+    humanMay: ["Read cards and due dates", "Move, edit or close a card"],
+    embed: null
+  },
+  {
+    id: "weather", name: "Weather", status: "unknown", word: "Unknown",
+    line: "Never answered",
+    detail: "Weather has never answered. Worlds holds no configuration and no reading, so there is nothing to route and nothing to show. This is not a failure to fix by guessing.",
+    heard: null, heardWord: "never", source: "Weather — no configuration, no answer ever recorded",
+    fact: null,
+    agentMay: ["Nothing — there is no reading to read"],
+    humanMay: ["Add a location and a provider", "Remove Weather from the house"],
+    embed: null, noReading: true
+  }
+];
+
+var BY_ID = {};
+SERVICES.forEach(function (s) { BY_ID[s.id] = s; });
+
+var destinations = {
+  you:   { label: "Your morning read", short: "Your read" },
+  agent: { label: "Agent's context",  short: "Agent" }
+};
+
+/* Routing state: which readers each service's reading is patched to. */
+var routes = {
+  media:   { you: true,  agent: true  },
+  backups: { you: true,  agent: true  },
+  lights:  { you: true,  agent: true  },
+  files:   { you: true,  agent: false },
+  board:   { you: true,  agent: true  },
+  weather: { you: false, agent: false }
+};
+
+var decisions = { backups: null };  /* null | "flagged" | "prepare" | "authorise" */
+var selected  = "backups";
+var embedBroken = false;            /* "simulate can't embed" state */
+var lamps = [
+  { name: "Kitchen", on: true }, { name: "Hall", on: true }, { name: "Study", on: false },
+  { name: "Porch", on: true }, { name: "Bedroom", on: false }, { name: "Landing", on: true },
+  { name: "Garage", on: true }
+];
+
+/* ------------------------------------------------------------------ *
+ * Small helpers                                                       *
+ * ------------------------------------------------------------------ */
+var socketList = document.getElementById("sockets");
+var cordsSvg   = document.getElementById("cords");
+var boardEl    = document.getElementById("board");
+var liveBox    = document.getElementById("live");
+
+function el(tag, cls, text) {
+  var n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (text != null) n.textContent = text;
+  return n;
+}
+function isHeld(id) { var r = routes[id]; return !r.you && !r.agent; }
+function announce(msg) { liveBox.textContent = msg; }
+
+/* Keep keyboard focus across a re-render: remember the focused element's
+   data-fk key and restore it on the replacement. */
+function focusedKey() {
+  var a = document.activeElement;
+  return a && a.getAttribute ? a.getAttribute("data-fk") : null;
+}
+var pendingFocus = null;   /* set when the control that was used disappears */
+function restoreFocus(key) {
+  var k = pendingFocus || key;
+  pendingFocus = null;
+  if (!k) return;
+  var next = document.querySelector('[data-fk="' + k + '"]');
+  if (next) next.focus();
+}
+
+/* ------------------------------------------------------------------ *
+ * Socket rows (built once — state is synced in place, so focus lives) *
+ * ------------------------------------------------------------------ */
+function buildSockets() {
+  SERVICES.forEach(function (s) {
+    var li = el("li", "sock");
+    li.setAttribute("data-sock", s.id);
+    li.setAttribute("data-status", s.status);
+
+    var top = el("div", "sockTop");
+    var plug = el("span", "plug");
+    plug.setAttribute("data-plug", s.id);
+    plug.setAttribute("aria-hidden", "true");
+    plug.setAttribute("title", "Drag to a jack, or use the switches");
+    top.appendChild(plug);
+
+    var nameBtn = el("button", "sockName");
+    nameBtn.setAttribute("data-fk", "inspect:" + s.id);
+    nameBtn.setAttribute("data-inspect", s.id);
+    var shape = el("span", "shape shape--" + s.status);
+    shape.setAttribute("aria-hidden", "true");
+    nameBtn.appendChild(shape);
+    nameBtn.appendChild(el("span", null, s.name));
+    top.appendChild(nameBtn);
+    top.appendChild(el("span", "word word--" + s.status, s.word));
+    li.appendChild(top);
+
+    li.appendChild(el("p", "sockLine", s.line));
+
+    if (s.noReading) {
+      li.appendChild(el("p", "sockLine honest honest--unknown",
+        "No reading exists, so there is nothing to patch. Routing cannot create one."));
+    }
+
+    var row = el("div", "routes");
+    row.setAttribute("role", "group");
+    row.setAttribute("aria-label", "Route " + s.name);
+    ["you", "agent"].forEach(function (d) {
+      var b = el("button", "rt");
+      b.setAttribute("data-route", s.id + ":" + d);
+      b.setAttribute("data-fk", "route:" + s.id + ":" + d);
+      if (s.noReading) b.setAttribute("aria-disabled", "true");
+      var mark = el("span", "mark", d === "you" ? "●" : "▲");
+      mark.setAttribute("aria-hidden", "true");
+      b.appendChild(mark);
+      b.appendChild(el("span", null, destinations[d].label));
+      b.addEventListener("click", function () { toggleRoute(s.id, d); });
+      row.appendChild(b);
+    });
+    li.appendChild(row);
+
+    li.appendChild(el("p", "note")).setAttribute("data-reach", s.id);
+
+    socketList.appendChild(li);
+  });
+}
+
+function toggleRoute(id, dest) {
+  var s = BY_ID[id];
+  if (s.noReading) {
+    var msg = "Nothing to route: " + s.name + " has never answered, so no reading exists at all. Patching cannot create one.";
+    announce(msg);
+    selected = id;
+    syncSelection();
+    renderBench(msg);
+    return;
+  }
+  routes[id][dest] = !routes[id][dest];
+  var on = routes[id][dest];
+  announce(s.name + (on ? " is now patched to " : " is now unpatched from ") + destinations[dest].label + ".");
+  syncAll();
+}
+
+/* ------------------------------------------------------------------ *
+ * Rendering                                                           *
+ * ------------------------------------------------------------------ */
+function routeWord(id) {
+  var r = routes[id];
+  if (r.you && r.agent) return "You and the agent";
+  if (r.you) return "You only";
+  if (r.agent) return "The agent only";
+  return "Held — nobody";
+}
+
+function syncSockets() {
+  SERVICES.forEach(function (s) {
+    var li = socketList.querySelector('[data-sock="' + s.id + '"]');
+    ["you", "agent"].forEach(function (d) {
+      var b = li.querySelector('[data-route="' + s.id + ':' + d + '"]');
+      var on = routes[s.id][d];
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+      b.setAttribute("aria-label",
+        (on ? "Stop routing " : "Route ") + s.name + " to " + destinations[d].label + (s.noReading ? " — not possible: no reading exists" : ""));
+    });
+    var plug = li.querySelector('[data-plug="' + s.id + '"]');
+    var r = routes[s.id];
+    plug.setAttribute("data-live", r.you && r.agent ? "ya" : r.you ? "y" : r.agent ? "a" : "");
+    var reach = li.querySelector('[data-reach]');
+    reach.textContent = "Patched to: " + routeWord(s.id) + ".";
+  });
+}
+
+function syncLists() {
+  [["you", "list-you"], ["agent", "list-agent"]].forEach(function (pair) {
+    var dest = pair[0], box = document.getElementById(pair[1]);
+    box.textContent = "";
+    var any = false;
+    SERVICES.forEach(function (s) {
+      if (!routes[s.id][dest]) return;
+      any = true;
+      var li = el("li");
+      var a = el("a");
+      a.href = "#fact-" + s.id;
+      a.setAttribute("data-fk", "list:" + dest + ":" + s.id);
+      a.appendChild(el("span", null, s.line));
+      var meta = el("span", "meta", s.name + " · " + s.word + " · heard " + (s.heard ? s.heard + " (" + s.heardWord + ")" : "never"));
+      a.appendChild(meta);
+      if (s.noReading) meta.appendChild(el("span", "caveat", " — no reading exists"));
+      if (dest === "agent" && s.status === "stale") meta.appendChild(el("span", "caveat", " — stale: the agent is told the age, not just the value"));
+      if (dest === "agent" && s.id === "backups" && decisions.backups === "authorise") meta.appendChild(el("span", "caveat", " — you authorised the retry; the agent is told, and still may not retry"));
+      li.appendChild(a);
+      box.appendChild(li);
+    });
+    if (!any) {
+      var e = el("li");
+      e.appendChild(el("span", "empty", dest === "you"
+        ? "Nothing is patched here. Worlds would show you nothing at all — which is a state you are allowed to be in."
+        : "Nothing is patched here. The agent reads nothing from this board."));
+      box.appendChild(e);
+    }
+  });
+}
+
+function syncSummary() {
+  var toYou = 0, toAgent = 0, held = 0, stale = 0, unknown = 0;
+  SERVICES.forEach(function (s) {
+    if (routes[s.id].you) toYou++;
+    if (routes[s.id].agent) toAgent++;
+    if (isHeld(s.id)) held++;
+    if (s.status === "stale") stale++;
+    if (s.status === "unknown") unknown++;
+  });
+  var heldNames = SERVICES.filter(function (s) { return isHeld(s.id); })
+    .map(function (s) { return s.name; }).join(", ");
+  document.getElementById("summaryLine").textContent =
+    "One thing needs you. " + toYou + " of " + SERVICES.length + " services are patched to your morning read and " +
+    toAgent + " to the agent's context. " + (held ? heldNames + " reaches nobody" : "Nothing is held") +
+    ". " + stale + " reading is stale (Files) and one service has never answered (Weather), so its socket carries no cord.";
+  var counts = document.getElementById("summaryCounts");
+  counts.textContent = "";
+  [["Cords to you", toYou], ["Cords to the agent", toAgent], ["Held", held],
+   ["Stale readings", stale], ["Never answered", unknown]].forEach(function (p) {
+    var sp = el("span");
+    sp.appendChild(el("b", null, String(p[1])));
+    sp.appendChild(document.createTextNode(" " + p[0]));
+    counts.appendChild(sp);
+  });
+  document.getElementById("count-you").textContent = toYou + (toYou === 1 ? " cord" : " cords");
+  document.getElementById("count-agent").textContent = toAgent + (toAgent === 1 ? " cord" : " cords");
+  document.getElementById("count-held").textContent = held + (held === 1 ? " service" : " services");
+}
+
+/* ---------------- cords ---------------- */
+function anchor(node, boardRect) {
+  var r = node.getBoundingClientRect();
+  return {
+    x: r.left - boardRect.left + r.width / 2,
+    y: r.top - boardRect.top + r.height / 2
+  };
+}
+function renderCords() {
+  cordsSvg.textContent = "";
+  if (window.innerWidth < 900 || !boardEl.offsetWidth) return;
+  var boardRect = boardEl.getBoundingClientRect();
+  var NS = "http://www.w3.org/2000/svg";
+  SERVICES.forEach(function (s) {
+    var plug = socketList.querySelector('[data-plug="' + s.id + '"]');
+    if (!plug) return;
+    var a = anchor(plug, boardRect);
+    ["you", "agent"].forEach(function (d) {
+      if (!routes[s.id][d]) return;
+      var jack = document.querySelector('[data-jack="' + d + '"]');
+      var b = anchor(jack, boardRect);
+      var mid = (a.x + b.x) / 2;
+      var path = document.createElementNS(NS, "path");
+      path.setAttribute("d", "M " + a.x + " " + a.y +
+        " C " + (mid + 30) + " " + a.y + ", " + (mid - 30) + " " + b.y + ", " + b.x + " " + b.y);
+      path.setAttribute("fill", "none");
+      path.setAttribute("stroke", d === "you" ? "#72b1b1" : "#D4A057");
+      path.setAttribute("stroke-width", "2.5");
+      if (d === "agent") path.setAttribute("stroke-dasharray", "7 5");
+      path.setAttribute("stroke-opacity", "0.85");
+      path.setAttribute("data-cord", s.id + ":" + d);
+      var tip = document.createElementNS(NS, "title");
+      tip.textContent = s.name + " → " + destinations[d].label;
+      path.appendChild(tip);
+      cordsSvg.appendChild(path);
+      var dot = document.createElementNS(NS, "circle");
+      dot.setAttribute("cx", b.x); dot.setAttribute("cy", b.y); dot.setAttribute("r", "4");
+      dot.setAttribute("fill", d === "you" ? "#72b1b1" : "#D4A057");
+      cordsSvg.appendChild(dot);
+    });
+  });
+}
+
+/* ---------------- facts surface ---------------- */
+function buildFacts() {
+  var box = document.getElementById("facts");
+  box.textContent = "";
+  SERVICES.forEach(function (s) {
+    var art = el("article", "fact");
+    art.id = "fact-" + s.id;
+    var head = el("div", "head");
+    var shape = el("span", "shape shape--" + s.status);
+    shape.setAttribute("aria-hidden", "true");
+    head.appendChild(shape);
+    head.appendChild(el("h3", null, s.name));
+    head.appendChild(el("span", "word word--" + s.status, s.word));
+    art.appendChild(head);
+
+    var dl = el("dl", "factgrid");
+    function row(term, value, cls) {
+      dl.appendChild(el("dt", null, term));
+      var dd = el("dd", cls || null, value);
+      dl.appendChild(dd);
+    }
+    row("The fact", s.fact || "No reading exists. Weather has never answered, so Worlds will not state one.", s.fact ? null : "honest honest--unknown");
+    row("Source", s.source);
+    row("Freshness", s.heard ? "Heard at " + s.heard + " — " + s.heardWord + (s.status === "stale" ? " (stale)" : " (fresh)") : "Never heard — unknown");
+    art.appendChild(dl);
+
+    var reach = el("p", "reaches");
+    reach.appendChild(el("b", null, "Who is told: "));
+    reach.appendChild(document.createTextNode(routeWord(s.id) + " (set on the board above)."));
+    art.appendChild(reach);
+
+    var perms = el("div", "perms");
+    [["agent", "Agent may"], ["human", "Human may"]].forEach(function (p) {
+      var pb = el("div", "permbox");
+      var h4 = el("h4", null, p[1]);
+      pb.appendChild(h4);
+      var ul = el("ul");
+      (p[0] === "agent" ? s.agentMay : s.humanMay).forEach(function (t) {
+        ul.appendChild(el("li", null, t));
+      });
+      pb.appendChild(ul);
+      perms.appendChild(pb);
+    });
+    art.appendChild(perms);
+
+    if (s.embed) {
+      var lo = el("a", "linkout", "Open " + s.embed.title + " in the owning app ↗");
+      lo.href = s.embed.url;
+      art.appendChild(lo);
+    }
+    box.appendChild(art);
+  });
+}
+
+function syncFacts() {
+  SERVICES.forEach(function (s) {
+    var art = document.getElementById("fact-" + s.id);
+    var reach = art.querySelector(".reaches");
+    reach.textContent = "";
+    reach.appendChild(el("b", null, "Who is told: "));
+    reach.appendChild(document.createTextNode(routeWord(s.id) + " (set on the board above)."));
+  });
+}
+
+/* ---------------- bench ---------------- */
+function lampPanel(s) {
+  var wrapEl = el("div", "embed");
+  var head = el("div", "embedHead");
+  head.appendChild(el("h4", null, "Inside Worlds: " + s.embed.title));
+  var out = el("a", "linkout", "Open in the owning app ↗");
+  out.href = s.embed.url;
+  head.appendChild(out);
+  wrapEl.appendChild(head);
+
+  if (embedBroken) {
+    var fb = el("p", "honest");
+    fb.textContent = "This app cannot be embedded right now (its page refuses to be framed). Worlds says so instead of showing a blank box. The link above still opens it.";
+    wrapEl.appendChild(fb);
+    var again = el("button", "btn", "Try embedding again");
+    again.setAttribute("data-fk", "embed:retry");
+    again.addEventListener("click", function () {
+      pendingFocus = "embed:sim";
+      embedBroken = false; renderBench(); announce("Trying to embed Home lights again.");
+    });
+    wrapEl.appendChild(el("div", "btnRow")).appendChild(again);
+    return wrapEl;
+  }
+
+  var grid = el("div", "lamps");
+  lamps.forEach(function (l, i) {
+    var b = el("button", "lamp");
+    b.setAttribute("aria-pressed", l.on ? "true" : "false");
+    b.setAttribute("data-fk", "lamp:" + i);
+    b.appendChild(el("span", null, l.name));
+    b.appendChild(el("span", "lState", l.on ? "On" : "Off"));
+    b.addEventListener("click", function () {
+      lamps[i].on = !lamps[i].on;
+      announce("Demo lamps: " + lamps[i].name + " is now " + (lamps[i].on ? "on" : "off") +
+        ". This is a drawing and does not change the shared fact.");
+      renderBench();
+    });
+    grid.appendChild(b);
+  });
+  wrapEl.appendChild(grid);
+
+  var on = lamps.filter(function (l) { return l.on; }).length;
+  wrapEl.appendChild(el("p", "note", "Demo panel: " + on + " of " + lamps.length + " lamps on. Switching one here is a drawing — it does not rewrite the fact “7 of 7 lights reachable” above, and nothing is sent to the house."));
+  var sim = el("button", "btn", "Simulate can’t embed");
+  sim.setAttribute("data-fk", "embed:sim");
+  sim.addEventListener("click", function () {
+    pendingFocus = "embed:retry";
+    embedBroken = true; renderBench();
+    announce("Embedding Home lights is now simulated as unavailable. The fallback link is shown.");
+  });
+  var row = el("div", "btnRow");
+  row.appendChild(sim);
+  wrapEl.appendChild(row);
+  return wrapEl;
+}
+
+function decisionPanel() {
+  var wrapEl = el("div");
+  var made = decisions.backups;
+  if (made) {
+    var p = el("p", "honest");
+    p.textContent = made === "flagged"
+      ? "Recorded: kept flagged. Worlds will keep this in front of you and has done nothing else."
+      : made === "prepare"
+        ? "Recorded: the agent is asked to prepare a retry. That is a proposal only — nothing has been dispatched."
+        : "Recorded: you authorised one retry. It has not been dispatched yet in this mockup, and the agent still may not retry.";
+    wrapEl.appendChild(p);
+    var undo = el("button", "btn", "Record a different outcome");
+    undo.setAttribute("data-fk", "decision:undo");
+    undo.addEventListener("click", function () {
+      decisions.backups = null; announce("The Backups decision is open again."); syncAll();
+    });
+    wrapEl.appendChild(el("div", "btnRow")).appendChild(undo);
+    return wrapEl;
+  }
+  var lead = el("p", null, "Three files could not be copied in the 06:00 run. Worlds will not choose for you. Pick one outcome:");
+  wrapEl.appendChild(lead);
+  var row = el("div", "btnRow");
+  var opts = [
+    ["flagged", "Keep it flagged", "btn btn--safe", "Nothing is attempted. Worlds keeps it in your morning read."],
+    ["prepare", "Ask the agent to prepare a retry (proposal only)", "btn", "The agent drafts a retry; nothing is dispatched and you must still authorise it."],
+    ["authorise", "Authorise one retry (you alone)", "btn btn--danger", "A consequential action only a person may take. Worlds cannot undo it once it runs."]
+  ];
+  opts.forEach(function (o, i) {
+    var b = el("button", o[2], o[1]);
+    b.setAttribute("data-fk", "decision:" + o[0]);
+    b.setAttribute("title", o[3]);
+    b.addEventListener("click", function () {
+      decisions.backups = o[0];
+      pendingFocus = "decision:undo";
+      announce("Backups decision recorded: " + o[1] + ".");
+      syncAll();
+    });
+    if (i === 0) b.setAttribute("data-safe-default", "true");
+    row.appendChild(b);
+  });
+  wrapEl.appendChild(row);
+  wrapEl.appendChild(el("p", "note", "The safe option is first and holds focus by default. A production build would route “Authorise” through the full governed flow: request, approve, dispatch at most once, with a durable outcome."));
+  return wrapEl;
+}
+
+function renderBench(overrideMessage) {
+  var s = BY_ID[selected];
+  document.getElementById("benchTitle").textContent = s.name + " — " + s.word;
+  document.getElementById("benchSub").textContent = s.noReading
+    ? "No reading exists for this service. That is the honest state, not an error."
+    : "On the shared surface as fact " + (SERVICES.indexOf(s) + 1) + " of " + SERVICES.length + ".";
+  var body = document.getElementById("benchBody");
+  var key = focusedKey();
+  body.textContent = "";
+
+  var left = el("div");
+  if (overrideMessage) left.appendChild(el("p", "honest honest--unknown", overrideMessage));
+
+  var dl = el("dl", "factgrid");
+  function row(term, value, cls) {
+    dl.appendChild(el("dt", null, term));
+    dl.appendChild(el("dd", cls || null, value));
+  }
+  row("Summary", s.detail);
+  row("Source", s.source);
+  row("Freshness", s.heard ? "Heard at " + s.heard + " (" + s.heardWord + ")" + (s.status === "stale" ? " — stale" : "") : "Never heard — unknown");
+  row("Patched to", routeWord(s.id));
+  left.appendChild(dl);
+
+  if (s.status === "stale") {
+    var rc = el("button", "btn", "Re-check Files now");
+    rc.setAttribute("data-fk", "recheck:files");
+    rc.addEventListener("click", function () {
+      announce("Re-checked Files. Still stale: the newest reading is still 05:14. Worlds does not fill the gap.");
+      renderBench("Re-check done. Still stale — the newest reading Worlds holds is still 05:14, three hours old. No new answer arrived and none is invented.");
+    });
+    left.appendChild(el("div", "btnRow")).appendChild(rc);
+  }
+  if (s.noReading) {
+    var rc2 = el("button", "btn", "Re-check Weather now");
+    rc2.setAttribute("data-fk", "recheck:weather");
+    rc2.addEventListener("click", function () {
+      announce("Re-checked Weather. Still no answer. Nothing new is known.");
+      renderBench("Re-check done. Weather still has not answered, so Worlds still knows nothing about it. This stays unknown until the service says something.");
+    });
+    left.appendChild(el("div", "btnRow")).appendChild(rc2);
+  }
+  if (s.decision) left.appendChild(decisionPanel());
+  body.appendChild(left);
+
+  var right = el("div");
+  if (s.embed) right.appendChild(lampPanel(s));
+  else {
+    var box = el("div", "embed");
+    box.appendChild(el("h4", null, "Inside Worlds: no app here"));
+    box.appendChild(el("p", "note", s.noReading
+      ? "Weather has no owning app configured either, so there is nowhere to embed and nowhere to link out to. Worlds says that rather than showing an empty frame."
+      : "This service has no embed descriptor. Worlds shows the facts only; the owning app is where its own screens live."));
+    right.appendChild(box);
+  }
+  var perms = el("div", "perms");
+  [["agent", "Agent may"], ["human", "Human may"]].forEach(function (p) {
+    var pb = el("div", "permbox");
+    pb.appendChild(el("h4", null, p[1]));
+    var ul = el("ul");
+    (p[0] === "agent" ? s.agentMay : s.humanMay).forEach(function (t) { ul.appendChild(el("li", null, t)); });
+    pb.appendChild(ul);
+    perms.appendChild(pb);
+  });
+  right.appendChild(perms);
+  right.appendChild(el("p", "note", "The two lists stay apart: what the agent may do never silently grows into what a person may do."));
+  body.appendChild(right);
+  restoreFocus(key);
+}
+
+function syncSelection() {
+  SERVICES.forEach(function (s) {
+    var b = socketList.querySelector('[data-inspect="' + s.id + '"]');
+    b.setAttribute("aria-current", s.id === selected ? "true" : "false");
+    b.setAttribute("aria-label", "Open " + s.name + " on the bench" + (s.id === selected ? " (selected)" : ""));
+  });
+}
+
+function syncAll() {
+  var key = focusedKey();
+  syncSockets(); syncLists(); syncSummary(); syncFacts(); syncSelection();
+  renderCords();
+  renderBench();
+  restoreFocus(key);
+}
+
+/* ------------------------------------------------------------------ *
+ * Pointer convenience: drag a plug onto a jack. The two switches on  *
+ * every socket are the keyboard/pointer-primary alternative.         *
+ * ------------------------------------------------------------------ */
+(function drag() {
+  var dragging = null, ghost = null;
+  var NS = "http://www.w3.org/2000/svg";
+
+  socketList.addEventListener("pointerdown", function (e) {
+    var plug = e.target.closest ? e.target.closest(".plug") : null;
+    if (!plug || window.innerWidth < 900) return;
+    var id = plug.getAttribute("data-plug");
+    if (BY_ID[id].noReading) { toggleRoute(id, "you"); return; }
+    dragging = id;
+    plug.setPointerCapture(e.pointerId);
+    ghost = document.createElementNS(NS, "path");
+    ghost.setAttribute("fill", "none");
+    ghost.setAttribute("stroke", "#EDE7DB");
+    ghost.setAttribute("stroke-width", "2.5");
+    ghost.setAttribute("stroke-dasharray", "6 4");
+    cordsSvg.appendChild(ghost);
+    e.preventDefault();
+  });
+
+  /* The plug holds pointer capture, so events retarget onto it: find the
+     jack under the finger with elementFromPoint instead of e.target. */
+  function jackUnder(clientX, clientY) {
+    var node = document.elementFromPoint(clientX, clientY);
+    return node && node.closest ? node.closest("[data-jack]") : null;
+  }
+
+  socketList.addEventListener("pointermove", function (e) {
+    if (!dragging) return;
+    var boardRect = boardEl.getBoundingClientRect();
+    var plug = socketList.querySelector('[data-plug="' + dragging + '"]');
+    var a = anchor(plug, boardRect);
+    var x = e.clientX - boardRect.left, y = e.clientY - boardRect.top;
+    ghost.setAttribute("d", "M " + a.x + " " + a.y + " Q " + ((a.x + x) / 2) + " " + (a.y - 40) + ", " + x + " " + y);
+    var jack = jackUnder(e.clientX, e.clientY);
+    document.querySelectorAll(".jack").forEach(function (j) { j.setAttribute("data-drop", jack === j && j.getAttribute("data-jack") !== "held" ? "1" : ""); });
+  });
+
+  function endDrag(e) {
+    if (!dragging) return;
+    var jack = jackUnder(e.clientX, e.clientY);
+    var dest = jack ? jack.getAttribute("data-jack") : null;
+    var id = dragging;
+    dragging = null;
+    if (ghost) { ghost.remove(); ghost = null; }
+    document.querySelectorAll(".jack").forEach(function (j) { j.setAttribute("data-drop", ""); });
+    if (dest === "you" || dest === "agent") {
+      routes[id][dest] = true;
+      announce(BY_ID[id].name + " is now patched to " + destinations[dest].label + ".");
+      syncAll();
+    }
+  }
+  socketList.addEventListener("pointerup", endDrag);
+  socketList.addEventListener("pointercancel", endDrag);
+})();
+
+document.addEventListener("keydown", function (e) {
+  if (e.key === "Escape") {
+    document.querySelectorAll(".jack").forEach(function (j) { j.setAttribute("data-drop", ""); });
+  }
+});
+
+socketList.addEventListener("click", function (e) {
+  var b = e.target.closest ? e.target.closest("[data-inspect]") : null;
+  if (!b) return;
+  selected = b.getAttribute("data-inspect");
+  announce("Bench now shows " + BY_ID[selected].name + ".");
+  syncSelection();
+  renderBench();
+  restoreFocus("inspect:" + selected);
+});
+
+var resizeTimer = null;
+window.addEventListener("resize", function () {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(renderCords, 120);
+});
+
+buildSockets();
+buildFacts();
+syncAll();
+</script>
+</body>
+</html>

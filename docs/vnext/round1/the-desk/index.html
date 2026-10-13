@@ -1,0 +1,863 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>THE DESK — a Worlds vNext concept (MOCKUP)</title>
+<style>
+  :root {
+    --paper: #f3efe6;
+    --paper-2: #ece7da;
+    --ink: #1c1b17;
+    --ink-2: #55524a;
+    --ink-3: #8b8579;
+    --rule: #cdc6b5;
+    --rule-2: #b3ab97;
+    --pen: #a63a17;
+    --pen-2: #7d2a0f;
+    --focus: #1f5fd0;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 15px;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+  }
+
+  body {
+    padding: 0 0 4rem;
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+
+  header.top {
+    border-bottom: 2px solid var(--ink);
+    padding: 1rem 1rem 0.9rem;
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .mockup {
+    display: inline-block;
+    border: 2px solid var(--ink);
+    padding: 0.15rem 0.5rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    font-size: 0.72rem;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+    margin: 0.2rem 0 0;
+    letter-spacing: 0.02em;
+  }
+
+  .sub { color: var(--ink-2); font-size: 0.85rem; margin: 0; max-width: 68ch; }
+
+  .meta-line {
+    display: flex; flex-wrap: wrap; gap: 0.35rem 1.2rem;
+    font-size: 0.8rem; color: var(--ink-2);
+    border-top: 1px dotted var(--rule-2);
+    padding-top: 0.55rem; margin-top: 0.3rem;
+  }
+  .meta-line b { color: var(--ink); font-weight: 700; }
+
+  main { padding: 1rem; display: grid; gap: 1rem; }
+
+  .toolbar {
+    display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;
+    border: 1px solid var(--rule-2);
+    background: var(--paper-2);
+    padding: 0.5rem;
+  }
+  .toolbar label { font-size: 0.78rem; color: var(--ink-2); }
+  .toolbar input[type="search"] {
+    font: inherit; font-size: 0.9rem;
+    min-height: 44px; flex: 1 1 12rem; min-width: 8rem;
+    background: #fff; color: var(--ink);
+    border: 1px solid var(--rule-2); border-radius: 0; padding: 0 0.5rem;
+  }
+  .toolbar input[type="search"]:focus-visible { outline: 3px solid var(--focus); outline-offset: 1px; }
+
+  button {
+    font: inherit; font-size: 0.85rem;
+    min-height: 44px; min-width: 44px;
+    padding: 0.35rem 0.7rem;
+    border: 1px solid var(--ink);
+    background: #fff; color: var(--ink);
+    border-radius: 0; cursor: pointer;
+  }
+  button:hover { background: var(--paper-2); }
+  button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+  button.ghost { border-style: dashed; color: var(--ink-2); }
+
+  /* ---------- the sheet ---------- */
+
+  .sheet {
+    border: 1px solid var(--rule-2);
+    background: #fffdf8;
+    padding: 0.5rem 0 0.75rem;
+    box-shadow: 3px 3px 0 rgba(28,27,23,0.08);
+  }
+  .sheet:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+  .sheet:focus-within { border-color: var(--ink-2); }
+
+  .row {
+    display: grid;
+    grid-template-columns: 3.4rem minmax(0, 1fr) minmax(0, 19rem);
+    column-gap: 0.6rem;
+    padding: 0.15rem 0.6rem 0.15rem 0;
+    align-items: start;
+    min-height: 1.9rem;
+  }
+  .row .gutter {
+    text-align: right; color: var(--ink-3); font-size: 0.78rem;
+    user-select: none; padding-top: 0.18rem;
+  }
+  .row .text { min-width: 0; }
+  .row .note { color: var(--ink-3); font-size: 0.82rem; }
+  .row.note .text { color: var(--ink-3); font-size: 0.84rem; }
+  .row.head { color: var(--ink-2); font-size: 0.85rem; }
+  .row.head .text { border-bottom: 1px dotted var(--rule-2); }
+  .row.gap .text { color: var(--ink-3); }
+  .row.hidden { display: none; }
+
+  .row.svc { align-items: stretch; }
+  .row.svc .text { padding: 0.18rem 0 0.18rem 0.5rem; border-left: 3px solid transparent; }
+  .row.svc[data-caret="true"] .text { border-left-color: var(--pen); background: rgba(166,58,23,0.07); }
+  .row.svc[data-caret="true"] .gutter { color: var(--pen); font-weight: 700; }
+  .row.svc .line { display: grid; grid-template-columns: 8.6rem minmax(0,1fr); gap: 0.5rem; }
+  .row.svc .line .name { font-weight: 700; }
+  .row.svc .line .rest { min-width: 0; }
+  .row.svc .line .state { font-weight: 700; }
+  .row.svc .line .state::before { content: "["; color: var(--ink-3); }
+  .row.svc .line .state::after { content: "]"; color: var(--ink-3); }
+  .row.svc .sum { color: var(--ink-2); }
+
+  /* states: word first, then a shape. never colour alone. */
+  .state-fine     { }
+  .state-fine::before { border: 0; }
+  .state-stale    { text-decoration: underline; text-decoration-style: dashed; text-underline-offset: 3px; }
+  .state-unknown  { font-style: italic; letter-spacing: 0.02em; }
+  .state-decision { background: var(--ink); color: #fffdf8; padding: 0 0.25rem; }
+  .state-decision::before, .state-decision::after { color: var(--ink); }
+
+  .row.margin-row .text { border-left: 3px solid transparent; }
+
+  .margin {
+    font-size: 0.78rem;
+    color: var(--ink-2);
+    border-left: 1px dotted var(--rule-2);
+    padding: 0.18rem 0 0.18rem 0.6rem;
+  }
+  .margin .k { color: var(--ink-3); }
+  .margin .may-human { color: var(--ink); }
+  .margin em { font-style: normal; text-decoration: underline dotted; }
+
+  /* ---------- detail block ---------- */
+
+  .detail {
+    margin: 0.2rem 0 0.5rem 4rem;
+    border: 1px dashed var(--rule-2);
+    background: var(--paper-2);
+    padding: 0.6rem 0.7rem;
+    display: grid; gap: 0.5rem;
+  }
+  .detail h3 { margin: 0; font-size: 0.85rem; letter-spacing: 0.06em; text-transform: uppercase; }
+  .detail p { margin: 0; font-size: 0.85rem; color: var(--ink-2); }
+  .detail .choices { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .detail .resolved { border: 1px solid var(--ink); padding: 0.5rem 0.6rem; background: #fffdf8; font-size: 0.85rem; }
+  .detail .resolved b { display: block; }
+  .fact-rows { display: grid; gap: 0.35rem; margin: 0; }
+  .fact-row { display: grid; grid-template-columns: minmax(0,1fr); gap: 0.1rem; font-size: 0.8rem; border-bottom: 1px dotted var(--rule-2); padding-bottom: 0.35rem; }
+  .fact-row .k { color: var(--ink-3); }
+
+  /* ---------- deck ---------- */
+
+  .deckwrap { margin: 0.2rem 0 0.6rem 4rem; }
+  .deck {
+    border: 1px solid var(--ink);
+    background: #fffdf8;
+  }
+  .deck .titlebar {
+    display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid var(--ink);
+    background: var(--ink); color: var(--paper);
+    padding: 0.3rem 0.5rem; font-size: 0.75rem; letter-spacing: 0.06em;
+  }
+  .deck .titlebar .fallback { color: #ffd9c9; font-size: 0.75rem; }
+  .deck .titlebar a { color: #ffd9c9; }
+  .deck .titlebar a:focus-visible { outline: 3px solid #ffd9c9; outline-offset: 2px; }
+  .deck .body { padding: 0.6rem; display: grid; gap: 0.55rem; }
+  .deck .now { font-size: 0.85rem; }
+  .deck .now b { font-size: 1rem; }
+  .wave { display: flex; gap: 2px; align-items: flex-end; height: 44px; flex-wrap: wrap; }
+  .wave i { width: 4px; background: var(--rule-2); display: block; }
+  .wave i.on { background: var(--pen); }
+  .wave i.played { background: var(--ink-2); }
+  .wave i.head { background: var(--focus); }
+  .deck .controls { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+  .deck .time { font-size: 0.8rem; color: var(--ink-2); }
+  .decknote { font-size: 0.78rem; color: var(--ink-3); margin: 0.35rem 0 0; }
+
+  .status {
+    border: 1px solid var(--rule-2); border-left: 4px solid var(--pen);
+    background: #fffdf8; padding: 0.5rem 0.7rem; font-size: 0.82rem; margin: 0;
+    min-height: 44px; display: flex; align-items: center;
+  }
+
+  footer.foot {
+    margin: 1rem 1rem 0; padding-top: 0.8rem;
+    border-top: 1px dotted var(--rule-2);
+    font-size: 0.78rem; color: var(--ink-3);
+    display: grid; gap: 0.3rem;
+  }
+  footer.foot b { color: var(--ink-2); }
+
+  .visually-hidden {
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+
+  @media (max-width: 780px) {
+    body { font-size: 14px; }
+    .row { grid-template-columns: 2.6rem minmax(0, 1fr); }
+    .row .margin { grid-column: 2; border-left: 3px dotted var(--rule-2); padding-left: 0.5rem; }
+    .row.svc .line { grid-template-columns: minmax(0, 1fr); gap: 0; }
+    .row.svc .line .name::after { content: " ·"; color: var(--ink-3); }
+    .detail, .deckwrap { margin-left: 3.2rem; }
+    header.top { padding-left: 0.75rem; padding-right: 0.75rem; }
+    main { padding: 0.75rem; }
+    footer.foot { margin-left: 0.75rem; margin-right: 0.75rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <span class="mockup">MOCKUP — concept prototype</span>
+  <h1>THE DESK</h1>
+  <p class="sub">Worlds is one sheet of writing that is always being rewritten. You do not navigate it and there is no menu: you put the caret on a line, and the line, its margin note and the tally all answer at once.</p>
+  <div class="meta-line">
+    <span>Snapshot: <b>Tue 13 Oct, 08:14</b> (fixed sample data)</span>
+    <span id="clock">session 0m old</span>
+    <span id="tally-meta">—</span>
+    <span>Not connected to anything. Every reading below is the brief's sample.</span>
+  </div>
+</header>
+
+<main>
+  <div class="toolbar">
+    <label for="filter">Type to thin the sheet</label>
+    <input id="filter" type="search" placeholder="e.g. stale, backups, episodes" autocomplete="off" spellcheck="false">
+    <button type="button" id="clear" class="ghost">Clear filter</button>
+    <span id="filter-note" class="meta-line" style="border:0;padding:0;margin:0"></span>
+  </div>
+
+  <div class="sheet" id="sheet" tabindex="0" role="group"
+       aria-label="The Worlds desk: a sheet of lines. Use arrow up and arrow down to move the caret between service lines, Enter to open the line under the caret."
+       aria-describedby="sheet-help">
+    <div id="lines" role="presentation"></div>
+  </div>
+
+  <p class="status" id="status" role="status" aria-live="polite">Caret on line 1. Move with the arrow keys.</p>
+  <p class="visually-hidden" id="sheet-help">Each service line shows what the agent and you can both see. Opening a line with Enter shows its source, its freshness, and separate lines for what the agent may do and what you may do.</p>
+</main>
+
+<footer class="foot">
+  <div><b>Honest states.</b> Files is <em>stale</em> — last heard 3h 3m ago, and Worlds will not fill the gap. Weather is <em>unknown</em> — it never answered, so no reading is drawn and both permission lines read “nothing”.</div>
+  <div><b>Colour is never the signal.</b> Every state carries a word and a different underline style: solid text, dashed underline, italic, or reversed.</div>
+  <div><b>Concept.</b> This file is not a product and approves nothing. It is one idea for round one.</div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------------------------------------------------------------- clock
+     The sample snapshot is fixed at Tue 13 Oct 08:14. Ages are computed
+     from observed_at against a clock that starts at the snapshot and then
+     runs forward in real time, so nothing ever goes backwards and nothing
+     is ever silently refreshed. */
+  var T0 = Date.UTC(2026, 9, 13, 8, 14, 0);
+  var BOOT = Date.now();
+
+  function elapsedMin() { return Math.floor((Date.now() - BOOT) / 60000); }
+  function stamp(offsetMin) {
+    var d = new Date(T0 + offsetMin * 60000);
+    return pad(d.getUTCHours()) + ":" + pad(d.getUTCMinutes());
+  }
+  function stampNow() {
+    var d = new Date(T0 + (Date.now() - BOOT));
+    return pad(d.getUTCHours()) + ":" + pad(d.getUTCMinutes());
+  }
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function fmtAge(offsetMin) {
+    if (offsetMin === null) { return "never observed"; }
+    var m = Math.abs(offsetMin) + elapsedMin();
+    if (m < 60) { return m + "m ago"; }
+    return Math.floor(m / 60) + "h " + (m % 60) + "m ago";
+  }
+
+  /* --------------------------------------------------------------- state */
+  var state = {
+    filter: "",
+    caret: "backups",
+    expanded: null,
+    episodes: 2,
+    playing: false,
+    playhead: 0,
+    backupsDecision: null,
+    refocus: null,
+    notes: []
+  };
+
+  /* The fixed sample data from the brief. Nothing here is a live reading. */
+  var SERVICES = [
+    {
+      id: "media", name: "media-library", kind: "fine", offset: -3,
+      source: "media-library.connect",
+      factKey: "episodes.new_count",
+      agentMay: "read, report",
+      youMay: "act",
+      summary: function () {
+        if (state.episodes === 0) { return "nothing new — you watched both"; }
+        return state.episodes + " new episode" + (state.episodes === 1 ? "" : "s") + " in the queue";
+      }
+    },
+    {
+      id: "backups", name: "backups", kind: "decision", offset: -5,
+      source: "backups.connect",
+      factKey: "copy.failed_count",
+      agentMay: "read, report",
+      youMay: "decide",
+      summary: function () {
+        if (!state.backupsDecision) { return "3 files could not be copied"; }
+        return "resolved at " + stampNow() + " — " + state.backupsDecision.note;
+      }
+    },
+    {
+      id: "lights", name: "home-lights", kind: "fine", offset: -2,
+      source: "home-lights.connect",
+      factKey: "bulbs.reachable",
+      agentMay: "read, report",
+      youMay: "act",
+      summary: function () { return "7 of 7 bulbs reachable"; }
+    },
+    {
+      id: "files", name: "files", kind: "stale", offset: -183,
+      source: "files.connect",
+      factKey: "share.last_heard",
+      agentMay: "read, report",
+      youMay: "act",
+      summary: function () { return "last heard 3 hours ago — Worlds will not fill the gap"; }
+    },
+    {
+      id: "board", name: "project-board", kind: "fine", offset: -12,
+      source: "project-board.connect",
+      factKey: "cards.due_this_week",
+      agentMay: "read, report, draft",
+      youMay: "act",
+      summary: function () { return "3 cards due this week"; }
+    },
+    {
+      id: "weather", name: "weather", kind: "unknown", offset: null,
+      source: "weather.connect",
+      factKey: "—",
+      agentMay: "nothing — there is no fact to act on",
+      youMay: "nothing — there is no fact to act on",
+      summary: function () { return "never answered · · · · no reading is drawn"; }
+    }
+  ];
+
+  var WORDS = { fine: "fine", stale: "stale", unknown: "unknown", decision: "needs a human decision" };
+  var CLASS = { fine: "state-fine", stale: "state-stale", unknown: "state-unknown", decision: "state-decision" };
+
+  var CHOICES = [
+    { id: "retry", label: "retry the copy tonight",
+      note: "retry the copy tonight — 3 files will be attempted again at 02:00" },
+    { id: "keep", label: "keep both copies",
+      note: "keep both copies — the 3 files stay on the old disk and are marked, not deleted" },
+    { id: "note", label: "leave it, note it on the board",
+      note: "leave it and note it — nothing is retried; a card is added to the project board" }
+  ];
+
+  function svcById(id) {
+    for (var i = 0; i < SERVICES.length; i++) { if (SERVICES[i].id === id) { return SERVICES[i]; } }
+    return null;
+  }
+
+  function waiting() { return state.backupsDecision ? 0 : 1; }
+
+  /* -------------------------------------------------------------- render */
+  var linesEl = document.getElementById("lines");
+  var statusEl = document.getElementById("status");
+  var clockEl = document.getElementById("clock");
+  var tallyEl = document.getElementById("tally-meta");
+  var filterEl = document.getElementById("filter");
+  var filterNoteEl = document.getElementById("filter-note");
+
+  function el(tag, cls, textValue) {
+    var n = document.createElement(tag);
+    if (cls) { n.className = cls; }
+    if (textValue !== undefined && textValue !== null) { n.textContent = textValue; }
+    return n;
+  }
+
+  function row(kind, extraClass) {
+    var r = el("div", "row " + kind + (extraClass ? " " + extraClass : ""));
+    r.appendChild(el("span", "gutter", ""));
+    return r;
+  }
+
+  function matches(svc) {
+    if (!state.filter) { return true; }
+    var hay = (svc.name + " " + svc.summary() + " " + WORDS[svc.kind] + " " + svc.factKey).toLowerCase();
+    return hay.indexOf(state.filter.toLowerCase()) !== -1;
+  }
+
+  function render() {
+    var frag = document.createDocumentFragment();
+    var number = 0;
+    var hidden = 0;
+
+    function addLine(node, gutterText) {
+      var g = node.querySelector(".gutter");
+      if (g) { g.textContent = gutterText === undefined ? String(number + 1) : gutterText; }
+      frag.appendChild(node);
+      number++;
+    }
+
+    /* --- the standing head of the sheet --- */
+    var r0 = row("head");
+    r0.appendChild(el("span", "text", "# MOCKUP — worlds desk · sample snapshot, Tue 13 Oct 08:14"));
+    addLine(r0);
+
+    var r1 = row("head");
+    r1.appendChild(el("span", "text",
+      "## " + waiting() + " fact waiting on a human · " + state.episodes + " new episode" +
+      (state.episodes === 1 ? "" : "s") + " · session " + elapsedMin() + "m old"));
+    addLine(r1);
+
+    var r2 = row("gap");
+    r2.appendChild(el("span", "text", ""));
+    r2.querySelector(".text").appendChild(el("span", "", "·"));
+    addLine(r2);
+
+    var r3 = row("head");
+    r3.appendChild(el("span", "text", "## services — what the agent and you can both see"));
+    addLine(r3);
+
+    /* --- one row per service --- */
+    var visible = [];
+    for (var i = 0; i < SERVICES.length; i++) {
+      var svc = SERVICES[i];
+      var ok = matches(svc);
+      if (!ok) { hidden++; }
+
+      var r = row("svc");
+      r.setAttribute("data-key", svc.id);
+      if (!ok) { r.className += " hidden"; }
+      if (state.caret === svc.id) { r.setAttribute("data-caret", "true"); }
+
+      var text = el("span", "text");
+      var line = el("span", "line");
+      line.appendChild(el("span", "name", svc.name));
+
+      var rest = el("span", "rest");
+      var st = el("span", "state " + CLASS[svc.kind], WORDS[svc.kind]);
+      rest.appendChild(st);
+      rest.appendChild(document.createTextNode(" "));
+      rest.appendChild(el("span", "sum", "· " + svc.summary()));
+      line.appendChild(rest);
+      text.appendChild(line);
+      r.appendChild(text);
+
+      /* the margin: source, freshness, and the two permissions, separate */
+      var m = el("span", "margin");
+      m.appendChild(el("span", "k", "source "));
+      m.appendChild(document.createTextNode(svc.source + " · "));
+      m.appendChild(el("span", "k", "seen "));
+      m.appendChild(document.createTextNode(fmtAge(svc.offset) + " · "));
+      var you = svc.youMay;
+      if (svc.id === "backups" && state.backupsDecision) { you = "decided by you at " + stampNow(); }
+      m.appendChild(el("span", "k", "agent may "));
+      m.appendChild(document.createTextNode(svc.agentMay + " · "));
+      m.appendChild(el("span", "may-human", "you may "));
+      m.appendChild(document.createTextNode(you));
+      r.appendChild(m);
+
+      addLine(r, ok ? undefined : "·");
+      visible.push({ id: svc.id, ok: ok, name: svc.name, node: r });
+
+      /* the inline expansion: opening a line grows a paragraph under it */
+      if (ok && state.expanded === svc.id) {
+        var d = el("div", "detail");
+        d.appendChild(el("h3", "", "line open — " + svc.name));
+        var facts = el("div", "fact-rows");
+
+        var f1 = el("div", "fact-row");
+        f1.appendChild(el("span", "k", "fact_key"));
+        f1.appendChild(el("span", "", svc.factKey));
+        facts.appendChild(f1);
+
+        var f2 = el("div", "fact-row");
+        f2.appendChild(el("span", "k", "observed_at"));
+        f2.appendChild(el("span", "", svc.offset === null
+          ? "none — this provider has never answered"
+          : stamp(svc.offset) + " (" + fmtAge(svc.offset) + ", computed at render)"));
+        facts.appendChild(f2);
+
+        var f3 = el("div", "fact-row");
+        f3.appendChild(el("span", "k", "agent may"));
+        f3.appendChild(el("span", "", svc.agentMay + " — the agent reads this. It does not act on it without you."));
+        facts.appendChild(f3);
+
+        var f4 = el("div", "fact-row");
+        f4.appendChild(el("span", "k", "you may"));
+        f4.appendChild(el("span", "", you));
+        facts.appendChild(f4);
+
+        d.appendChild(facts);
+
+        if (svc.id === "backups") {
+          if (state.backupsDecision) {
+            var res = el("div", "resolved");
+            res.appendChild(el("b", "", "answered — " + state.backupsDecision.note));
+            res.appendChild(el("span", "", "A note was written to the sheet. The agent's permission did not change: it still only reads."));
+            d.appendChild(res);
+          } else {
+            d.appendChild(el("p", "", "This is the one line that is waiting on a person. Choose, and the sheet is rewritten in front of you."));
+            var ch = el("div", "choices");
+            for (var c = 0; c < CHOICES.length; c++) {
+              (function (choice) {
+                var b = el("button", "", choice.label);
+                b.type = "button";
+                b.addEventListener("click", function () { decide(choice.id); });
+                ch.appendChild(b);
+              })(CHOICES[c]);
+            }
+            d.appendChild(ch);
+          }
+        } else if (svc.id === "media") {
+          d.appendChild(el("p", "", "Nothing to answer. The player for this service is drawn further down the sheet."));
+        } else {
+          d.appendChild(el("p", "", "Nothing to answer here. Opening a line never invents a reading; it only repeats the one both of you can see."));
+        }
+        addLine(d);
+      }
+    }
+
+    /* --- the journal --- */
+    if (state.notes.length) {
+      var rg = row("gap");
+      rg.appendChild(el("span", "text", ""));
+      addLine(rg);
+      var rh = row("head");
+      rh.appendChild(el("span", "text", "## journal — written as things happened"));
+      addLine(rh);
+      for (var n = 0; n < state.notes.length; n++) {
+        var rn = row("note");
+        rn.appendChild(el("span", "text", state.notes[n]));
+        addLine(rn);
+      }
+    }
+
+    /* --- the embedded app --- */
+    var dg = row("gap");
+    dg.appendChild(el("span", "text", ""));
+    addLine(dg);
+    var dh = row("head");
+    dh.appendChild(el("span", "text", "## embedded app — drawn inside Worlds by media-library.connect"));
+    addLine(dh);
+    addLine(buildDeck());
+
+    linesEl.textContent = "";
+    linesEl.appendChild(frag);
+
+    /* the caret can only sit on a visible service line */
+    var ids = visible.filter(function (v) { return v.ok; }).map(function (v) { return v.id; });
+    if (ids.indexOf(state.caret) === -1) {
+      state.caret = ids.length ? ids[0] : null;
+      for (var q = 0; q < visible.length; q++) {
+        if (visible[q].id === state.caret) { visible[q].node.setAttribute("data-caret", "true"); }
+      }
+    }
+
+    clockEl.textContent = "session " + elapsedMin() + "m old · sheet clock " + stampNow();
+    tallyEl.textContent = waiting() + " waiting on a human · " + state.episodes + " new episode" +
+      (state.episodes === 1 ? "" : "s");
+    filterNoteEl.textContent = hidden ? (hidden + " service line" + (hidden === 1 ? "" : "s") + " hidden by the filter") : "";
+
+    var cur = svcById(state.caret);
+    if (cur) {
+      statusEl.textContent = "Caret on “" + cur.name + "” — " + WORDS[cur.kind] + ". " +
+        cur.summary() + ". Press Enter to open the line.";
+    }
+
+    if (state.refocus) {
+      var target = document.getElementById(state.refocus);
+      state.refocus = null;
+      if (target) { target.focus(); }
+    }
+  }
+
+  /* ------------------------------------------------------ embedded player */
+  function buildDeck() {
+    var wrap = el("div", "deckwrap");
+
+    var deck = el("div", "deck");
+    var title = el("div", "titlebar");
+    title.appendChild(el("span", "", "── tape deck · EMBEDDED APP · not a real player ──"));
+    var fb = el("span", "fallback");
+    var a = document.createElement("a");
+    a.href = "https://example.invalid/apps/media-library/episodes";
+    a.textContent = "open in the owning app ↗";
+    a.rel = "noreferrer noopener";
+    fb.appendChild(document.createTextNode("no embedding? "));
+    fb.appendChild(a);
+    title.appendChild(fb);
+    deck.appendChild(title);
+
+    var body = el("div", "body");
+    var now = el("p", "now");
+    now.appendChild(el("b", "", state.episodes > 0 ? "Episode 3 — the long one" : "Nothing queued"));
+    now.appendChild(document.createTextNode(state.episodes > 0
+      ? " · media-library.connect · " + (3 - state.episodes) + " of 3 seen this week"
+      : " · both new episodes have been watched"));
+    body.appendChild(now);
+
+    var wave = el("div", "wave");
+    wave.setAttribute("aria-hidden", "true");
+    var bars = 44;
+    for (var i = 0; i < bars; i++) {
+      var h = 6 + Math.round(30 * Math.abs(Math.sin(i * 0.9) * Math.cos(i * 0.31)));
+      var b = el("i");
+      b.style.height = h + "px";
+      if (i < state.playhead) { b.className = "played"; }
+      else if (i === state.playhead) { b.className = "head"; }
+      wave.appendChild(b);
+    }
+    body.appendChild(wave);
+
+    var controls = el("div", "controls");
+    var play = el("button", "", state.playing ? "Pause" : "Play");
+    play.type = "button";
+    play.id = "deck-play";
+    play.setAttribute("aria-pressed", state.playing ? "true" : "false");
+    play.addEventListener("click", togglePlay);
+    controls.appendChild(play);
+
+    var finish = el("button", "", "Finish this episode");
+    finish.type = "button";
+    finish.id = "deck-finish";
+    finish.addEventListener("click", finishEpisode);
+    controls.appendChild(finish);
+
+    var reset = el("button", "ghost", "Rewind");
+    reset.type = "button";
+    reset.id = "deck-reset";
+    reset.addEventListener("click", function () {
+      state.playhead = 0; state.playing = false;
+      if (timer) { window.clearInterval(timer); timer = null; }
+      say("Rewound the deck. Nothing about the services changed.");
+      state.refocus = "deck-reset";
+      render();
+    });
+    controls.appendChild(reset);
+
+    var time = el("span", "time", timeText());
+    time.id = "deck-time";
+    body.appendChild(controls);
+    body.appendChild(time);
+    deck.appendChild(body);
+    wrap.appendChild(deck);
+
+    var p = el("p", "", "This player is drawn inside Worlds and talks to nothing. If media-library cannot be embedded, the link above is the supported way in, and it is never hidden behind a gesture.");
+    p.className = "decknote";
+    wrap.appendChild(p);
+
+    return wrap;
+  }
+
+  /* the playhead moves without rebuilding the sheet, so keyboard focus in
+     the deck survives playback */
+  function paintDeck() {
+    var bars = document.querySelectorAll(".wave i");
+    if (!bars.length) { render(); return; }
+    for (var i = 0; i < bars.length; i++) {
+      bars[i].className = i < state.playhead ? "played" : (i === state.playhead ? "head" : "");
+    }
+    var t = document.getElementById("deck-time");
+    if (t) { t.textContent = timeText(); }
+  }
+
+  function timeText() {
+    var total = 41 * 60 + 40;
+    var at = Math.round((state.playhead / 44) * total);
+    return "playhead " + pad(Math.floor(at / 60)) + ":" + pad(at % 60) + " of 41:40 · steps, not a stream";
+  }
+
+  var timer = null;
+  function togglePlay() {
+    state.playing = !state.playing;
+    if (state.playing) {
+      if (state.playhead >= 43) { state.playhead = 0; }
+      timer = window.setInterval(function () {
+        state.playhead += 1;
+        if (state.playhead >= 43) { state.playhead = 43; state.playing = false; window.clearInterval(timer); timer = null; }
+        paintDeck();
+      }, 260);
+      say("Playing. The deck is an embedded app; finishing an episode writes to the sheet.");
+      state.refocus = "deck-play";
+    } else {
+      if (timer) { window.clearInterval(timer); timer = null; }
+      say("Paused.");
+      state.refocus = "deck-play";
+    }
+    render();
+  }
+
+  function finishEpisode() {
+    if (state.episodes === 0) {
+      say("Nothing left to finish. The queue is empty and no reading was invented.");
+      state.refocus = "deck-finish";
+      render();
+      return;
+    }
+    state.episodes -= 1;
+    state.playhead = 0;
+    state.playing = false;
+    if (timer) { window.clearInterval(timer); timer = null; }
+    state.caret = "media";
+    state.expanded = "media";
+    state.notes.push("note · " + stampNow() + " · watched an episode in the embedded tape deck · the media-library fact now reads " +
+      state.episodes + " new episode" + (state.episodes === 1 ? "" : "s"));
+    say("Finished one episode. The media-library line, the tally at the top of the sheet and the journal all changed together.");
+    state.refocus = "deck-finish";
+    render();
+  }
+
+  function decide(choiceId) {
+    var choice = null;
+    for (var i = 0; i < CHOICES.length; i++) { if (CHOICES[i].id === choiceId) { choice = CHOICES[i]; } }
+    if (!choice) { return; }
+    state.backupsDecision = choice;
+    state.caret = "backups";
+    state.expanded = "backups";
+    state.notes.push("note · " + stampNow() + " · you answered the backups fact: " + choice.note);
+    say("Answered the backups fact. The backups line, its margin permissions, the tally at the top and the journal were rewritten in one pass. The agent may still only read it.");
+    render();
+    document.getElementById("sheet").focus();
+  }
+
+  function say(msg) { statusEl.textContent = msg; }
+
+  /* --------------------------------------------------------- interaction */
+  function moveCaret(delta) {
+    var ids = SERVICES.filter(matches).map(function (s) { return s.id; });
+    if (!ids.length) { say("No service line matches the filter. Clear it to get the caret back."); return; }
+    var i = ids.indexOf(state.caret);
+    if (i === -1) { i = 0; }
+    else { i = Math.min(ids.length - 1, Math.max(0, i + delta)); }
+    state.caret = ids[i];
+    state.expanded = null;
+    render();
+    var node = document.querySelector('.row.svc[data-key="' + state.caret + '"]');
+    if (node && node.scrollIntoView) { node.scrollIntoView({ block: "nearest" }); }
+  }
+
+  function toggleOpen() {
+    if (!state.caret) { say("No line under the caret."); return; }
+    state.expanded = state.expanded === state.caret ? null : state.caret;
+    render();
+    if (state.expanded) {
+      var b = document.querySelector(".detail button");
+      if (b) { b.focus(); }
+    }
+  }
+
+  document.getElementById("sheet").addEventListener("keydown", function (ev) {
+    var onSheet = (ev.target === ev.currentTarget);
+    if (ev.key === "Escape") {
+      if (state.expanded) {
+        state.expanded = null;
+        render();
+        document.getElementById("sheet").focus();
+        say("Closed the line. The caret is still on “" + (svcById(state.caret) || {}).name + "”.");
+      }
+      return;
+    }
+    /* keys only belong to the sheet while the sheet itself holds focus;
+       a decision button must keep its own Space and Enter */
+    if (!onSheet) { return; }
+    if (ev.key === "ArrowDown" || ev.key === "ArrowUp") {
+      ev.preventDefault();
+      moveCaret(ev.key === "ArrowDown" ? 1 : -1);
+    } else if (ev.key === "Home" || ev.key === "End") {
+      ev.preventDefault();
+      moveCaret(ev.key === "Home" ? -99 : 99);
+    } else if (ev.key === "Enter" || ev.key === " ") {
+      ev.preventDefault();
+      toggleOpen();
+    }
+  });
+
+  linesEl.addEventListener("click", function (ev) {
+    var rowEl = ev.target.closest ? ev.target.closest(".row.svc") : null;
+    if (!rowEl) { return; }
+    var key = rowEl.getAttribute("data-key");
+    if (key === state.caret) { toggleOpen(); }
+    else { state.caret = key; state.expanded = null; render(); }
+  });
+
+  filterEl.addEventListener("input", function () {
+    state.filter = filterEl.value;
+    state.expanded = null;
+    render();
+  });
+  document.getElementById("clear").addEventListener("click", function () {
+    filterEl.value = "";
+    state.filter = "";
+    render();
+    filterEl.focus();
+  });
+
+  render();
+
+  /* the sheet clock keeps running; nothing else moves on its own */
+  window.setInterval(function () {
+    var cur = svcById(state.caret);
+    if (cur) {
+      clockEl.textContent = "session " + elapsedMin() + "m old · sheet clock " + stampNow();
+      var m = linesEl.querySelector('.row.svc[data-key="' + cur.id + '"] .margin');
+      if (m) {
+        m.textContent = "";
+        m.appendChild(el("span", "k", "source "));
+        m.appendChild(document.createTextNode(cur.source + " · "));
+        m.appendChild(el("span", "k", "seen "));
+        m.appendChild(document.createTextNode(fmtAge(cur.offset) + " · "));
+        m.appendChild(el("span", "k", "agent may "));
+        m.appendChild(document.createTextNode(cur.agentMay + " · "));
+        m.appendChild(el("span", "may-human", "you may "));
+        m.appendChild(document.createTextNode(cur.id === "backups" && state.backupsDecision
+          ? "decided by you at " + stampNow() : cur.youMay));
+      }
+    }
+  }, 20000);
+})();
+</script>
+</body>
+</html>

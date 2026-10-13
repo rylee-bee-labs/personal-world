@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Worlds · Orrery (MOCKUP)</title>
+<style>
+:root{--bg:#0f1220;--ink:#eef0f8;--dim:#a6abc4;--line:#2d3355;--panel:#171b31;--acc:#ffd36b;--ok:#7be0b0;--warn:#ff9a6b;--cold:#8fb4ff}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,sans-serif;overflow-x:hidden}
+button,a{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.mock{position:sticky;top:0;z-index:5;background:var(--acc);color:#1b1500;font-weight:700;padding:6px 12px;font-size:13px;letter-spacing:.04em}
+header{padding:12px 14px 0;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+h1{font-size:20px;margin:0}
+.sub{color:var(--dim);font-size:14px;margin:0}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.seg button{min-height:44px;min-width:44px;padding:0 14px;background:transparent;border:0;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--acc);color:#1b1500;font-weight:700}
+.who{display:flex;gap:8px;align-items:center;font-size:14px;color:var(--dim)}
+#summary{margin:10px 14px 0;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+#summary b{color:var(--acc)}
+main{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;padding:14px;max-width:1100px;margin:0 auto}
+@media(min-width:900px){main{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr)}}
+#orrery{position:relative;width:100%;max-width:560px;aspect-ratio:1;margin:0 auto}
+#orrery svg{position:absolute;inset:0;width:100%;height:100%}
+.ring{fill:none;stroke:var(--line);stroke-dasharray:3 6}
+.body{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:0;cursor:pointer;padding:0;min-width:64px;min-height:64px;transition:left .7s cubic-bezier(.2,.9,.3,1),top .7s cubic-bezier(.2,.9,.3,1)}
+.orb{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:18px;background:var(--panel);border:3px solid var(--ok);transition:width .7s,height .7s,border-color .4s,background .4s}
+.body[data-state=attention] .orb{border-color:var(--warn);background:#3a2118}
+.body[data-state=stale] .orb{border-style:dashed;border-color:var(--cold)}
+.body[data-state=unknown] .orb{border-style:dotted;border-color:var(--dim);color:var(--dim)}
+.body.focus .orb{width:104px;height:104px;font-size:30px;background:#242a4d}
+.body[data-state=attention] .orb{animation:pulse 2s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 10px rgba(255,154,107,.18)}}
+.lbl{font-size:12px;line-height:1.15;text-align:center;max-width:92px;text-shadow:0 1px 2px #000}
+.lbl em{display:block;font-style:normal;color:var(--dim)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;min-width:0}
+h2{font-size:18px;margin:0 0 4px}
+.tabs{display:flex;gap:6px;margin:10px 0}
+.tabs button{min-height:44px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:transparent;cursor:pointer}
+.tabs button[aria-selected=true]{background:var(--ink);color:#111}
+.badge{display:inline-block;padding:2px 8px;border-radius:99px;border:1px solid currentColor;font-size:13px}
+.win{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#0b0d19}
+.chrome{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;justify-content:space-between;padding:6px 10px;background:#20264a;font-size:13px}
+.chrome a{display:inline-flex;align-items:center;min-height:44px;color:var(--acc)}
+.app{padding:12px}
+.btn{min-height:44px;min-width:44px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:#242a4d;cursor:pointer}
+.btn:disabled{opacity:.55;cursor:not-allowed;border-style:dashed}
+.btn.primary{background:var(--acc);color:#1b1500;font-weight:700;border-color:var(--acc)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
+.bar{height:10px;background:var(--line);border-radius:6px;overflow:hidden;flex:1;min-width:80px}
+.bar i{display:block;height:100%;width:0;background:var(--acc)}
+.bulbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px}
+.bulb{min-height:64px;border-radius:12px;border:2px solid var(--line);background:#14172b;cursor:pointer}
+.bulb[aria-pressed=true]{background:#5b4a14;border-color:var(--acc)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;vertical-align:top;padding:6px 6px;border-bottom:1px solid var(--line);overflow-wrap:anywhere}
+th{color:var(--dim);font-weight:600}
+.perm{display:block}
+.perm b{color:var(--acc)}
+#log{margin:0;padding-left:18px;font-size:14px;color:var(--dim)}
+#log li:first-child{color:var(--ink)}
+.note{color:var(--dim);font-size:14px}
+.tablewrap{overflow-x:auto}
+@media(max-width:520px){.hide-s{display:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="mock">MOCKUP — concept prototype, not approved, not built. Every value below is invented sample data.</div>
+<header>
+  <div>
+    <h1>Worlds · Orrery</h1>
+    <p class="sub">Tuesday 13 October, 08:14 — the closer a body orbits, the more it needs you.</p>
+  </div>
+  <div class="who" role="group" aria-label="Acting as">
+    <span>Acting as</span>
+    <span class="seg"><button id="asHuman" aria-pressed="true">Human</button><button id="asAgent" aria-pressed="false">Agent</button></span>
+  </div>
+</header>
+<p id="summary" aria-live="polite"></p>
+<main>
+  <section aria-label="Services orrery">
+    <div id="orrery"><svg viewBox="0 0 100 100" aria-hidden="true"></svg></div>
+    <p class="note" style="text-align:center">Gesture: <b>pull a body into the centre</b> (tap, click, or Tab + Enter). The others re-orbit by urgency.</p>
+  </section>
+  <section class="panel" aria-label="Focused service">
+    <h2 id="fName"></h2>
+    <div id="fState"></div>
+    <div class="tabs" role="tablist" aria-label="Focused service views">
+      <button role="tab" id="tabApp" aria-selected="true" aria-controls="view">Inside Worlds</button>
+      <button role="tab" id="tabFacts" aria-selected="false" aria-controls="view">Shared facts</button>
+    </div>
+    <div id="view" role="tabpanel" aria-live="polite"></div>
+    <h2 style="margin-top:16px;font-size:16px">What changed</h2>
+    <ol id="log" reversed></ol>
+  </section>
+</main>
+<script>
+"use strict";
+const S = {
+  media:{n:"Media library",g:"M",state:"fine",order:1,say:"2 new episodes",
+    facts:[["New episodes","2","Media server API","08:12 · 2 min ago","read","play, mark watched"],
+           ["Library scan","idle","Media server API","08:12 · 2 min ago","read","start scan"]]},
+  backups:{n:"Backups",g:"B",state:"attention",order:0,failed:3,say:"needs a human decision: 3 files could not be copied",
+    facts:[["Files not copied","3","Backup job report","08:10 · 4 min ago","read, retry copy","retry, skip files, change job"],
+           ["Last full copy","Mon 02:00","Backup job report","08:10 · 4 min ago","read","read, restore"]]},
+  lights:{n:"Home lights",g:"L",state:"fine",order:1,say:"7 of 7 reachable",on:[true,true,false,false,true,false,false],
+    facts:[["Reachable","7 of 7","Hub poll","08:14 · just now","read, switch lights","switch lights, rename"],
+           ["Scenes","none active","Hub poll","08:14 · just now","read","read, edit scenes"]]},
+  files:{n:"Files",g:"F",state:"stale",order:2,say:"stale — last heard 3 hours ago",
+    facts:[["Storage used","unknown right now (last value is 3 h old)","File server heartbeat","last heard 05:14 · 3 h ago — STALE","read last value, ask for re-check","read, ask for re-check, open"],
+           ["Reachable","not confirmed","File server heartbeat","last heard 05:14 · 3 h ago — STALE","read","read"]]},
+  board:{n:"Project board",g:"P",state:"fine",order:1,say:"3 cards due this week",
+    facts:[["Cards due this week","3","Board API","08:00 · 14 min ago","read, comment","move cards, edit, comment"],
+           ["Overdue","0","Board API","08:00 · 14 min ago","read","read"]]},
+  weather:{n:"Weather",g:"W",state:"unknown",order:2,say:"unknown — never answered",
+    facts:[["Forecast","no reading — nothing to show","none (service has never answered)","never","nothing to read","configure source"],
+           ["Temperature","no reading","none (service has never answered)","never","nothing to read","configure source"]]}
+};
+const IDS = Object.keys(S);
+let focus = "backups", tab = "app", actor = "human", asked = false, playing = false, prog = 0, timer = null;
+const logItems = ["08:14 Orrery opened. Files is stale and Weather is unknown; neither is guessed."];
+const $ = s => document.querySelector(s);
+const log = t => { logItems.unshift("08:14 " + t); };
+const stateWord = {fine:"Fine",attention:"Needs a human decision",stale:"Stale",unknown:"Unknown"};
+
+function describe(id){
+  const s = S[id];
+  if(id==="lights") return s.on.filter(Boolean).length+" of 7 on · 7 of 7 reachable";
+  if(id==="backups") return s.failed? s.failed+" files not copied":"all copied or skipped";
+  if(id==="files") return asked? "stale · re-check asked, no answer":"stale · 3 h ago";
+  return s.say;
+}
+function agentSees(id){
+  const s = S[id];
+  return s.facts.map(f=>f[0]+": "+f[1]).join("; ");
+}
+function placeBodies(){
+  const box = $("#orrery"), svg = box.querySelector("svg");
+  const others = IDS.filter(i=>i!==focus).sort((a,b)=>S[a].order-S[b].order);
+  const radii = [0, 0.27, 0.36, 0.43];
+  svg.innerHTML = [28,36,43].map(r=>`<circle class="ring" cx="50" cy="50" r="${r}"/>`).join("");
+  IDS.forEach(id=>{
+    let b = box.querySelector(`[data-id=${id}]`);
+    if(!b){
+      b = document.createElement("button"); b.className="body"; b.dataset.id=id;
+      b.innerHTML='<span class="orb"></span><span class="lbl"></span>';
+      b.addEventListener("click",()=>pull(id)); box.appendChild(b);
+    }
+    const s = S[id], isF = id===focus;
+    let x=50,y=50;
+    if(!isF){
+      const i = others.indexOf(id), ang = (-90 + i*(360/others.length) + 20)*Math.PI/180;
+      const r = s.order===0?28:s.order===1?36:43;
+      x = 50+r*Math.cos(ang); y = 50+r*Math.sin(ang);
+    }
+    b.style.left = x+"%"; b.style.top = y+"%";
+    b.classList.toggle("focus",isF);
+    b.dataset.state = s.state;
+    b.setAttribute("aria-pressed", isF);
+    b.querySelector(".orb").textContent = s.state==="unknown"?"?":s.g;
+    const cap = actor==="agent" ? "agent sees: "+(s.state==="unknown"?"no reading":describe(id)) : describe(id);
+    b.querySelector(".lbl").innerHTML = `${s.n}<em>${stateWord[s.state]}</em>${isF?"":`<em>${cap}</em>`}`;
+    b.setAttribute("aria-label", `${s.n}. ${stateWord[s.state]}. ${describe(id)}.${isF?" Focused.":" Pull to centre."}`);
+  });
+}
+function renderSummary(){
+  const need = IDS.filter(i=>S[i].state==="attention").length;
+  const stale = IDS.filter(i=>S[i].state==="stale").length;
+  const unk = IDS.filter(i=>S[i].state==="unknown").length;
+  const fine = IDS.filter(i=>S[i].state==="fine").length;
+  $("#summary").innerHTML = `<b>${need?need+" thing needs you":"Nothing needs you"}</b> · ${fine} fine · ${stale} stale (not trusted) · ${unk} unknown (no reading)`;
+}
+function renderFacts(id){
+  const s = S[id];
+  const rows = s.facts.map(f=>`<tr><td><b>${f[0]}</b><br>${f[1]}</td><td>${f[2]}</td><td>${f[3]}</td>
+    <td><span class="perm">Agent may: <b>${f[4]}</b></span><span class="perm">Human may: <b>${f[5]}</b></span></td></tr>`).join("");
+  return `<p class="note">These are the same facts the agent reads. Nothing here is hidden from either side.</p>
+  <div class="tablewrap"><table><thead><tr><th>Fact</th><th>Source</th><th>Freshness</th><th>Who may act</th></tr></thead><tbody>${rows}</tbody></table></div>
+  <p class="note">Agent's sentence: “${agentSees(id)}”</p>`;
+}
+function fallback(id,label){
+  return `<a href="https://example.invalid/${id}" target="_blank" rel="noopener">Open in ${label} ↗</a>`;
+}
+function renderApp(id){
+  const s = S[id];
+  if(id==="media") return `<div class="win"><div class="chrome"><span>Embedded · Media (demo app)</span>${fallback(id,"the owning app")}</div>
+    <div class="app"><b>Episode 4 · The Long Tide</b><div class="note">New · 2 episodes unwatched</div>
+    <div class="row"><button class="btn primary" id="play" aria-pressed="${playing}">${playing?"Pause":"Play"}</button><div class="bar" role="progressbar" aria-label="Progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(prog)}"><i id="pb" style="width:${prog}%"></i></div></div>
+    <div class="note">Fake player: no audio or video is played.</div></div></div>`;
+  if(id==="lights") return `<div class="win"><div class="chrome"><span>Embedded · Lights (demo app)</span>${fallback(id,"the owning app")}</div>
+    <div class="app"><div class="bulbs">${s.on.map((o,i)=>`<button class="bulb" data-i="${i}" aria-pressed="${o}" aria-label="Light ${i+1}, ${o?"on":"off"}">${i+1}<br>${o?"on":"off"}</button>`).join("")}</div>
+    <p class="note">${actor==="agent"?"Agent may switch lights.":"Human may switch lights."}</p></div></div>`;
+  if(id==="backups") return renderBackups();
+  const why = id==="files"?"Files is stale: last heard 3 hours ago. Showing it would pretend to be live.":id==="weather"?"Weather has never answered. There is nothing to embed.":"This app cannot be embedded yet.";
+  const extra = id==="files"?`<div class="row"><button class="btn" id="recheck" ${asked?"disabled":""}>${asked?"Re-check asked — no answer yet":"Ask for a re-check"}</button></div>`:"";
+  return `<div class="win"><div class="chrome"><span>Not embeddable</span>${fallback(id,"the owning app")}</div><div class="app"><p>${why}</p>${extra}
+    ${id==="board"?"<p>3 cards due this week. Open the board to move them.</p>":""}</div></div>`;
+}
+function renderBackups(){
+  const s = S.backups, f = s.failed, agent = actor==="agent";
+  const body = f? `<p><b>${f} file${f>1?"s":""} could not be copied.</b> Retry is allowed for agent and human. Skipping leaves them unprotected, so it is human only.</p>
+    <div class="row"><button class="btn primary" id="retry">Retry copy</button>
+    <button class="btn" id="skip" ${agent?"disabled":""}>Skip ${f} file${f>1?"s":""}</button></div>
+    ${agent?'<p class="note">Skip is disabled: acting as Agent, and skipping is human only.</p>':""}`
+    : `<p><b>Resolved.</b> Nothing left to copy. ${s.skipped?s.skipped+" skipped by a human, recorded.":"All files copied."}</p>`;
+  return `<div class="win"><div class="chrome"><span>Resolver (native to Worlds)</span>${fallback("backups","the owning app")}</div><div class="app">${body}</div></div>`;
+}
+function renderPanel(){
+  const s = S[focus];
+  $("#fName").textContent = s.n;
+  $("#fState").innerHTML = `<span class="badge">${stateWord[s.state]}</span> <span class="note">${describe(focus)}</span>`;
+  $("#tabApp").setAttribute("aria-selected",tab==="app");
+  $("#tabFacts").setAttribute("aria-selected",tab==="facts");
+  $("#view").innerHTML = tab==="app"?renderApp(focus):renderFacts(focus);
+  $("#log").innerHTML = logItems.slice(0,6).map(t=>`<li>${t}</li>`).join("");
+  wire();
+}
+function renderAll(){ renderSummary(); placeBodies(); renderPanel(); }
+function pull(id){ if(id===focus) return; focus = id; log("Pulled "+S[id].n+" to the centre."); renderAll();
+  const b=document.querySelector(`[data-id=${id}]`); if(b) b.focus(); }
+function wire(){
+  const on = (sel,fn)=>{const e=$(sel); if(e) e.addEventListener("click",fn);};
+  on("#retry",()=>{ const s=S.backups; if(s.failed>1){ s.failed=1; log(`Backups: ${actor} retried; 2 copied, 1 still failing.`);} else { s.failed=0; s.state="fine"; s.skipped=0; log(`Backups: ${actor} retried; last file copied.`);} renderAll(); $("#retry")&&$("#retry").focus(); });
+  on("#skip",()=>{ const s=S.backups; if(actor!=="human") return; s.skipped=s.failed; s.failed=0; s.state="fine"; log(`Backups: human skipped ${s.skipped} file; decision recorded.`); renderAll(); });
+  on("#recheck",()=>{ asked=true; log("Files: re-check asked. Still stale; no new reading."); renderAll(); });
+  document.querySelectorAll(".bulb").forEach(b=>b.addEventListener("click",()=>{
+    const i=+b.dataset.i; S.lights.on[i]=!S.lights.on[i]; log(`Lights: ${actor} switched light ${i+1} ${S.lights.on[i]?"on":"off"}.`); renderAll();
+    document.querySelector(`.bulb[data-i="${i}"]`).focus(); }));
+  on("#play",()=>{ playing=!playing; clearInterval(timer);
+    if(playing) timer=setInterval(()=>{ prog=(prog+2)%100; const pb=$("#pb"); if(pb) pb.style.width=prog+"%"; },400);
+    renderPanel(); $("#play").focus(); });
+}
+$("#tabApp").onclick=()=>{tab="app";renderPanel();};
+$("#tabFacts").onclick=()=>{tab="facts";renderPanel();};
+function setActor(a){ actor=a; $("#asHuman").setAttribute("aria-pressed",a==="human"); $("#asAgent").setAttribute("aria-pressed",a==="agent"); log("Now acting as "+a+"."); renderAll(); }
+$("#asHuman").onclick=()=>setActor("human");
+$("#asAgent").onclick=()=>setActor("agent");
+renderAll();
+</script>
+</body>
+</html>
