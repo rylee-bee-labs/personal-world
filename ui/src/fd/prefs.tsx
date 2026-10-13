@@ -7,9 +7,11 @@ function load(): Prefs {
     const raw = window.localStorage.getItem(KEY);
     if (!raw) return DEFAULT_PREFS;
     const stored = JSON.parse(raw) as Partial<Prefs> & { theme?: string };
-    // The Plain theme was removed (it matched Starfield); anything unknown falls back to the default.
-    const theme = stored.theme === "daylight" ? "daylight" : "starfield";
-    return { ...DEFAULT_PREFS, ...stored, theme };
+    // Anything unknown (the removed Plain theme too) falls back to the default. A save from before
+    // Mulberry & Mint (no themeV) said "starfield" only because Starfield was the default then.
+    const known = stored.theme === "daylight" || stored.theme === "starfield" || stored.theme === "mulberry";
+    const theme = !known || (stored.theme === "starfield" && stored.themeV !== 2) ? "mulberry" : (stored.theme as Prefs["theme"]);
+    return { ...DEFAULT_PREFS, ...stored, theme, themeV: 2 };
   } catch {
     return DEFAULT_PREFS;
   }

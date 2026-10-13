@@ -71,7 +71,7 @@ export type Words = "minimal" | "short" | "full";
 export type Density = "calm" | "standard" | "detailed";
 export type TextSize = "standard" | "large" | "larger";
 export type Pack = "none" | "station";
-export type Theme = "starfield" | "daylight";
+export type Theme = "mulberry" | "starfield" | "daylight";
 
 export const STATE_SHAPE: Record<SourceState, { shape: string; word: string }> = {
   healthy: { shape: "●", word: "Healthy" },

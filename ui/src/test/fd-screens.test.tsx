@@ -160,7 +160,7 @@ describe("Settings", () => {
     expect(opts("Density")).toEqual(["Calm", "Standard", "Detailed"]);
     expect(opts("Words")).toEqual(["Minimal", "Short", "Full"]);
     expect(opts("Text size")).toEqual(["Standard", "Large", "Larger"]);
-    expect(opts("Theme")).toEqual(["Starfield", "Daylight"]);
+    expect(opts("Theme")).toEqual(["Mulberry & Mint", "Starfield", "Daylight"]);
     expect(opts("Experience pack")).toEqual(["None", "Station"]);
     expect(screen.queryAllByRole("radiogroup")).toHaveLength(0);          // the legend is announced once
     expect(screen.queryByRole("radio", { name: "Plain" })).not.toBeInTheDocument();
@@ -170,9 +170,9 @@ describe("Settings", () => {
     expect(screen.getByRole("radio", { name: "Calm" })).toHaveAccessibleDescription("What needs you first, quiet things folded away.");
     expect(screen.getByRole("radio", { name: "Station" })).toHaveAccessibleDescription(/never changes what Worlds says or does/);
   });
-  it("defaults to None, Starfield, Standard, Short and changes preferences", async () => {
+  it("defaults to None, Mulberry & Mint, Standard, Short and changes preferences", async () => {
     renderSettings();
-    expect(screen.getByLabelText("prefs")).toHaveTextContent("none|starfield|standard|short|standard");
+    expect(screen.getByLabelText("prefs")).toHaveTextContent("none|mulberry|standard|short|standard");
     await userEvent.click(screen.getByRole("radio", { name: "Station" }));
     await userEvent.click(screen.getByRole("radio", { name: "Full" }));
     await userEvent.click(screen.getByRole("radio", { name: "Detailed" }));
@@ -180,8 +180,20 @@ describe("Settings", () => {
     await userEvent.click(screen.getByRole("radio", { name: "Larger" }));
     expect(screen.getByLabelText("prefs")).toHaveTextContent("station|daylight|detailed|full|larger");
   });
-  it("a stored Plain theme falls back to Starfield", () => {
+  it("a stored Plain theme falls back to Mulberry & Mint", () => {
     window.localStorage.setItem("worlds.prefs.v2", JSON.stringify({ theme: "plain" }));
+    renderSettings();
+    expect(screen.getByLabelText("prefs")).toHaveTextContent(/\|mulberry\|/);
+    window.localStorage.clear();
+  });
+  it("an old save's Starfield was only the default, so it opens in Mulberry & Mint", () => {
+    window.localStorage.setItem("worlds.prefs.v2", JSON.stringify({ theme: "starfield" }));
+    renderSettings();
+    expect(screen.getByLabelText("prefs")).toHaveTextContent(/\|mulberry\|/);
+    window.localStorage.clear();
+  });
+  it("Starfield chosen after the switch is kept", () => {
+    window.localStorage.setItem("worlds.prefs.v2", JSON.stringify({ theme: "starfield", themeV: 2 }));
     renderSettings();
     expect(screen.getByLabelText("prefs")).toHaveTextContent(/\|starfield\|/);
     window.localStorage.clear();

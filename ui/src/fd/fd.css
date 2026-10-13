@@ -6,14 +6,15 @@
 @font-face { font-family: "Atkinson Hyperlegible Next"; font-style: normal; font-weight: 700; font-display: swap; src: url("/assets/fonts/AtkinsonHyperlegibleNext-Bold.woff2") format("woff2"); }
 @font-face { font-family: "Young Serif"; font-style: normal; font-weight: 400; font-display: swap; src: url("/assets/fonts/young-serif-latin.woff2") format("woff2"); }
 
+/* Mulberry & Mint: the estate base (design-system tokens/mulberry-mint.tokens.json, Dark), the default since 2026-10-12. */
 :root {
-  --void: #0C0D14; --canvas: #0F1119; --hull: #141620; --panel: #1A1D2A; --elevated: #222636; --raised: #2A2E40;
-  --accent: #D4A057; --on-accent: #0C0D14; --accent-soft: rgba(212, 160, 87, 0.14);
-  --teal: #5AA8B8; --teal-soft: rgba(90, 168, 184, 0.14);
-  --good: #8FBF8A; --warn: #E0B25E; --bad: #E39383;
-  --text: #F0EDE6; --text-2: #C9C3B7; --muted: #ADA597;
-  --line: rgba(240, 237, 230, 0.10); --line-strong: rgba(240, 237, 230, 0.20);
-  --focus: #72b1b1;
+  --void: #1f1625; --canvas: #291d30; --hull: #2e2136; --panel: #352640; --elevated: #3d2d49; --raised: #45334f;
+  --accent: #a7e6ce; --on-accent: #291d30; --accent-soft: rgba(167, 230, 206, 0.14);
+  --teal: #a9d4ff; --teal-soft: rgba(169, 212, 255, 0.14);
+  --good: #c3e79b; --warn: #f6cea2; --bad: #ffa8b4;
+  --text: #f5ecf2; --text-2: #dacad9; --muted: #cbbcce;
+  --line: rgba(245, 236, 242, 0.12); --line-strong: rgba(245, 236, 242, 0.24);
+  --focus: #72b1b1;   /* the accessibility contract's teal ring (station accent), kept in every dark theme */
   --font-body: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, sans-serif;
   --font-display: "Young Serif", Georgia, "Times New Roman", serif;
   --font-mono: "Atkinson Hyperlegible Mono", ui-monospace, "SF Mono", Menlo, monospace;
@@ -21,6 +22,17 @@
   --r-sm: 8px; --r: 12px; --r-lg: 16px; --r-full: 999px;
   --target-min: 44px; --target-lg: 56px;
   --fd-safe-bottom: env(safe-area-inset-bottom, 0px);
+  color-scheme: dark;
+}
+/* Starfield: the earlier default, now a choice. */
+:root[data-theme="starfield"] {
+  --void: #0C0D14; --canvas: #0F1119; --hull: #141620; --panel: #1A1D2A; --elevated: #222636; --raised: #2A2E40;
+  --accent: #D4A057; --on-accent: #0C0D14; --accent-soft: rgba(212, 160, 87, 0.14);
+  --teal: #5AA8B8; --teal-soft: rgba(90, 168, 184, 0.14);
+  --good: #8FBF8A; --warn: #E0B25E; --bad: #E39383;
+  --text: #F0EDE6; --text-2: #C9C3B7; --muted: #ADA597;
+  --line: rgba(240, 237, 230, 0.10); --line-strong: rgba(240, 237, 230, 0.20);
+  --focus: #72b1b1;
   color-scheme: dark;
 }
 :root[data-theme="daylight"] {
@@ -465,7 +477,7 @@ input[type="radio"], input[type="checkbox"] { accent-color: var(--teal); }
 .fd-home-quiet-toggle { margin-left: auto; color: var(--accent); }
 
 /* Needs you: the brightest thing on the page */
-.fd-needs-band { background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 22%, transparent), transparent); border: 1px solid var(--line-strong); border-radius: var(--r-lg); padding: 14px 16px; }
+.fd-needs-band { background: linear-gradient(180deg, color-mix(in srgb, var(--warn) 22%, transparent), transparent); border: 1px solid var(--line-strong); border-radius: var(--r-lg); padding: 14px 16px; }
 .fd-home-needs-you { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 10px; }
 .fd-home-needs-you-item { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; background: var(--raised); border-radius: var(--r); padding: 10px 12px; border: 1px solid var(--accent); box-shadow: 0 0 0 1px var(--line-strong); }
 .fd-home-needs-you-text { flex: 1 1 160px; min-width: 0; font-size: 1.0625rem; color: var(--text); }
@@ -518,7 +530,7 @@ html[data-text="large"] .fd-strip, html[data-text="larger"] .fd-strip { grid-tem
 .fd-row-freshness { font-size: 0.8125rem; color: var(--muted); }
 .fd-row.is-degraded { border-style: dashed; }
 /* tier 1: Needs a look, loud */
-.fd-row--t1 { padding: 18px; background: linear-gradient(180deg, var(--elevated), var(--panel)); border-color: var(--line-strong); box-shadow: inset 4px 0 0 var(--accent); }
+.fd-row--t1 { padding: 18px; background: linear-gradient(180deg, var(--elevated), var(--panel)); border-color: var(--line-strong); box-shadow: inset 4px 0 0 var(--warn); }
 .fd-row--t1.is-bad { box-shadow: inset 4px 0 0 var(--bad); }
 .fd-row--t1 .fd-row-icon { width: 52px; height: 52px; }
 .fd-row--t1 .fd-row-title { font-size: 1.125rem; }
