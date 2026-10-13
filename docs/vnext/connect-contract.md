@@ -134,7 +134,7 @@ interface CredentialReference {
   auth: "none" | "bearer" | "header" | "basic" | "cookie_session" | "password_grant";
   header_name?: string;                    // may not be a framing or forwarding header
   scope: string[];                         // capability_ids this credential may be sent to — nothing else
-  rotated_at?: string;                     // owner-supplied hint; Worlds never guesses it
+  rotated_at?: string;                     // OWNER-SIDE ONLY: accepted and echoed, never stored (§6.1)
 }
 
 // ------------------------------------------------------------- test result
@@ -171,7 +171,7 @@ interface TestResult {
 
 // -------------------------------------------------------------- transform
 interface CardDraft {
-  card_id: string;
+  card_id: string;                       // Worlds' id grammar: ^[a-z0-9][a-z0-9-]{0,62}$ (models.py:11)
   connection_id: ConnectionId;
   capability_id: string;
   title: string;
@@ -271,7 +271,7 @@ screen, not "the API".
 | `vendor_label` | Connect detail, for the owner's own recognition | The owner's "what is this thing called" | Shown, never used as an id, never used as a vocabulary term, never matched against |
 | `dialect` | Dispatch, at the boundary only | Chooses which read adapter and which auth exchange applies | A closed enum; an unknown dialect is refused at register, not defaulted |
 | `authority` | `actions_routes` approve/record split | Decides *who* may approve — the single most consequential field here | `external` on a provider whose operations the owner cannot approve in Worlds; defaults closed (`models.py:203`) |
-| `principal` | The sender's identity header, for `room-0` | Some systems require Worlds to say who it speaks for | Pattern-validated at save and again at send (`confinement.py:606`); never taken from a request header |
+| `principal` | The sender's identity header, for `room-0` | Some systems require Worlds to say who it speaks for | Connect's `PrincipalBinding` projects onto the string `Provider.principal_id` (`models.py:180`) — `person_ref` is the whole of it in v1, and a binding carrying any other part is refused at register rather than dropped. Pattern-validated at save and again at send (`confinement.py:606`); never taken from a request header |
 | `credential` | The sender only | The provider needs a credential; the browser must never see one | Reference-only; a value anywhere in the body is refused by `extra="forbid"` because no model has a field for it |
 | `capabilities` | Connect capability list; `describe-capabilities` | The typed thing a connection *has* | Every entry is read-only; a write-shaped capability cannot be expressed here (see §4.5). Ledgered field by field in §4.8 |
 | `etag` | The owner's next edit | Optimistic concurrency, as C1 requires | 409 on mismatch; `If-Match: *` refused with 428 |
@@ -285,13 +285,13 @@ screen, not "the API".
 | `auth` | The sender's credential exchange | *How* to present it | Closed enum; `none` is never chosen silently for a scheme the discovery step did not understand |
 | `header_name` | The sender | Names a non-standard header | May not be a framing, forwarding or `sec-` header (`models.py:53`); re-checked at send (`confinement.py:246`) |
 | `scope` | The sender, before it dials | **Scoped access**: this credential may only be sent to the listed capabilities | A capability outside `scope` is `auth_failed` before any socket opens — no DNS, no bytes |
-| `rotated_at` | Connect detail | The owner's own reminder; Worlds never auto-rotates | Read-only display; never used to decide whether a credential is still valid |
+| `rotated_at` | Nowhere in Worlds — the owner's own password manager or notes | The owner's own reminder; Worlds never guesses a rotation date and keeps no copy of one | Accepted on the way in and echoed in endpoint 2's receipt; never written to any file, because `Auth` is `extra="forbid"` (`models.py:101`) and no C1 object has a field for it. Never used to decide whether a credential is still valid |
 
 ### 4.3 `TestResult`
 
 | Field | Consumer | Reason to exist | Security test |
 |---|---|---|---|
-| `source.connection_id`, `request_id` | The detail view's evidence strip; `Home → needs a look` | Which request produced this | Must match a stored read request; an unsaved id is refused. There is no results or history table behind it (§6.1) — a `TestResult` lives exactly as long as the response and the in-process last-good snapshot |
+| `source.connection_id`, `request_id` | The detail view's evidence strip; `Home → needs a look` | Which request produced this | Must match a stored read request; an unsaved id is refused. No results table backs it: `worlds.db`'s `history` is an append-only audit log for memory rows (`kept`/`later`/`records`), not a store of reads, and `find_index` only mirrors those three (§6, §6.1) — so a `TestResult` lives exactly as long as the response and the in-process last-good snapshot |
 | `source.method`, `path` | The detail view's evidence strip | Which call it was | Path re-validated at send (`confinement.py:201`); `..`, `%2e`, `\` and control characters refused |
 | `source.status_code`, `duration_ms`, `error_class` | Needs-a-look grouping; degraded-mode copy | Why it failed, in the C2 vocabulary | Classified, never free text from the provider |
 | `source.note` | The same strip | A short human reason | Scrubbed against every live secret, then cut to 300 chars (`connect_routes.py:176`) |
@@ -305,10 +305,10 @@ screen, not "the API".
 
 | Field | Consumer | Reason to exist | Security test |
 |---|---|---|---|
-| `published` | `GET /api/boards/home` (`production.py:91`) | Exactly which field keys are shown | An allow-list. Empty means nothing is published. A key not produced by a `test` is refused |
-| `hidden` | Connect detail | Makes "kept but not shown" visible rather than silent | A hidden capability appears in no board payload, no agent answer and no receipt |
+| `published` | `GET /api/boards/home` (`production.py:91`) | Exactly which field keys are shown | An allow-list of `TestResult.values` keys (`_KEY_RE`, `models.py:364`), never a default-on wildcard. Empty means nothing is published. A key no `test` produced is refused — checked at endpoint 8, which is where a `publish_target` declared at register is finally held against the result the owner actually saw |
+| `hidden` | Connect detail; endpoint 8's receipt | Makes "kept but not shown" visible rather than silent | A hidden capability appears in no board payload, no agent answer and no card; the only place it is named is the receipt and Connect detail, so nothing is dropped silently |
 | `board` | The home board the card joins | Where it lands | Must be an existing board; a card with no board is `not_configured` |
-| `published_at`, `published_by` | History | When and by whom | `published_by` is always `owner`; an agent token cannot set it |
+| `published_at`, `published_by` | Endpoint 8's publish receipt — the confirmation line Connect shows the owner; the durable record of a publish is the card file's own `etag`/`updated_at` from the config store | When the owner published, not when the provider last answered | Returned by the call that made the change and **stored nowhere**: `BoardItem` is `extra="forbid"` (`models.py:447`) with no timestamp, so nothing in C1 config could hold it (§6.1). `published_by` is always `owner`; an agent token cannot set it |
 
 ### 4.5 `ActionProposal`
 
@@ -340,11 +340,11 @@ described in Connect's vocabulary.
 
 | Field | Consumer | Reason to exist | Security test |
 |---|---|---|---|
-| `card_id` | The board item (`boards/*.yaml`); Home's item id | One card per published capability, in Worlds' id grammar | Id validated *before* a path is built (`config_store.py:119`); a provider-supplied id is never used as the card id |
+| `card_id` | The board item (`boards/*.yaml`); Home's item id | One card per published capability, in Worlds' id grammar | A **single** segment — `ID_RE` (`models.py:11`) takes no dot — validated *before* a path is built (`config_store.py:119`); a provider-supplied id is never used as the card id |
 | `connection_id`, `capability_id` | Connect's card list; the drill-down from Home back to Connect | Which connection and capability the card came from | Both must exist in the stored descriptor; a draft naming a capability the connection does not have is refused 422 — the draft is never a way to invent one |
 | `title` | The Home board item title | Worlds owns meaning, so the owner names it | ≤120 characters (`models.py:425`); never rendered as markup; a title that reads as a URL is not turned into a link |
 | `meaning` | The C5 accessibility name; agent answers | The plain-language statement of what this card is for | Owner/foreman words only; a provider string is never promoted into `concept` or `short`; `short` is length-bounded |
-| `fields` | The card body; the publish allow-list | Exactly the field keys the owner will see | Every key exists in the `TestResult.values` it was built from; no key from a `truncated` sample; every path re-validated against the JSONPath subset at save (`models.py:25`) |
+| `fields` | The card body; the publish allow-list | Exactly the field keys the owner will see | Every key exists in the `TestResult.values` it was built from; no key from a `truncated` sample; every path re-validated against the JSONPath subset at save (`models.py:26`) |
 | `status_map` | The Play-Nice status word | The one explicit provider→Play-Nice table | Closed vocabulary; a provider value absent from the table reads `unknown`, never `healthy`; `mode` is the existing closed enum (`models.py:357`) |
 | `source_state`, `freshness` | Card freshness copy; C5 | The sample's honesty travels with the card | A draft built from a `stale` result publishes only as `stale`; `freshness: current` is refused when `last_good_at` is set |
 | `source` | The detail view's evidence strip | Which read produced this card | Copied from the `TestResult` the owner already saw, already scrubbed (`connect_routes.py:191`); no path, request id or status the test did not return |
@@ -359,14 +359,14 @@ The capability is what a connection *has*; a `ReadSpec` is the one bounded, read
 | `Capability.capability_id` | Card ids; `CredentialReference.scope`; `ActionProposal.scope` | The stable name a credential, a publish selection and an action all refer to | Id grammar at save; unique within a connection; a `scope` entry naming no capability is refused rather than ignored |
 | `Capability.label` | The capability list; the card title before publish | The owner's words for this thing | ≤120 characters; never markup; a vendor string is shown as `vendor_label`, never as the label |
 | `Capability.meaning` | `Card.meaning`; agent answers; Home | Worlds owns meaning; the provider does not | `concept`/`short` are owner- or foreman-written. A discovery document cannot set them — endpoint 1 returns candidates only, and nothing from it is saved until endpoint 2 |
-| `Capability.reads` | Endpoint 6 (test); endpoint 7 (transform) | The bounded shapes a test may run | Non-empty; every entry validates as a `Request`; see the `ReadSpec` table below |
-| `Capability.provenance` | Connect detail ("who says this exists?") | An owner-named read and a provider-declared read are not the same claim | Stored, defaulting to `owner` (§6.1); a provider-declared capability is never `verified` until a foreman checks it |
-| `Capability.verified` | The `verified: false` gate (`recipes.py:69`); the detail badge | "Somebody checked these shapes read-only against a real service" is a different word from "it worked once" | Literal `false` by default; set only by a foreman's read-only check; **never** inferred from a passing `test` — merging those two words is how a status gets overstated |
-| `ReadSpec.operation` | Endpoint 6's `operation` selector; the evidence strip | A stable name for which read ran, within the capability | Unique within a capability; an unknown operation is refused 404, not silently run as the first read |
+| `Capability.reads` | Endpoint 6 (test); endpoint 7 (transform) | The bounded shapes a test may run | Non-empty; every entry validates as a `Request`; one entry is one request file, which is where that read's `provenance`/`verified` live (§6.1); see the `ReadSpec` table below |
+| `Capability.provenance` | Connect detail ("who says this exists?") | An owner-named read and a provider-declared read are not the same claim | Stored on each of the capability's request files, defaulting to `owner` (§6.1); a capability reads its own label as the **weakest** provenance any of its requests carries — one provider-declared read in a list makes the whole capability provider-declared, so a badge can never over-claim |
+| `Capability.verified` | The `verified: false` gate (`recipes.py:69`); the detail badge | "Somebody checked these shapes read-only against a real service" is a different word from "it worked once" | Stored on each request, defaulting to `false`; a capability is verified only when **all** of its reads are, because a foreman checked shapes, not intentions. Set only by a foreman's read-only check; **never** inferred from a passing `test` — merging those two words is how a status gets overstated |
+| `ReadSpec.operation` | Endpoint 6's `operation` selector; the evidence strip | A stable name for which read ran, within the capability | Unique within the connection — it is half the request id, and `REQUEST_ID_RE` (`models.py:14`) allows only two segments; an unknown operation is refused 404, not silently run as the first read |
 | `ReadSpec.method` | The sender | Read-only by construction | Literal `GET` or `HEAD`; refused at save *and* re-checked at send (`confinement.py:577`); a write cannot be expressed here at all |
 | `ReadSpec.path` | `build_url`, at send | The read's address, relative to `path_prefix` | Relative only; `..`, `%2e`, `\`, control characters and an absolute URL refused at save, and re-validated at send (`confinement.py:201`) |
 | `ReadSpec.query` | The sender | The closed template set a read may carry | Keys and values match `Request.query` (`models.py:245`); no repeated keys; nothing interpolated from live input — a value that must vary comes from a stored request |
-| `ReadSpec.bounds.timeout_s` | The send deadline | A read cannot outlive the owner's patience | Must be ≤ the provider's `timeout_s` (`models.py:184`); a larger value is refused, not silently clamped |
+| `ReadSpec.bounds.timeout_s` | The send deadline | A read cannot outlive the owner's patience | Written to `Request.timeout_s` (`models.py:251`) as the per-read override and must be ≤ the provider's `timeout_s` (`models.py:184`); a larger value is refused, not silently clamped |
 | `ReadSpec.bounds.max_bytes` | The raw-byte cap | A read cannot flood the process | Must be ≤ the provider's `max_bytes` (`models.py:185`); raw bytes are counted and never decompressed, and an encoded body is refused outright (`confinement.py:804`–`:809`) |
 | `ReadSpec.bounds.ttl_s` | The freshness decision | How long a good answer stays good | 0–86400, as `Request.ttl_s` (`models.py:250`); `ttl_s: 0` means every read is live and nothing is served from a snapshot |
 
@@ -431,14 +431,18 @@ lives, and this one does have state. The honest version is narrower and specific
 
 | Contract type | Where it lives | New state |
 |---|---|---|
-| `RegisterRequest` / `ConnectionDescriptor` — identity, destination, credential ref, authority | `providers/<id>.yaml` (`Provider`) | no |
-| `ReadSpec` | `requests/<connection>.<capability>.<operation>.yaml` (`Request`: `method`, `path`, `query`, `ttl_s`, `assertions`; `timeout_s`/`max_bytes` stay on the provider) | two optional fields: `provenance`, `verified` |
-| `Capability.meaning` | `cards/<connection>.<capability>.yaml` (`Card.meaning`) | no |
+| `RegisterRequest` / `ConnectionDescriptor` — identity, destination, credential ref, authority | `providers/<id>.yaml` (`Provider`); `principal` is stored as `Provider.principal_id` (`models.py:180`), a string, so a `PrincipalBinding` is exactly its `person_ref` in v1. The descriptor's own `etag`/`updated_at` are the config store's, computed from the file bytes (`config_store.py:445`), not stored separately | no |
+| `ReadSpec` | `requests/<connection>.<operation>.yaml` (`Request`: `method`, `path`, `query`, `ttl_s`, `timeout_s`, `assertions`; `max_bytes` is provider-only — `models.py:185`). The id is `<connection>.<operation>` because `REQUEST_ID_RE` (`models.py:14`) is exactly two segments, so a three-segment name would not validate | two optional fields: `provenance`, `verified` — stored **per request**, and a capability is verified only when *every* one of its requests is (see §4.8) |
+| `Capability.meaning` | `cards/<card-id>.yaml` (`Card.meaning`) — a card id is a **single** segment (`ID_RE`, `models.py:11`), so `<connection>-<capability>`, e.g. `cards/homelab-health-check-results.yaml` | no |
 | `CardDraft`, once published | the same card file — `fields`, `status_map`, `meter` | no |
-| `PublishSelection` | `boards/<board>.yaml`: `Board.items` is the published set, `BoardItem.hidden` (`models.py:450`) is the kept-but-not-shown set, and the card's own `fields` list *is* the field-key allow-list | no |
+| `PublishSelection` | `boards/<board>.yaml`: `Board.items` is the published set, `BoardItem.hidden` (`models.py:450`) is the kept-but-not-shown set, and the card's own `fields` list *is* the field-key allow-list. `published_at`/`published_by` are the exception — see the *not persisted* table below | no |
 | `ActionProposal` | `requests/` + `actions/<id>.yaml` (`Action`: `scope`, `idempotency`, `approval`, `exposed`) | one optional field: `state` |
 
-**The four additive optional fields, and why each is needed:**
+**The four additive optional fields, and why each is needed.** This list is exhaustive, and the
+table above it is exhaustive too: every §2 field that is stored anywhere lands in one of the two
+tables, and the two §2 fields that are deliberately never stored — `CredentialReference.rotated_at`
+and `PublishSelection.published_at` — are in the *not persisted* table below with the reason, not
+here. Nothing is left unaccounted for between "persisted" and "not persisted".
 
 | Field | Default | Why it cannot be derived | Why it breaks nothing |
 |---|---|---|---|
@@ -452,10 +456,11 @@ lives, and this one does have state. The honest version is narrower and specific
 | Type | Where it lives | Why |
 |---|---|---|
 | discovery candidates | nowhere; returned once by endpoint 1 | A candidate is not a capability. Only what the owner keeps is written (endpoint 2) |
-| `TestResult`, last-good values | nowhere durable. Last-good values stay in process memory exactly as a room's do (`room0.py:292`, `:319`) and are labelled `stale` | There is no results table in `worlds.db` to put them in, and adding one is the migration §6.2 refuses. A value survives the process only as long as a last-good snapshot does — which is why `freshness` is on every result |
+| `TestResult`, last-good values | nowhere durable. Last-good values stay in process memory exactly as a room's do (`room0.py:292`, `:319`) and are labelled `stale` | There is no results table in `worlds.db` to put them in, and adding one is the migration §6.2 refuses. The `history` table there is an append-only audit log for memory rows, not a results store (§6), so it is not a home for these either. A value survives the process only as long as a last-good snapshot does — which is why `freshness` is on every result |
 | `CardDraft` before publish | nowhere; an owner iteration | Endpoint 7 is pure. Publishing is what writes a card |
+| `PublishSelection.published_at`, `published_by` | nowhere; returned once by endpoint 8 | The card's presence in `Board.items` is the record of *what* was published, and the card file's etag/`updated_at` (`config_store.py:445`) is the record of *when* the config last changed. `BoardItem` has no timestamp field (`models.py:447`), so a fifth additive field would be needed to keep one — which §7.1 forbids, and which would store a fact the config store already records |
 | `DisconnectResult`, `RevocationResult` | nowhere; returned once | They are reports of an effect, not a record. After a revoke the provider, request, card, board-item and action files are gone, and *that absence* is the record |
-| `CredentialReference.rotated_at` | the provider file, if the owner sets it | Worlds never guesses a rotation date |
+| `CredentialReference.rotated_at` | nowhere — the owner's own password manager or notes | Worlds never guesses a rotation date, and there is nowhere in C1 config to put one: `Auth` is `extra="forbid"` (`models.py:101`) and has no such field. Endpoint 2 accepts the hint and echoes it in the receipt it returns; no file carries it, which is why it is **not** a fifth additive field |
 | held credentials, back-off | process memory — the `_SESSIONS` map and its purge (`confinement.py:286`–`:299`) | Same as today |
 
 **No agent writes config.** The config write routes are wired to `owner_dep`
@@ -476,7 +481,7 @@ request, not a caller.
 | C3 action lifecycle | `request_authorization → approve → consume → dispatch` | **Unchanged** — the contract proposes, the existing lifecycle decides | None. A new backend here would be the "new because new" case #321 rules out | Nobody |
 | `/api/rooms/*` | Live (`room_routes.py:16`) | **Unchanged paths**; reached in Connect through `dialect: room-0`, `authority: external` | The room flow becomes the reference implementation of an externally governed connection, not a special case | Nobody |
 | `action_version` and per-file etags | Computed from action + request + provider (`config_store.py:373`) | **Unchanged** | A published edit still invalidates pending authorizations | Nobody |
-| `worlds.db` tables | `sessions`, `agent_tokens`, `owner_state` (`authn.py:42`–`:49`); `authorizations`, `executions`, `leases` (`dispatcher.py:46`–`:60`); `kept`, `later`, `records` (`memory_store.py:42`–`:51`); `schema_migrations` (`db.py:127`) | **Unchanged** — no table added, and there is **no results or history table** in this database, which is why `TestResult` is not persisted (§6.1) | None | Nobody |
+| `worlds.db` tables | `sessions`, `agent_tokens`, `owner_state` (`authn.py:42`–`:49`); `authorizations`, `executions`, `leases` (`dispatcher.py:46`–`:60`); `kept`, `later`, `records` (`memory_store.py:42`–`:51`); `history` (`memory_store.py:56`–`:58`) and the `find_index` FTS table over those same three (`memory_store.py:61`); `schema_migrations` (`db.py:127`) | **Unchanged** — no table added. There is **no results table**, and that is why `TestResult` is not persisted (§6.1). The `history` table is an append-only **audit log for `kept`/`later`/`records`** — columns `id, at, actor, event, table_name, row_id, detail`, frozen by the `history_no_update` / `history_no_delete` triggers (`memory_store.py:59`–`:60`) — and `find_index` is an FTS mirror of those three tables. Neither is keyed by connection or request and neither is written by a `test`, so neither can hold a `TestResult` | None | Nobody |
 | `needs_you` items | Pending authorizations + room needs (`production.py:75`) | **Unchanged** shape; a proposal with no authorization yet is not a needs-you item | A proposal is silent until someone acts on it — deliberate | Owner |
 | `GET /api/boards/home` payload | Board items with display definitions, no request ids or paths | **Unchanged** — publish adds items, it does not change the payload | None | UI |
 
@@ -650,22 +655,25 @@ exactly as `recipes.py:69` requires.
                   "bounds": { "timeout_s": 5, "max_bytes": 1048576, "ttl_s": 60 } }] }
   ],
   "skipped": [], "notes": ["base_url is a synthetic placeholder; supply the real address at register"],
-  "needs_auth": "none" }
+  "needs_auth": "bearer" }
 ```
 
 Consumer: Connect's Discover step. If the service publishes an OpenAPI 3.x document, the
 `openapi-3` dialect produces the same shape through `from_openapi`'s bounds; every method other
 than GET/HEAD lands in `skipped` with `write-like: needs an approved action`, and an auth scheme
-C1 cannot map leaves `needs_auth: unknown` rather than choosing `none` for you.
+C1 cannot map leaves `needs_auth: unknown` rather than choosing `none` for you. Discovery is sent
+with `"credential": null` and reports the requirement it found — `bearer` here — so the owner
+supplies a *reference* at register, in step 2. Nothing in discovery ever holds a value.
 
 **2. register** — the owner keeps one capability and names it in their own words.
 
 ```jsonc
+// POST /api/connect/v1/connections
 { "contract": "connect/v1", "connection_id": "homelab-health",
   "display_name": "Homelab checks",
   "dialect": "http-json",
   "destination": { "base_url": "http://gatus.lan.example:8080", "network": { "lan": true } },
-  "credential": { "ref": "env:", "auth": "none", "scope": ["check-results"] },
+  "credential": { "ref": "env:EXAMPLE_TOKEN", "auth": "bearer", "scope": ["check-results"] },
   "capabilities": [{ "capability_id": "check-results", "label": "Are the checks passing?",
                      "meaning": { "concept": "homelab health",
                                   "short": "Are the homelab checks passing?" },
@@ -673,8 +681,20 @@ C1 cannot map leaves `needs_auth: unknown` rather than choosing `none` for you.
                      "reads": [{ "operation": "statuses", "method": "GET",
                                  "path": "/api/v1/endpoints/statuses",
                                  "bounds": { "timeout_s": 5, "max_bytes": 1048576, "ttl_s": 60 } }] }],
-  "publish_target": { "board": "home", "publish": ["Checks", "State"] } }
+  "publish_target": { "board": "home", "publish": ["checks", "failing"] } }
 ```
+
+`env:EXAMPLE_TOKEN` is a **name**, not a value, and an obviously synthetic one: the whole point is
+that Worlds resolves it at send time and never holds or returns what it names (§4.2). It is a
+well-formed ref — `SECRET_REF_RE` (`models.py:15`) requires a name after the colon, so a bare
+`"env:"` is malformed and refused rather than read as "no credential" — and it is not a name
+Worlds owns, which is what keeps it clear of the refusal in `connect_routes.py:37`/`:101` (§5.1).
+A service that genuinely needs no credential takes `"credential": null`, as step 1 above does;
+`auth: "none"` carrying a ref is not a third option.
+
+`publish` names **field keys**, not labels: the two keys the owner's `test` below will produce
+(`FieldValue.key`, §2, from endpoint 6), in the `_KEY_RE` grammar (`models.py:364`). The Play-Nice
+state word is not one of them — it travels as the card's state, never as a published field.
 
 `verified: false` survives registration on purpose. The owner has confirmed the *shapes*; nobody
 has confirmed they against the live service. Merging those two words is how a status gets
@@ -683,29 +703,86 @@ overstated.
 **3. test** — one read, bounded, scrubbed. `error_class` is the C2 vocabulary unchanged.
 
 ```jsonc
+// POST /api/connect/v1/connections/homelab-health/test
+{ "contract": "connect/v1", "capability_id": "check-results", "operation": "statuses",
+  "assertions": [{ "status": 200, "path": "$.checks", "exists": true, "is_list": false }] }
+
+// → 200
 { "contract": "connect/v1", "capability_id": "check-results",
   "source": { "connection_id": "homelab-health", "request_id": "homelab-health.statuses",
               "method": "GET", "path": "/api/v1/endpoints/statuses",
               "status_code": 200, "duration_ms": 41, "error_class": null },
   "freshness": "current", "state": "healthy",
   "observed_at": "2026-10-13T14:02:11Z", "fetched_at": "2026-10-13T14:02:11Z", "last_good_at": null,
-  "values": { "Checks": { "key": "Checks", "text": "42" },
-              "Failing": { "key": "Failing", "text": "0" } },
+  "values": { "checks": { "key": "checks", "text": "42" },
+              "failing": { "key": "failing", "text": "0" } },
   "meter": { "type": "dots", "text_equivalent": "all 42 checks passing" },
   "truncated": false }
 ```
 
-If the service is down, `state` becomes `unavailable`, `error_class` is `connection`, and the
-`values` above come back as `last_good_at` values with `freshness: "stale"`. Missing is
-`{"text": "unknown"}`, never `0`.
+The request id is the C1 file the read ran as — one file per `ReadSpec`,
+`requests/homelab-health.statuses.yaml` (§6.1) — and `provenance: "owner"` and
+`verified: false` are stored on that file, so this capability reads back as owner-named and
+unverified (§4.8). If the service is down, `state` becomes `unavailable`, `error_class` is
+`connection`, and the `values` above come back as `last_good_at` values with `freshness: "stale"`.
+Missing is `{"text": "unknown"}`, never `0`.
 
 **4. transform** — pure, no network: `TestResult` → `CardDraft`, with the JSONPath subset paths
 validated at save rather than at first render.
 
-**5. publish (selective)** — the owner publishes `Checks` and the status word, and *not* the
-per-endpoint names. The card on Home answers "are the checks passing"; the drill-down list stays
-in Connect, where it is looked at on purpose. The C5 accessibility props come from the envelope
-as they do for any card.
+```jsonc
+// POST /api/connect/v1/connections/homelab-health/transform   (body: the TestResult above)
+// → 200
+{ "contract": "connect/v1", "card_id": "homelab-health-check-results",
+  "connection_id": "homelab-health", "capability_id": "check-results",
+  "title": "Are the checks passing?",
+  "meaning": { "concept": "homelab health", "short": "Are the homelab checks passing?" },
+  "fields": [ { "key": "checks",  "label": "Checks",  "format": "count" },
+              { "key": "failing", "label": "Failing", "format": "count" } ],
+  "source_state": "healthy", "freshness": "current",
+  "source": { "connection_id": "homelab-health", "request_id": "homelab-health.statuses",
+              "method": "GET", "path": "/api/v1/endpoints/statuses",
+              "status_code": 200, "duration_ms": 41, "error_class": null } }
+```
+
+Every `key` exists in the `values` the draft was built from, and each becomes a C1 `Field_` whose
+`path` is the JSONPath `$.checks` / `$.failing`, so the subset is checked by `_check_path`
+(`models.py:26`) when the card is saved — not when it is first rendered. This sample needs no
+`status_map`: it has no provider string to translate, and the Play-Nice word comes from the
+sample's own `state`. Had the service answered `$.status: "up" | "down"`, the draft would carry
+`status_map: { path: "$.status", healthy: ["up"], needs_attention: ["down"], mode: "first" }`, and
+an unrecognised value would read `unknown`, never `healthy` (§4.7).
+
+**5. publish (selective)** — the owner publishes the two field keys the draft actually carries,
+and *not* the per-endpoint names.
+
+```jsonc
+// POST /api/connect/v1/connections/homelab-health/publish
+{ "contract": "connect/v1", "board": "home", "card": { …the CardDraft above… },
+  "published": ["checks", "failing"], "hidden": [] }
+
+// → 200
+{ "board": "home", "published": ["checks", "failing"], "hidden": [],
+  "published_at": "2026-10-13T14:02:44Z", "published_by": "owner" }
+```
+
+One call writes `cards/homelab-health-check-results.yaml` — whose `fields` list *is* the
+allow-list (§6.1) — and adds the board item to `boards/home.yaml`. `published_at` and
+`published_by` come back in the receipt and are stored nowhere (§4.4, §6.1). A key that is not
+in the draft is refused; an empty `published` would write nothing to Home at all.
+
+**Render** — what the owner then sees on Home:
+
+```text
+Homelab checks
+  "Are the homelab checks passing?"
+  Checks 42 · Failing 0        all 42 checks passing        healthy · current
+```
+
+The card answers "are the checks passing"; the per-endpoint drill-down stays in Connect, where it
+is looked at on purpose. The C5 accessibility props come from the envelope as they do for any
+card, and the state word reads `healthy` because the sample said so — not because a `test` passed
+once.
 
 **6. propose-action** — if the owner wants "re-run the checks", it is a `write`, `scope` is
 `homelab-health.check-results`, `idempotency: "required"`, `exposed: false`, and the approval
@@ -728,17 +805,35 @@ it does not. What follows is what §1 looks like when `dialect` is `room-0` and 
   "credential": { "ref": "env:PROJECT_HOME_ROOM_TOKEN", "auth": "bearer",
                   "scope": ["room-status", "room-cards", "room-needs", "room-actions"] },
   "capabilities": [
-    { "capability_id": "room-status",  "provenance": "owner",     "verified": false },
-    { "capability_id": "room-cards",   "provenance": "owner",     "verified": false },
-    { "capability_id": "room-needs",   "provenance": "owner",     "verified": false },
-    { "capability_id": "room-actions", "provenance": "discovered", "verified": false }
-  ] }
+    { "capability_id": "room-status",  "provenance": "owner",      "verified": false,
+      "reads": [{ "operation": "room", "method": "GET", "path": "/room",
+                  "bounds": { "timeout_s": 5, "max_bytes": 2097152, "ttl_s": 30 } }] },
+    { "capability_id": "room-cards",   "provenance": "owner",      "verified": false,
+      "reads": [{ "operation": "room-cards", "method": "GET", "path": "/room/cards",
+                  "bounds": { "timeout_s": 5, "max_bytes": 2097152, "ttl_s": 30 } }] },
+    { "capability_id": "room-needs",   "provenance": "owner",      "verified": false,
+      "reads": [{ "operation": "room-needs", "method": "GET", "path": "/room/needs-you",
+                  "bounds": { "timeout_s": 5, "max_bytes": 2097152, "ttl_s": 30 } }] },
+    { "capability_id": "room-actions", "provenance": "discovered", "verified": false,
+      "reads": [{ "operation": "room-actions", "method": "GET", "path": "/room/actions",
+                  "bounds": { "timeout_s": 5, "max_bytes": 2097152, "ttl_s": 30 } }] }
+  ],
+  "publish_target": { "board": "home", "publish": ["status", "needs_open"] } }
 ```
+
+`label` and `meaning` are elided from those four capabilities only to keep the descriptor readable:
+as in integration A they are the owner's own words, filled at register and never taken from the room
+(§4.8). `provenance: "discovered"` on `room-actions` is what the room's own answer earned, and it
+is why that capability stays `verified: false` until a foreman checks it.
 
 `your-person-id` is the placeholder `config/recipes/project-home/provider.yaml` ships, and it is
 installed as written: Worlds speaks for one named person, validated at save and again at send
 (`confinement.py:606`), and never as a free request header. The owner replaces it in their own
-config; nothing in Worlds guesses it.
+config; nothing in Worlds guesses it. On the way to `providers/project-home.yaml` the object form
+projects onto the stored string `Provider.principal_id` (`models.py:180`) — `person_ref` is all of
+a `PrincipalBinding` in v1, and any other part is refused at register, not silently dropped (§4.1).
+`env:PROJECT_HOME_ROOM_TOKEN` is a **name**, never a value: Worlds resolves it at send time through
+`secrets.resolve_secret_ref` and never holds or returns the secret it names (§4.2).
 
 **1. discover** reads `/room` and the three lists, through the confinement seam, with the same
 caps as any other connection. A room that does not answer `contract: room/0` is `malformed` →
@@ -746,18 +841,68 @@ caps as any other connection. A room that does not answer `contract: room/0` is 
 
 **2. register** writes the provider only. **No request, card or action files are invented** — the
 room maps its own cards through C8 (`CONTRACTS.md` C8). This is the `status: room` recipe's one
-honest idea, and it survives into the contract unchanged.
+honest idea, and it survives into the contract unchanged: registration ends at
+`providers/project-home.yaml`, and a card appears only when the owner explicitly publishes one in
+step 5, never as a side effect of connecting.
 
 **3–4. test / transform** map a room card to `TestResult` with `source.request_id` of the form
-`<provider>.room` and `source.path` of `/room/cards`, then to a `CardDraft`. Descriptor status
+`<provider>.room` and `source.path` of the read that ran — `/room` for the status capability,
+`/room/cards` for a card — then to a `CardDraft`. Descriptor status
 maps healthy→healthy, degraded→degraded, unhealthy→needs_attention, unknown→unknown
 (`room0.py:36`). An unrecognised tone reads as `update`, logged (`room0.py:157`). A card that
 cannot be read honestly is `degraded` with every value `unknown` — never a made-up value. A card
 past `stale_after_s` is `stale`, never `current` (`room0.py:434`).
 
+For the `room-status` capability, the sample the room actually returns is:
+
+```jsonc
+{ "contract": "connect/v1", "capability_id": "room-status",
+  "source": { "connection_id": "project-home", "request_id": "project-home.room",
+              "method": "GET", "path": "/room",
+              "status_code": 200, "duration_ms": 63, "error_class": null },
+  "freshness": "current", "state": "needs_attention",
+  "observed_at": "2026-10-13T14:06:02Z", "fetched_at": "2026-10-13T14:06:02Z", "last_good_at": null,
+  "values": { "status": { "key": "status", "text": "needs attention" },
+              "needs_open": { "key": "needs_open", "text": "2" } },
+  "meter": null, "truncated": false }
+```
+
+`status` is the room's own descriptor run through the mapping above, so an `unhealthy` room is
+`needs_attention` and never `healthy`; `needs_open` counts the room's open needs and is the only
+number the card shows. The draft's fields are those two keys and nothing else — the per-card
+titles the room lists are `room-cards`' business, and stay in Connect.
+
 **5. publish (selective)** is where this connection earns the adapt in §7.3: the owner chooses
-which of the room's cards land on Home. Today every card lands (`room0.py:493`). Under §4.4 the
-rest stay in Connect. Links remain same-origin paths or they are dropped (`room0.py:71`).
+which field keys land on Home. Today every card lands (`room0.py:493`). Under §4.4 the rest stay
+in Connect, and are named rather than silently dropped:
+
+```jsonc
+// POST /api/connect/v1/connections/project-home/publish
+{ "contract": "connect/v1", "board": "home", "card": { …the room-status CardDraft above… },
+  "published": ["status", "needs_open"],
+  "hidden": ["room-cards", "room-needs", "room-actions"] }
+
+// → 200
+{ "board": "home", "published": ["status", "needs_open"],
+  "hidden": ["room-cards", "room-needs", "room-actions"],
+  "published_at": "2026-10-13T14:06:20Z", "published_by": "owner" }
+```
+
+A hidden capability contributes nothing to the board payload, to an agent answer or to the card
+itself (§4.4); the receipt names it, which is the point of the field — "kept but not shown" is
+visible rather than silent. Its own files stay written, because C8 still owns how the room maps
+its cards. Links remain same-origin paths or they are dropped (`room0.py:71`).
+
+**Render** — the one card on Home:
+
+```text
+Project Home
+  "How is the room?"
+  Status needs attention · Needs open 2        needs attention · current
+```
+
+Nothing about the approval path appears on the card: the room's actions are `exposed: false` and
+are answered in the room, which is the next step.
 
 **6. propose-action → approve elsewhere → execute.** The whole point of `authority: "external"`:
 
@@ -823,12 +968,12 @@ a fix was not possible inside the owner's decisions, the row says so and the cla
 | MAJOR-a | MAJOR | The verifier-gap wording is factually wrong: it claimed a Project Home approval id "is stored but not verified" | **Resolved.** `dispatcher.record_project_home_approval` raises `NotPermitted` at `dispatcher.py:277`–`:278` on its first statement, before `self._db.write_tx()` opens — nothing is stored. §7.3 now quotes those two lines, states that nothing is written and the answer route is 403 (`room_routes.py:76`), and names the earlier wording as wrong in the unsafe direction. §5.1 (`:275` → `:284`, `:288`), §5.2 (`:275` → `:277`–`:278`, `:288`; `room0.py:598` → `:598`–`:599`), §9's Project Home flow and §10's open question all corrected to match. The gap is still flagged, not designed around: no verifier is invented here |
 | MAJOR-b | MAJOR | The §4 field ledger omitted `CardDraft`, `Capability` and `ReadSpec`, so those types had no named consumer, reason or security test — a direct miss against #323's acceptance rule | **Resolved.** New **§4.7 `CardDraft`** (8 fields) and **§4.8 `Capability` and `ReadSpec`** (6 + 7 fields), each with consumer, reason and security test, all citations re-verified against `786f506`. `CardDraft`'s security tests point at the C1 card model it becomes (§6.1); `Capability.verified` is explicitly never inferred from a passing test; `ReadSpec` bounds are refused-not-clamped against the provider caps. §4.1's `capabilities` row now cross-references §4.8 |
 | MAJOR-c | MAJOR | Endpoint 12, `POST /api/connect/v1/approvals/{authorization_id}/record-external`, does not exist | **Resolved by replacement, not deletion.** No new path is invented: endpoint 12 is now the **existing** `POST /api/rooms/{provider_id}/actions/{room_action_id}/answer` (`room_routes.py:52`, `:72`), with `project_home_approval_id` in the body, routed by `room0.answer` (`room0.py:581`, `:598`–`:599`) into `dispatcher.record_project_home_approval`. Consumer (Project Home's own approve, coming back), reason, and security test are stated, including the 403 today. The note beneath the table no longer claims both 11 and 12 would move under `/api/connect/v1/`; §9 step 6 shows the real call |
-| MINOR-1 | MINOR (self) | §6's `worlds.db` row listed a `history` table. There is none — and `worlds.db` has six table groups the row omitted | **Fixed.** The row now lists the real tables with citations (`authn.py:42`–`:49`, `dispatcher.py:46`–`:60`, `memory_store.py:42`–`:51`, `db.py:127`) and says plainly that there is **no results or history table**, which is the reason §6.1 does not persist a `TestResult` |
-| MINOR-2 | MINOR (self) | §4.3 named "history rows" as a consumer of `TestResult.source`, resting on the same wrong table | **Fixed.** Consumer is now the detail view's evidence strip and `Home → needs a look`, with the no-history-table fact noted inline |
+| MINOR-1 | MINOR (self) | ~~§6's `worlds.db` row listed a `history` table. There is none — and `worlds.db` has six table groups the row omitted~~ **Superseded by Revision 2 (NEW-1): the premise of this row was false. `history` does exist** | **Reopened.** Revision 1 removed `history` from the row on a false premise and called the absence a fix. Revision 2 restores the table with its real columns and states the true reason `TestResult` is not persisted — there is no *results* table, and `history` is an audit log for memory rows |
+| MINOR-2 | MINOR (self) | §4.3 named "history rows" as a consumer of `TestResult.source`, resting on the same wrong table | **Fixed, then corrected.** Consumer is the detail view's evidence strip and `Home → needs a look`. Revision 2 (NEW-1) rewords the note inline, because the sentence it corrected ("no history table") was itself wrong — `history` exists, it is simply not a store of reads |
 | MINOR-3 | MINOR (self) | Endpoint 12 cited `room_routes.py:71`/`:72` interchangeably for two different routes | **Fixed** with MAJOR-c: the cite is `:52` (the route) and `:72` (the body field), each used for what it is |
 | MINOR-4 | MINOR (self) | §7.1's "no new field" was stated as a flat prohibition while §4.2/§5.1 already said credential scoping "is new" | **Fixed.** §7.1 now names the three exceptions and points at §6.1 as the single place they are specified, so the two statements can no longer disagree |
 | NIT-1 | NIT (self) | §1 said each step's output "is durable" without saying durable where | **Fixed.** §1 now points at §6.1 and states that "durable" never means "a new store" |
-| NIT-2 | NIT (self) | `PublishSelection.published_by`/`published_at` and §4.6's revoke claims had no stated storage | **Fixed** by §6.1: `published` is the card's own `fields` list and board membership is `Board.items`/`BoardItem.hidden`; `published_by` is `owner` by construction because the config write routes take `owner_dep`; after a revoke the deleted files *are* the record |
+| NIT-2 | NIT (self) | `PublishSelection.published_by`/`published_at` and §4.6's revoke claims had no stated storage | **Half-fixed, then corrected.** §6.1 settled `published` (the card's own `fields` list) and board membership (`Board.items`/`BoardItem.hidden`), and `published_by` is `owner` by construction because the config write routes take `owner_dep`; after a revoke the deleted files *are* the record. Revision 2 (NEW-4) fixes the half this row left open: `published_at` had a consumer named as "History", which had nothing behind it. It is now given a real consumer (endpoint 8's receipt) and an explicit *not persisted* row |
 | MINOR/NIT (review ids unknown) | MINOR ×4, NIT ×2 | The four MINOR and two NIT findings in the review could not be read — the review file is absent from this worktree | **Unresolved by choice, not by omission.** Rather than guess at six findings and invent ids, this revision fixed the six it found while re-verifying citations and recorded them above. The coordinator holds the review and should re-run the match |
 
 ### What this revision did not touch
@@ -836,3 +981,44 @@ a fix was not possible inside the owner's decisions, the row says so and the cla
 The provider-neutral design (one vocabulary, six verbs, `dialect` as the only difference), the
 authority table in §5.2, the C3 lifecycle, and every quote in §0. No code, test or config file was
 modified: this revision is one file of prose.
+
+## Revision 2
+
+**Date:** 2026-10-13 · **Resolves:** the independent re-review (`connect-contract-rereview.md`),
+which graded Revision 1. Every citation below was re-opened in this clone at the line it names,
+against the working tree, not against Revision 1's own table.
+
+> **The earlier review is still absent.** `docs/vnext/connect-contract-review.md` is not in this
+> clone and is not on any reachable ref (`git log --all -- docs/vnext/connect-contract-review.md`
+> is empty), so the *original* review's four MINOR and two NIT findings still cannot be matched
+> one-to-one. This revision reconciles the re-review in full and fixes the two defects Revision 1
+> introduced itself. The original six remain for the coordinator to match, as in Revision 1.
+
+| Id | Severity | Finding | Resolution |
+|---|---|---|---|
+| NEW-1 | MAJOR | §6's `worlds.db` row and §4.3 asserted there is "no results or history table"; `history` exists at `memory_store.py:56` with `history_no_update`/`history_no_delete` triggers and a `find_index` FTS table | **Fixed.** §6's row lists `history` and `find_index` with their citations, names the real columns (`id, at, actor, event, table_name, row_id, detail`) and states what they are: an append-only audit log for `kept`/`later`/`records` and a mirror of them. The *conclusion* was right and the *reason* was wrong, so §6.1's "no results table" row and §4.3's consumer note are reworded to the true reason: nothing in `worlds.db` is keyed by connection or request, and no `test` writes to it. A regression against `51ef662`, which listed `history` correctly, is undone |
+| NEW-2 | MAJOR | §6.1 claims "exactly four additive optional model fields" while §4.2 and §6.1 said `CredentialReference.rotated_at` is stored "in the provider file, if the owner sets it" — `Auth` has no such field and is `extra="forbid"` (`models.py:78`–`:101`) | **Fixed by taking the reviewer-suggested option (a): `rotated_at` is not persisted.** §2's field is marked owner-side only, §4.2's consumer is "nowhere in Worlds — the owner's own password manager or notes", and §6.1's *not persisted* table now gives the reason a file cannot hold it. Option (b) — a fifth additive field — was rejected: it would grow `Auth` for a hint whose only consumer is the owner's own reminder, which §7.1's "a connection that needs a fifth is a signal the design is wrong" forbids. §6.1's four-field list says it is exhaustive and why |
+| NEW-3 | MINOR | Capability-level `provenance`/`verified` are stored per-`Request`, so a capability with several reads has no single place for a capability-level `verified` | **Fixed by stating the projection.** A capability compiles to one request file per `ReadSpec` (§6.1), and the capability-level value is derived, fail-closed: `provenance` is the **weakest** any of its reads claims, `verified` is true only when **all** of them are. §4.8's two rows, the `reads` row and §6.1's `ReadSpec` row now say so. No new field and no new ambiguity |
+| NEW-4 | MINOR | `PublishSelection.published_at`/`published_by` named "History" as consumer; §6.1 gave them no home and the *not persisted* table did not mention them | **Fixed.** The consumer is now endpoint 8's publish receipt — the confirmation Connect shows the owner — with the card file's etag/`updated_at` as the durable record of the config change; a *not persisted* row says why (`BoardItem` is `extra="forbid"` with no timestamp, `models.py:446`–`:450`) and that keeping one would be a fifth additive field |
+| NEW-5 | MINOR | `ConnectionDescriptor.principal` is an object in §2/§9 but `Provider.principal_id` is a string (`models.py:180`), with no declared projection | **Fixed.** §4.1's row, §6.1's identity row and §9's walkthrough all state that `person_ref` is the whole of a `PrincipalBinding` in v1, that it lands as `principal_id`, and that any other part is **refused at register**, not silently dropped |
+| NEW-6 | NIT | §4.7 cited the JSONPath save-time check as `models.py:25`; that line is blank and the function is `_check_path` at `models.py:26` | **Fixed.** §4.7 now matches §3 endpoint 7's `models.py:26`, and §8's walkthrough cites it too |
+| NEW-7 | NIT | §6.1 wrote that `timeout_s` "stays on the provider", but `Request.timeout_s` exists (`models.py:251`) and §4.8 relies on the per-read override | **Fixed.** §6.1's `ReadSpec` row now lists `timeout_s` among the `Request` fields and names `max_bytes` as the only provider-only bound; §4.8's bound row names `Request.timeout_s` (`models.py:251`) against the provider cap (`models.py:184`) |
+| NEW-8 | NIT | Revision 1's six rows are not a resolution of the original review's six, because that file was absent | **Not fixable here, and not hidden.** The original review file is still absent from this clone and from every reachable ref; the note above Revision 1 and this note say so twice, and the coordinator still holds the match. What *was* fixable — Revision 1's own defects — is fixed in NEW-1 and NEW-2 above |
+| SAMPLE-1 | MAJOR | The worked sample registered `"credential": { "ref": "env:", "auth": "none", ... }`. `SECRET_REF_RE` (`models.py:15`) requires a name after the colon, so `env:` is malformed, and the row sat next to a threat-table entry that says Worlds refuses its own names | **Fixed.** §8 step 2 now uses `env:EXAMPLE_TOKEN` with `auth: "bearer"` — a name, not a value, and obviously synthetic — and the prose says why a bare `env:` is refused and that a service needing no credential takes `"credential": null`, as step 1 does. Discovery's `needs_auth` became `bearer` so the walkthrough is consistent end to end |
+| SAMPLE-2 | MAJOR | `"publish": ["Checks", "State"]` named free labels, not the field keys §4.4 requires, so the publish could not match the `TestResult.values` or the card's `fields` | **Fixed.** §8's `TestResult.values`, the new `CardDraft` in step 4, the publish body and the Home render all use the same two keys, `checks` and `failing` (`_KEY_RE`, `models.py:364`), and the prose says the Play-Nice state word is the card's state, never a published field. §9's room/0 example got the same treatment: `publish: ["status", "needs_open"]`, `hidden` naming the three capabilities that stay in Connect, plus the `TestResult`, the publish receipt and the rendered card |
+
+| SAMPLE-3 | MINOR | Found while fixing SAMPLE-2: §6.1 named the file `requests/<connection>.<capability>.<operation>.yaml` and `cards/<connection>.<capability>.yaml`, but `REQUEST_ID_RE` (`models.py:14`) is exactly two segments and `ID_RE` (`models.py:11`) takes no dot at all — so neither file name could be created | **Fixed.** Request files are `requests/<connection>.<operation>.yaml` (`statuses` in §8, `room`/`room-cards`/… in §9); `ReadSpec.operation` is therefore unique within the *connection*, which is what §4.8 now says. Cards are `cards/<card-id>.yaml` with a single-segment id (`homelab-health-check-results`), and §2's `card_id` and §4.7's row say so. §9's capabilities also gained their `reads`, since §4.8 requires a capability to have at least one |
+| SAMPLE-4 | MINOR | §4.4 said a hidden capability appears in "no receipt", but §9's receipt names `hidden` — the field exists to make that visible | **Fixed.** "No receipt" meant no *content*; the row and §9 now say the only place a hidden capability is named is the receipt and Connect detail |
+
+### What this revision did not touch
+
+The provider-neutral design, the six verbs, the authority table in §5.2, the C3 lifecycle, the
+§7.3 verifier gap (still flagged, still not invented), and every quote in §0. Still one file of
+prose: no code, test or config file was modified, and the two review files were left as written
+except for this section's cross-references.
+
+### Status
+
+Still **MOCKUP**. Reconciling a review is not building anything: no route in §3 exists, no field
+in §2 is stored, and no security test in §4 or §5 has been written. MOCKUP ≠ PROTOTYPE ≠
+APPROVED, and "reviewed" ≠ "tested" ≠ "deployed".
