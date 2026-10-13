@@ -25,7 +25,6 @@ TARGET_SIZE_FLOOR = 44
 """Interactive targets >= 44x44 CSS px (WCAG 2.5.5 + Apple HIG)."""
 
 MOTION_FLOOR = "off"
-DENSITY_FLOOR = "compact"
 
 
 class PrefsValueError(ValueError):
