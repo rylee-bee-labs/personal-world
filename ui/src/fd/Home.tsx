@@ -9,6 +9,7 @@ import { Row } from "./Row";
 import { safeHref } from "./safe-href";
 import { Strip, type StripEntry } from "./Strip";
 import { STATE_SHAPE, type Board, type BoardItem, type CardEnvelope, type NeedsYouEntry, type Size } from "./types";
+import { PaintedIcon } from "./PaintedIcon";
 import "./fd.css";
 
 export interface HomeProps {
@@ -337,13 +338,17 @@ export function Home({ timeZone, timeoutMs = DEFAULT_TIMEOUT_MS, now }: HomeProp
             Couldn't check what needs you.
           </p>
           <button type="button" className="fd-btn fd-home-retry" onClick={async () => { setAnnounce("Checking sources…"); await data.refetchNeedsYou(); setAnnounce("Up to date"); }}>
+            <PaintedIcon name="action-refresh" size={24} />
             Try again
           </button>
         </div>
       ) : needsYouStatus === "loading" ? (
         <p className="fd-home-loading">Checking what needs you</p>
       ) : needsYou.length === 0 ? (
-        <p className="fd-home-empty">Nothing for you right now.</p>
+        <p className="fd-home-empty">
+          <PaintedIcon name="object-lantern" size={48} className="fd-empty-art" />
+          Nothing for you right now.
+        </p>
       ) : (
         <NeedsYouList entries={needsYou} />
       )}
@@ -437,7 +442,10 @@ export function Home({ timeZone, timeoutMs = DEFAULT_TIMEOUT_MS, now }: HomeProp
     <>
       <Section title={SECTION_TITLE.needs_look}>
         {sections.needs_look.length === 0 ? (
-          <p className="fd-home-empty">Nothing needs a look. Everything is answering.</p>
+          <p className="fd-home-empty">
+            <PaintedIcon name="object-treasure" size={48} className="fd-empty-art" />
+            Nothing needs a look. Everything is answering.
+          </p>
         ) : (
           <ul className="fd-home-rows">{sections.needs_look.map(renderRow(1, sections.needs_look))}</ul>
         )}

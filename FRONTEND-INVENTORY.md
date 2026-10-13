@@ -57,4 +57,4 @@ Every UI change answers `docs/accessibility/ACCESSIBILITY_CONTRACT.md`: body 16p
 
 ## Not here
 
-Rooms, the Play-Nice contracts, shared CI workflows and the homelab live in other repos. The protected character art is not used by the front door; Station adds placeholder marks only.
+Rooms, the Play-Nice contracts, shared CI workflows and the homelab live in other repos. The protected character art is not used by the front door. Station adds placeholder marks and the painted icon set from design-system (`ui/public/assets/painted/`, `ui/src/fd/PaintedIcon.tsx`): decoration beside words only, nothing with the pack off.

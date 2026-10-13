@@ -743,3 +743,14 @@ html[data-pack="station"] .fd-home-section-title, html[data-pack="station"] .fd-
 .fd-memory-find-table { color: var(--muted); font-size: 0.8125rem; text-transform: uppercase; letter-spacing: 0.05em; }
 .fd-memory-find-title { color: var(--text); font-weight: 700; }
 .fd-memory-find-snippet { color: var(--text-2); font-size: 0.9375rem; overflow-wrap: anywhere; }
+
+/* Painted icons (Station pack only; design-system B Classic sticker set). Always beside a word; still images. */
+.fd-painted { display: inline-block; flex: none; object-fit: contain; vertical-align: middle; }
+.fd-nav a .fd-nav-painted { margin-right: 10px; }
+.fd-home-retry .fd-painted { margin-right: 8px; }
+.fd-home-empty .fd-empty-art { display: block; margin-bottom: 8px; }
+.fd-row-icon .fd-painted { display: block; }
+.fd-companion-mark .fd-companion-art { display: block; }
+@media (max-width: 759px) {
+  .fd-nav a .fd-nav-painted { margin: 0 0 2px; width: 22px; height: 22px; }
+}
