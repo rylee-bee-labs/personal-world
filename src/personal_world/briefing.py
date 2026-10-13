@@ -22,7 +22,6 @@ Design rules enforced here:
 
 from __future__ import annotations
 
-import json
 import re
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
@@ -953,9 +952,3 @@ def build_briefing(
     _mark_new(data, since_dt)
     _strip_private(data)
     return {"ok": True, "status": overall, "data": data}
-
-
-def dumps_place(system, item_id, updated_at) -> str:
-    return json.dumps(
-        {"system": system, "item_id": item_id, "updated_at": updated_at}
-    )
