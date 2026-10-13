@@ -8,7 +8,7 @@ schema: play-nice/adoption-v1
 project: personal-world
 source:
   repository: rylee-bee-labs/play-nice-contracts   # renamed from burgeswe/play-nice-contracts (account rename, 2026-09-12); old URL redirects
-  revision: 4805592360b777f89ddc789c85d8be0bd2c7b671   # 2026-10-12: auto re-pin, fast-forward from 2969685 (8 commit(s); 4 file(s) under contracts/ changed)
+  revision: 3282097ef51f53559bec5158fe42d5137b6917ee   # 2026-10-13: auto re-pin, fast-forward from 4805592 (1 commit(s); 0 file(s) under contracts/ changed)
   # no file under contracts/ changed upstream, so the adopted id set is unchanged (same as vefr#390).
   # Previous pin 2bbe8f6: owner-approved 2026-10-06 (C-17): every estate pin was orphaned by an upstream
   # -> 2bbe8f6 (2026-10-10, Rylee: "Repin and fix the rot too"): play-nice-contracts #65 (README) and #66
