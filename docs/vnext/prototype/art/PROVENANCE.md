@@ -10,9 +10,15 @@ Generated 2026-10-13 by Claude through `offload image` (Codex gpt-image-2 on Ryl
 | dot-goodbye | `dot-goodbye/dot-goodbye.json` | codex (gpt-image-2) |
 | dot-nod | `dot-nod/dot-nod.json` | codex (gpt-image-2) |
 | dot-parcel | `dot-parcel/dot-parcel.json` | codex (gpt-image-2) |
+| dot-peek | `dot-peek/dot-peek.json` | codex (gpt-image-2) |
+| dot-settled | `dot-settled/dot-settled.json` | codex (gpt-image-2) |
+| dot-tucked | `dot-tucked/dot-tucked.json` | codex (gpt-image-2) |
 | dot-welcome | `dot-welcome/dot-welcome.json` | codex (gpt-image-2) |
 | empty-counter | `empty-counter/empty-counter.json` | codex (gpt-image-2) |
+| empty-ledger | `empty-ledger/empty-ledger.json` | codex (gpt-image-2) |
 | hero-welcome | `hero-welcome/hero-welcome.json` | codex (gpt-image-2) |
+| icon-generic | `icon-generic/icon-generic.json` | codex (gpt-image-2) |
+| scene-quiet | `scene-quiet/scene-quiet.json` | codex (gpt-image-2) |
 | service-icons | `service-icons/service-icons.json` | codex (gpt-image-2) |
 | stamp | `stamp/stamp.json` | codex (gpt-image-2) |
 
