@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mulberry &amp; Mint base</title>
+<meta name="description" content="SPECIMEN, not a product. The Field Guide's Mulberry & Mint palette as the shared base, in four modes, with the painted icons beside their words.">
+<link rel="stylesheet" href="../../tokens/mulberry-mint.css">
+<style>
+:root { --font-body: "Inter", system-ui, sans-serif; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--surface-base); color: var(--text-primary); font: 400 var(--type-body)/1.5 var(--font-body); }
+main { max-width: 60rem; margin: 0 auto; padding: var(--space-xl) var(--space-md); }
+h1 { font-size: var(--type-h1); margin: 0 0 var(--space-xs); }
+h2 { font-size: var(--type-lead); margin: var(--space-2xl) 0 var(--space-md); }
+p.lede { color: var(--text-soft); margin: 0 0 var(--space-lg); }
+.modes { display: flex; flex-wrap: wrap; gap: var(--space-sm); }
+.modes button, .btn { min-height: 2.75rem; padding: 0 var(--space-md); border-radius: var(--radius-full); font: 600 var(--type-label) var(--font-body); cursor: pointer;
+  border: 1px solid var(--border-line-strong); background: var(--surface-raised); color: var(--text-primary); }
+.modes button[aria-pressed="true"], .btn.primary { background: var(--action-primary); color: var(--action-on-primary); border-color: var(--action-primary); }
+:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); gap: var(--space-sm); }
+.sw { border: 1px solid var(--border-line); border-radius: var(--radius-md); overflow: hidden; background: var(--surface-raised); }
+.sw i { display: block; height: 3rem; }
+.sw span { display: block; padding: var(--space-xs) var(--space-sm); font-size: var(--type-micro); color: var(--text-soft); }
+.rows { list-style: none; margin: 0; padding: 0; border: 1px solid var(--border-line); border-radius: var(--radius-lg); background: var(--surface-raised); }
+.rows li { display: grid; grid-template-columns: 2.25rem 7rem 1fr auto; gap: var(--space-md); align-items: center; padding: var(--space-md); border-top: 1px solid var(--border-line); }
+.rows li:first-child { border-top: 0; }
+.rows img { width: 2.25rem; height: 2.25rem; }
+.state { font: 600 var(--type-small) var(--font-body); }
+.why { color: var(--text-soft); font-size: var(--type-small); }
+.card { margin-top: var(--space-lg); padding: var(--space-lg); border-radius: var(--radius-lg); background: var(--surface-sunken); border: 1px solid var(--border-line); }
+.card .evidence { color: var(--status-needs-you); font-weight: 600; }
+.actions { display: flex; flex-wrap: wrap; gap: var(--space-sm); margin-top: var(--space-md); }
+@media (max-width: 40rem) { .rows li { grid-template-columns: 2.25rem 1fr; } .rows li .why, .rows li .btn { grid-column: 2; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Mulberry &amp; Mint base</h1>
+  <p class="lede">Specimen, not a product. Colours from the World Tree Field Guide (Figma), tokens from <code>tokens/mulberry-mint.css</code>. Sample rows are invented.</p>
+
+  <div class="modes" role="group" aria-label="Mode">
+    <button type="button" data-mode="dark" aria-pressed="true">Dark</button>
+    <button type="button" data-mode="light" aria-pressed="false">Light</button>
+    <button type="button" data-mode="high-contrast" aria-pressed="false">High contrast</button>
+    <button type="button" data-mode="low-stimulation" aria-pressed="false">Low stimulation</button>
+  </div>
+
+  <h2>Roles</h2>
+  <div class="swatches" id="swatches"></div>
+
+  <h2>Needs You, as quiet rows</h2>
+  <ul class="rows">
+    <li><img src="../../assets/painted-icons/everyday-calendar.png" alt=""><span class="state" style="color:var(--status-needs-you)">Needs you</span><span class="why">Pick the type pair for the base</span><button class="btn primary">Choose</button></li>
+    <li><img src="../../assets/painted-icons/everyday-settings.png" alt=""><span class="state" style="color:var(--status-working)">Working</span><span class="why">Slicing the six icon packs</span><button class="btn">Open</button></li>
+    <li><img src="../../assets/painted-icons/status-held.png" alt=""><span class="state" style="color:var(--status-held)">Held</span><span class="why">Generator switch waits for this review</span><button class="btn">Open</button></li>
+    <li><img src="../../assets/painted-icons/everyday-home.png" alt=""><span class="state" style="color:var(--status-done)">Done</span><span class="why">Contrast: 332 checks, 0 failing</span><button class="btn">Open</button></li>
+    <li><img src="../../assets/painted-icons/status-failed.png" alt=""><span class="state" style="color:var(--status-failed)">Failed</span><span class="why">Example failure row</span><button class="btn">Open</button></li>
+    <li><img src="../../assets/painted-icons/everyday-search.png" alt=""><span class="state" style="color:var(--status-unknown)">Unknown</span><span class="why">No receipt yet, so we say so</span><button class="btn">Open</button></li>
+  </ul>
+
+  <div class="card">
+    <strong>Evidence card</strong>
+    <p class="why">Apricot marks evidence; mint marks what is selected. <span class="evidence">2 receipts checked</span></p>
+    <div class="actions"><button class="btn primary">Inspect</button><button class="btn">Ask Companion</button></div>
+  </div>
+</main>
+<script>
+const roles = ['surface-base','surface-raised','surface-sunken','text-primary','text-soft','border-line','border-line-strong','action-primary','focus-ring','status-needs-you','status-working','status-held','status-done','status-failed','status-unknown','accent-honey'];
+const box = document.getElementById('swatches');
+for (const r of roles) { const d = document.createElement('div'); d.className = 'sw'; d.innerHTML = `<i style="background:var(--${r})"></i><span>${r}</span>`; box.append(d); }
+for (const b of document.querySelectorAll('.modes button')) b.addEventListener('click', () => {
+  document.documentElement.dataset.theme = b.dataset.mode;
+  for (const o of document.querySelectorAll('.modes button')) o.setAttribute('aria-pressed', String(o === b));
+});
+</script>
+</body>
+</html>
