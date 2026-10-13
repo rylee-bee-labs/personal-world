@@ -11,6 +11,7 @@ import re
 from typing import Callable
 
 from fastapi import Depends, FastAPI, HTTPException, Request
+
 from .. import push
 from .authn import Principal
 

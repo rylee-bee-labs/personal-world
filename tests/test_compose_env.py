@@ -28,6 +28,7 @@ NOT_FORWARDED = {
     "PW_RECIPES_DIR": "defaults to the recipes shipped in the image",
     "PW_ROLE_GROUPS": "optional OIDC group-to-role mapping; unset means no role mapping",
     "PW_COMPANION_TOKEN_FILE": "named by config (`secret_ref: file:...`) and mounted as a file, not an env value",
+    "PW_STATIC_DIR": "defaults to the UI the image builds into personal_world/static/app; only tests and local runs point it elsewhere",
 }
 
 

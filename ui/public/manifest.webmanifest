@@ -4,8 +4,8 @@
   "description": "Your life and your projects in one place: what changed, what needs you, and what can wait.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#12152a",
-  "theme_color": "#161a30",
+  "background_color": "#291d30",
+  "theme_color": "#291d30",
   "icons": [
     {
       "src": "/icon-192.png",

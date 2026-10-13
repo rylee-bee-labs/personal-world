@@ -31,9 +31,9 @@ from .owner import load_owner_policy, strong_secret
 from .push_routes import register_push_routes
 from .room0 import Room0Client, RoomService
 from .room_routes import register_room_routes
-from .static_routes import register_static_routes
 from .secrets import resolve_secret_ref
 from .server import build_app
+from .static_routes import register_static_routes
 
 
 class LiveSecrets:
@@ -137,7 +137,10 @@ def create_app(config_dir: str | os.PathLike[str], data_dir: str | os.PathLike[s
                             secret_values=lambda: list(live))
     register_room_routes(app, holder["rooms"], owner=owner_dep)
     register_companion_routes(app, app.state.store, owner=owner_dep)   # owner session only; confined; whitelisted
-    register_push_routes(app, PushHub(data_dir, mode="single"), owner=owner_dep, anyone=anyone_dep)
+    # The front door's push stores live under data/push/ and never touch the old identity layer.
+    push_dir = data_dir / "push"
+    hub = PushHub(data_dir, mode="single", store_path=lambda person, kind: push_dir / person / f"{kind}.json")
+    register_push_routes(app, hub, owner=owner_dep, anyone=anyone_dep)
     # Must remain last: the SPA fallback must not capture API or health routes.
     register_static_routes(app, os.environ.get("PW_STATIC_DIR", Path(__file__).parents[1] / "static" / "app"))
     return app

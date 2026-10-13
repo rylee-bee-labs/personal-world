@@ -155,9 +155,9 @@ function Probe() {
 const renderSettings = () => render(<PrefsProvider><Settings /><Probe /></PrefsProvider>);
 
 describe("Settings", () => {
-  it("puts Comfort first, then Look, Experience and Assistant", () => {
+  it("puts Comfort first, then Look, Experience, Assistant and Notifications", () => {
     renderSettings();
-    expect(screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent)).toEqual(["Comfort", "Look", "Experience", "Assistant"]);
+    expect(screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent)).toEqual(["Comfort", "Look", "Experience", "Assistant", "Notifications"]);
   });
   it("offers each choice once, as a group named once, with no Plain theme", () => {
     renderSettings();

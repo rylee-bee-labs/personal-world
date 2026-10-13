@@ -15,7 +15,7 @@ export function Notifications() {
   const [token, setToken] = useState("");
   const [busy, setBusy] = useState(false);
   const standalone = (window.navigator as Navigator & { standalone?: boolean }).standalone === true || window.matchMedia("(display-mode: standalone)").matches;
-  const supported = "Notification" in window && "PushManager" in window && "serviceWorker" in navigator;
+  const supported = "Notification" in window && "PushManager" in window && !!navigator.serviceWorker;
 
   async function loadDevices() {
     const response = await fetch("/api/push/subscriptions");

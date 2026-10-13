@@ -28,6 +28,11 @@ def register_static_routes(app: FastAPI, static_dir: str | os.PathLike[str] | No
     def manifest():
         return file_response(root / "manifest.webmanifest", "application/manifest+json")
 
+    @app.api_route("/{path:path}", methods=["POST", "PUT", "PATCH", "DELETE"])
+    def no_such_write(path: str):
+        # Registered last with the GET fallback: an unknown write is a plain 404, never a 405 from the SPA route.
+        return JSONResponse({"detail": "Not Found"}, status_code=404)
+
     @app.get("/{path:path}")
     def static_or_spa(path: str, request: Request):
         if path == "api" or path.startswith("api/") or path == "healthz":

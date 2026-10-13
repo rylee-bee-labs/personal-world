@@ -11,7 +11,8 @@ from personal_world.worlds.push_routes import register_push_routes
 def setup(tmp_path, monkeypatch):
     monkeypatch.delenv("PW_VAPID_PRIVATE_KEY", raising=False)
     monkeypatch.delenv("PW_VAPID_SUBJECT", raising=False)
-    hub = PushHub(tmp_path)
+    hub = PushHub(tmp_path, store_path=lambda person, kind: tmp_path / "push" / person / f"{kind}.json")
+    hub.now = lambda: 1791828000.0   # 2026-10-12 18:00Z: midday, outside any quiet hours, so the result never depends on the clock
     app = FastAPI()
     def owner(request: Request):
         if request.headers.get("authorization") == "Bearer agent-no":
