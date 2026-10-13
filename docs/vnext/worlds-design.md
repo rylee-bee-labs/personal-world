@@ -444,6 +444,8 @@ Tokens are the house names in `docs/vnext/house/tokens.css`. **No colour, gap, r
 | **Settings section, switch, select, radios** | `--surface-raised`, `--border-line-strong` | each with loading, empty, error |
 | **Banner** (offline, error) | `--surface-raised`, `--status-stale` or `--status-failed` edge with a word | offline, back online, load error |
 
+**Art.** The prototype's Dot, service icons, stamp and scenes are the generated art in `docs/vnext/prototype/art/`; the source and provenance are in `docs/vnext/prototype/art/PROVENANCE.md`.
+
 **Type.** Display: Young Serif (400); body: Atkinson Hyperlegible Next (400, 600 for labels, 700 for state words); system fallbacks (Georgia, Verdana) and **no external fonts in the prototype**. Roles: page and service titles `--wv-display-page`; section headings `--wv-display-section`; slip and card titles `--type-lead`; body `--type-body`; labels and chips `--type-label`; captions `--type-small`; MOCKUP label `--type-micro`.
 
 **Icons.** Status glyphs are a single simple line set (check, alert triangle, clock, x in circle, question mark, dash), always beside their word. The house painted sticker icons may be used for nav in production at 20px or more beside their label; the prototype uses plain inline line glyphs as stand-ins. No emoji, no gradient.
