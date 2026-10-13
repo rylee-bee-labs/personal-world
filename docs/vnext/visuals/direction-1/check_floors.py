@@ -181,7 +181,7 @@ def check_headings(name: str, s: Scan) -> None:
     check(len([h for h in s.headings if h[0] == 1]) == 1, f"{name}: needs exactly one h1")
     levels = [lvl for lvl, _ in s.headings]
     check(bool(levels) and levels[0] == 1, f"{name}: first heading must be the h1")
-    for previous, current in zip(levels, levels[1:]):
+    for previous, current in zip(levels, levels[1:], strict=False):
         check(
             current <= previous + 1,
             f"{name}: heading level jumps from h{previous} to h{current}",
