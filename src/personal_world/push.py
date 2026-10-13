@@ -46,8 +46,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from .status import Status
-
 if TYPE_CHECKING:  # the old app's identity layer; imported lazily so the front door never loads it
     from .identity import Principal
 
@@ -623,9 +621,6 @@ class PushHub:
         """True only with a private key AND a usable subject: half a
         VAPID setup cannot sign anything, and saying so is honest."""
         return bool(self.private_value()) and subject_ok(self.subject())
-
-    def status_word(self) -> str:
-        return Status.HEALTHY.value if self.configured() else Status.NOT_CONFIGURED.value
 
     def public_key(self) -> str | None:
         value = self.private_value()
