@@ -1,0 +1,945 @@
+<!doctype html>
+<html lang="en" data-motion="system">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Worlds · The Counter (MOCKUP)</title>
+<style>
+/* Wise tokens — verbatim contract */
+:root {
+  --bg: #ffffff;
+  --surface: #e8ebe6;
+  --surface-warm: var(--surface);
+  --fg: #0e0f0c;
+  --fg-2: var(--fg);
+  --muted: #868685;
+  --meta: var(--muted);
+  --border: rgba(14, 15, 12, 0.12);
+  --border-soft: var(--border);
+  --accent: #9fe870;
+  --accent-on: #163300;
+  --accent-hover: #cdffad;
+  --accent-active: color-mix(in oklab, var(--accent), black 12%);
+  --success: #054d28;
+  --warn: #ffd11a;
+  --danger: #d03238;
+  --font-display: "Wise Sans", Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-body: Inter, Helvetica, Arial, ui-sans-serif, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Monaco, Consolas, monospace;
+  --text-xs: 12px; --text-sm: 14px; --text-base: 18px; --text-lg: 22px; --text-xl: 26px; --text-2xl: 40px; --text-3xl: 64px; --text-4xl: 96px;
+  --leading-body: 1.44; --leading-tight: 0.85; --tracking-display: normal;
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 20px; --space-6: 24px; --space-8: 32px; --space-12: 48px;
+  --section-y-desktop: 80px; --section-y-tablet: 48px; --section-y-phone: 32px;
+  --radius-sm: 16px; --radius-md: 30px; --radius-lg: 40px; --radius-pill: 9999px;
+  --elev-flat: none;
+  --elev-ring: 0 0 0 1px var(--border);
+  --elev-raised: 0 0 0 1px var(--border), 0 2px 8px rgba(14, 15, 12, 0.04);
+  --focus-ring: 0 0 0 3px color-mix(in oklab, var(--accent), transparent 60%);
+  --motion-fast: 150ms; --motion-base: 200ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --container-max: 1280px; --container-gutter-desktop: 24px; --container-gutter-tablet: 16px; --container-gutter-phone: 12px;
+}
+/* DESIGN.md §8 / §15 specifics layered on the tokens (no external fonts) */
+:root {
+  --canvas: #f7f7f2; --secondary: #454745; --mint: #e2f6d5;
+  --tint: rgba(22, 51, 0, 0.08); --tint-2: rgba(22, 51, 0, 0.16); --scrim: rgba(14, 15, 12, 0.5);
+  --font-display: "Segoe UI Black", "SF Pro Display", "Roboto", system-ui, sans-serif;
+  --hover-scale: 1.03; --m-state: 150ms; --m-sheet: 200ms; --m-nod: 200ms; --m-carry: 400ms; --stagger: 60ms; --travel: 150px;
+}
+@media (max-width: 767px) { :root { --m-state: 120ms; --m-carry: 300ms; --travel: 90px; } }
+@media (hover: none) { :root { --hover-scale: 1; } }
+@media (prefers-reduced-motion: reduce) { :root { --hover-scale: 1; --m-state: 0ms; --m-sheet: 0ms; --m-nod: 0ms; --m-carry: 0ms; --stagger: 0ms; --travel: 0px; } }
+html[data-motion=reduce] { --hover-scale: 1; --m-state: 0ms; --m-sheet: 0ms; --m-nod: 0ms; --m-carry: 0ms; --stagger: 0ms; --travel: 0px; }
+
+*, *::before, *::after { box-sizing: border-box; }
+html { font-feature-settings: "calt"; }
+body { margin: 0; background: var(--canvas); color: var(--fg); font: 400 16px/1.5 var(--font-body); font-feature-settings: "calt"; -webkit-text-size-adjust: 100%; overflow-wrap: anywhere; }
+h1, h2, h3, h4, p, ul, ol, dl, dd { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 900; line-height: .95; }
+h4 { font: 600 16px/1.4 var(--font-body); }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--fg); outline-offset: 2px; }
+[tabindex="-1"]:focus { outline: none; }
+[tabindex="-1"]:focus-visible { outline: 3px solid var(--fg); outline-offset: 4px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip { position: absolute; left: 8px; top: -80px; z-index: 99; background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: var(--radius-pill); }
+.skip:focus { top: 8px; }
+.cap { font: 600 14px/1.5 var(--font-body); color: var(--secondary); }
+.mono { font-family: var(--font-mono); font-size: 14px; }
+.ic { flex: none; }
+
+/* buttons */
+.btn { min-height: 44px; min-width: 44px; padding: 8px 18px; border: 0; border-radius: var(--radius-pill); display: inline-flex; align-items: center; justify-content: center; gap: 8px; font: 600 16px/1.25 var(--font-body); text-decoration: none; transition: transform var(--motion-fast) var(--ease-standard), background-color var(--motion-fast) var(--ease-standard); }
+.btn-primary { background: var(--accent); color: var(--accent-on); box-shadow: 0 0 0 1px var(--fg); }
+.btn-2 { background: var(--tint); color: var(--fg); }
+.btn-ring { background: var(--bg); color: var(--fg); box-shadow: 0 0 0 1px var(--fg); }
+.btn-danger { background: var(--danger); color: var(--bg); }
+@media (hover: hover) {
+  .btn:hover:not(:disabled):not([aria-disabled=true]) { transform: scale(var(--hover-scale)); }
+  .btn-primary:hover:not(:disabled) { background: var(--accent-hover); color: var(--accent-on); }
+  .btn-2:hover { background: var(--tint-2); color: var(--fg); }
+  .btn-ring:hover { background: var(--surface); color: var(--fg); }
+  .btn-danger:hover { background: var(--fg); color: var(--bg); }
+}
+.btn:active:not(:disabled) { transform: scale(.95); }
+.btn-primary:active:not(:disabled) { background: var(--accent-active); }
+html[data-motion=reduce] .btn, html[data-motion=reduce] .btn:active { transform: none !important; }
+@media (prefers-reduced-motion: reduce) { .btn, .btn:active { transform: none !important; } }
+.btn:disabled { background: var(--surface); color: var(--secondary); box-shadow: none; cursor: not-allowed; }
+.btn[aria-disabled=true] { background: transparent; color: var(--secondary); box-shadow: 0 0 0 1px var(--secondary) inset; border: 0; cursor: not-allowed; }
+.btn[aria-pressed=true] { background: var(--bg); box-shadow: 0 0 0 2px var(--fg); }
+.btn[aria-pressed=false] { background: var(--tint); }
+.link { color: var(--fg); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 2px; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; }
+@media (hover: hover) { .link:hover { background: var(--mint); } }
+
+/* pills */
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 2px 12px 2px 8px; min-height: 28px; border-radius: var(--radius-pill); font: 600 14px/1.5 var(--font-body); background: var(--bg); box-shadow: 0 0 0 1.5px var(--fg); white-space: nowrap; }
+.pill .ic { width: 16px; height: 16px; }
+.p-healthy, .p-live { color: var(--success); }
+.p-needs_attention { background: var(--warn); color: var(--fg); }
+.p-unavailable { box-shadow: 0 0 0 2px var(--danger); color: var(--fg); }
+.p-unavailable .ic { color: var(--danger); }
+.p-stale { background: var(--surface); color: var(--fg); }
+.p-unknown { box-shadow: 0 0 0 1.5px var(--secondary); color: var(--secondary); border: 1.5px dashed var(--secondary); }
+.p-not_configured { background: var(--surface); color: var(--secondary); }
+.sim { font: 600 14px/1.5 var(--font-body); color: var(--secondary); font-style: italic; }
+.mock { display: inline-flex; align-items: center; min-height: 28px; padding: 0 12px; border-radius: var(--radius-pill); background: var(--fg); color: var(--bg); font: 600 14px/1.5 var(--font-body); letter-spacing: .08em; text-transform: uppercase; }
+.fade-in { animation: fadeIn var(--m-state) var(--ease-standard) both; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* top bar + rail (desktop) */
+.top { position: sticky; top: 0; z-index: 20; min-height: 64px; display: flex; align-items: center; flex-wrap: wrap; gap: 12px; padding: 8px 24px; background: var(--bg); box-shadow: 0 1px 0 var(--border); }
+.brand { font-family: var(--font-display); font-weight: 900; font-size: 26px; line-height: 1; margin-right: auto; display: flex; align-items: center; gap: 12px; }
+.count { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: var(--radius-pill); font: 600 16px/1.25 var(--font-body); box-shadow: 0 0 0 1.5px var(--fg); background: var(--bg); }
+.count.has { background: var(--warn); }
+.shell { display: grid; grid-template-columns: 232px minmax(0, 1fr); min-height: calc(100vh - 64px); }
+.rail { position: sticky; top: 64px; height: calc(100vh - 64px); padding: 16px 12px; display: flex; flex-direction: column; gap: 8px; }
+.nv { position: relative; min-height: 48px; display: flex; align-items: center; gap: 12px; padding: 0 16px; border: 0; border-radius: var(--radius-pill); background: transparent; font: 600 16px/1.25 var(--font-body); text-align: left; }
+.nv[aria-current=page] { background: var(--fg); color: var(--bg); }
+@media (hover: hover) { .nv:hover:not([aria-current=page]) { background: var(--tint-2); } }
+.rail-foot { margin-top: auto; padding: 12px; }
+.content { min-width: 0; padding: 24px; }
+.content:focus { outline: none; }
+
+/* home */
+.home { display: grid; grid-template-columns: 360px minmax(0, 1fr); gap: 24px; align-items: start; }
+.slips { position: sticky; top: 88px; display: flex; flex-direction: column; gap: 8px; }
+.slips-h { display: flex; flex-direction: column; gap: 4px; padding: 0 4px 8px; }
+.slips-h h2 { font-size: 28px; }
+.slip { position: relative; display: grid; gap: 4px; justify-items: start; text-align: left; width: 100%; min-height: 44px; padding: 16px; border: 2px solid transparent; border-radius: var(--radius-sm); background: var(--bg); box-shadow: 0 0 0 1px var(--border); transition: background-color var(--motion-fast) var(--ease-standard); }
+.slip.sel { background: var(--mint); border-color: var(--fg); box-shadow: none; }
+@media (hover: hover) { .slip:hover:not(.sel) { background: var(--surface); } }
+.slip-t { font: 600 18px/1.25 var(--font-body); }
+.slip-k { font: 600 14px/1.5 var(--font-body); color: var(--secondary); }
+.slip-f { font: 600 14px/1.5 var(--font-body); color: var(--secondary); }
+.selmark { display: inline-flex; align-items: center; gap: 4px; font: 600 14px/1.5 var(--font-body); }
+.feed-note { padding: 12px 4px 0; display: grid; gap: 4px; }
+.card { background: var(--bg); border-radius: var(--radius-md); box-shadow: 0 0 0 1px var(--border); padding: 32px; display: grid; gap: 24px; min-width: 0; }
+.svc-head { display: grid; gap: 12px; }
+.svc-title { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.svc-title h2 { font-size: 40px; line-height: .95; }
+.lead { font: 400 16px/1.5 var(--font-body); max-width: 62ch; }
+.acts { display: flex; flex-wrap: wrap; gap: 8px; }
+.upd { display: inline-flex; align-items: center; gap: 4px; font: 600 14px/1.5 var(--font-body); }
+.callout { display: grid; gap: 8px; padding: 16px; border-radius: var(--radius-sm); background: var(--canvas); box-shadow: 0 0 0 1px var(--border); }
+.callout .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.sec-h { display: grid; gap: 4px; }
+.sec-h h3 { font-size: 28px; }
+.facts { display: grid; gap: 12px; }
+.fact { display: grid; gap: 8px; padding: 16px; border-radius: var(--radius-sm); background: var(--bg); box-shadow: 0 0 0 1px var(--border); }
+.fact-h { margin: 0; }
+.fact-t { width: 100%; min-height: 44px; display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 4px 8px; align-items: center; text-align: left; background: transparent; border: 0; padding: 0; font: 600 16px/1.4 var(--font-body); border-radius: 8px; }
+.fact-t .fl { grid-column: 2; }
+.fact-t .fv { grid-column: 2; font-weight: 600; }
+.fact-t .fp { grid-column: 3; grid-row: 1 / span 2; }
+.chev { grid-column: 1; grid-row: 1 / span 2; display: grid; place-items: center; transition: transform var(--m-state) var(--ease-standard); }
+.fact-t[aria-expanded=true] .chev { transform: rotate(90deg); }
+.perm { display: grid; gap: 2px; }
+.perm p { font: 400 16px/1.5 var(--font-body); }
+.perm b { font-weight: 600; }
+.reason { font: 400 16px/1.5 var(--font-body); color: var(--secondary); }
+.fact .ctl { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.stations { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; }
+.st { position: relative; display: grid; gap: 4px; align-content: start; padding: 12px 12px 12px 16px; border-radius: var(--radius-sm); background: var(--canvas); box-shadow: 0 0 0 1px var(--border); }
+.st .sn { font: 600 14px/1.5 var(--font-body); color: var(--secondary); text-transform: uppercase; letter-spacing: .08em; }
+.st b { font-weight: 600; }
+.st .tk { position: absolute; top: 8px; right: 8px; color: var(--success); }
+.settle .st .tk { animation: fadeIn var(--m-state) var(--ease-standard) both; animation-delay: calc(var(--i) * var(--stagger)); }
+.settle .st { animation: fadeIn var(--m-state) var(--ease-standard) both; animation-delay: calc(var(--i) * var(--stagger)); }
+.agent ul { display: grid; gap: 4px; }
+.agent li { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; }
+.agent { padding: 24px; border-radius: var(--radius-sm); background: var(--canvas); box-shadow: 0 0 0 1px var(--border); display: grid; gap: 12px; }
+.agent h3 { font-size: 22px; }
+.handoff { display: flex; gap: 8px; align-items: center; padding: 12px 16px; border-radius: var(--radius-sm); background: var(--mint); box-shadow: 0 0 0 1px var(--fg); font-weight: 600; }
+.quiet { padding: 12px 16px; border-radius: var(--radius-sm); background: var(--bg); box-shadow: 0 0 0 1px var(--fg); font-weight: 600; display: flex; align-items: center; gap: 12px; }
+.notice { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; padding: 12px 16px; border-radius: var(--radius-sm); background: var(--bg); box-shadow: 0 0 0 2px var(--fg); margin-bottom: 16px; }
+.notice p { flex: 1 1 260px; font-weight: 600; }
+
+/* frame */
+.frame { border: 2px solid var(--fg); border-radius: var(--radius-md); background: var(--bg); overflow: hidden; }
+.frame-head { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; padding: 12px 20px; background: var(--surface); border-bottom: 2px solid var(--fg); }
+.frame-body { padding: 20px; min-height: 140px; display: grid; gap: 12px; align-content: center; justify-items: start; }
+.drawn { width: 100%; display: grid; gap: 8px; }
+.drawn i { display: block; height: 12px; border-radius: 6px; background: var(--surface); }
+.drawn i:nth-child(1) { width: 60%; } .drawn i:nth-child(2) { width: 85%; } .drawn i:nth-child(3) { width: 40%; }
+.frame-edge { display: flex; flex-wrap: wrap; gap: 4px 20px; align-items: center; padding: 8px 20px 12px; border-top: 1px solid var(--border); }
+.chk { display: inline-flex; gap: 8px; align-items: center; min-height: 44px; font: 600 14px/1.5 var(--font-body); }
+.chk input { width: 24px; height: 24px; accent-color: var(--fg); margin: 0; flex: none; }
+.chk[aria-disabled=true] { color: var(--secondary); }
+
+/* connect */
+.cn { max-width: 820px; margin: 0 auto; display: grid; gap: 24px; }
+.steps { display: flex; flex-wrap: wrap; gap: 8px; }
+.steps li { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px 0 8px; border-radius: var(--radius-pill); font: 600 14px/1.5 var(--font-body); box-shadow: 0 0 0 1px var(--border); background: var(--bg); }
+.steps li .n { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; box-shadow: 0 0 0 1.5px var(--fg); }
+.steps li.cur { background: var(--mint); box-shadow: 0 0 0 2px var(--fg); }
+.steps li.done .n { background: var(--fg); color: var(--bg); }
+.field { display: grid; gap: 8px; }
+.field label { font: 600 16px/1.4 var(--font-body); }
+.field input[type=text] { min-height: 48px; padding: 8px 16px; border-radius: var(--radius-sm); border: 2px solid var(--secondary); background: var(--bg); font: 400 16px/1.5 var(--font-mono); width: 100%; }
+.field input[aria-invalid=true] { border-color: var(--danger); }
+.err { display: flex; gap: 8px; align-items: flex-start; font-weight: 600; }
+.err .ic { color: var(--danger); margin-top: 2px; }
+.stamp { display: inline-flex; align-items: center; gap: 8px; padding: 8px 20px; border: 3px solid var(--success); color: var(--success); border-radius: 12px; font: 900 26px/1 var(--font-display); text-transform: uppercase; letter-spacing: .08em; transform: rotate(-4deg); animation: stamp 200ms var(--ease-standard) both; animation-duration: var(--m-sheet); }
+@keyframes stamp { from { opacity: 0; transform: scale(1.4) rotate(-8deg); } to { opacity: 1; transform: rotate(-4deg); } }
+.track { display: flex; align-items: flex-end; gap: 16px; min-height: 80px; }
+.dot-wrap.carry { animation: carry var(--m-carry) var(--ease-standard) both; }
+@keyframes carry { from { transform: translateX(calc(var(--travel) * -1)); } to { transform: none; } }
+.dot-nod { animation: nod var(--m-nod) var(--ease-standard) 1; transform-origin: 20% 90%; }
+@keyframes nod { 50% { transform: rotate(8deg) translateY(2px); } }
+.dot .o { stroke: var(--fg); stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.dot .f1 { fill: var(--surface); } .dot .f2 { fill: var(--bg); } .dot .sp { stroke: var(--accent-on); } .dot .fe { fill: var(--fg); stroke: none; } .dot .f3 { fill: var(--canvas); }
+.ctrl { display: flex; justify-content: space-between; gap: 8px; }
+.pick { display: flex; gap: 12px; align-items: flex-start; padding: 12px 16px; border-radius: var(--radius-sm); box-shadow: 0 0 0 1px var(--border); background: var(--bg); }
+.pick input { width: 24px; height: 24px; margin: 10px 0 0; accent-color: var(--fg); flex: none; }
+.pick label { display: grid; gap: 4px; flex: 1; min-height: 44px; align-content: center; }
+
+/* memory + settings */
+.page { max-width: 880px; display: grid; gap: 24px; }
+.page > h1 { font-size: 40px; }
+.group { display: grid; gap: 12px; }
+.group h2 { font-size: 28px; }
+.settings { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 24px; max-width: 1000px; }
+.sub { display: grid; gap: 4px; align-content: start; position: sticky; top: 88px; }
+.sub button { min-height: 44px; text-align: left; padding: 0 16px; border: 0; border-radius: var(--radius-pill); background: transparent; font: 600 16px/1.25 var(--font-body); }
+.sub button[aria-current=true] { background: var(--fg); color: var(--bg); }
+@media (hover: hover) { .sub button:hover:not([aria-current=true]) { background: var(--tint-2); } }
+.row-s { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; padding: 16px; border-radius: var(--radius-sm); background: var(--bg); box-shadow: 0 0 0 1px var(--border); }
+.row-s > div { display: grid; gap: 4px; min-width: 0; flex: 1 1 240px; }
+.row-s .acts { flex: none; }
+.seg { position: relative; }
+.seg input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+.seg span { display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: var(--radius-pill); background: var(--tint); font-weight: 600; }
+.seg input:checked + span { background: var(--bg); box-shadow: 0 0 0 2px var(--fg); }
+.seg input:focus-visible + span { outline: 3px solid var(--fg); outline-offset: 2px; }
+fieldset { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; min-width: 0; }
+legend { font-weight: 600; margin-bottom: 8px; padding: 0; }
+.unk-list { display: grid; gap: 8px; padding-left: 20px; list-style: disc; }
+.unk-list li { padding-left: 4px; }
+
+/* empty */
+.empty { max-width: 640px; margin: 40px auto; display: grid; gap: 20px; justify-items: start; padding: 32px; }
+
+/* dialog */
+dialog { border: 0; padding: 0; border-radius: var(--radius-md); max-width: 460px; width: calc(100% - 32px); background: var(--bg); color: var(--fg); box-shadow: 0 0 0 2px var(--fg); }
+dialog::backdrop { background: var(--scrim); }
+dialog[open] { animation: fadeIn var(--m-sheet) var(--ease-standard); }
+.dlg-in { padding: 24px; display: grid; gap: 16px; }
+.dlg-in h2 { font-size: 28px; }
+.dlg-b { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+
+/* tablet */
+@media (max-width: 1099px) and (min-width: 768px) {
+  .shell { grid-template-columns: 72px minmax(0, 1fr); }
+  .rail { padding: 16px 8px; align-items: center; }
+  .nv { width: 56px; padding: 0; justify-content: center; }
+  .nv .lbl { position: absolute; left: 60px; top: 50%; transform: translateY(-50%); background: var(--fg); color: var(--bg); padding: 4px 12px; border-radius: var(--radius-pill); white-space: nowrap; display: none; z-index: 30; }
+  .nv:hover .lbl, .nv:focus-visible .lbl { display: block; }
+  .rail-foot { display: none; }
+  .home { grid-template-columns: 1fr; }
+  .slips { position: static; display: grid; grid-template-columns: 1fr 1fr; }
+  .slips-h, .feed-note { grid-column: 1 / -1; }
+  .settings { grid-template-columns: 1fr; }
+  .sub { position: static; display: flex; flex-wrap: wrap; }
+}
+
+/* mobile: its own control map */
+.mob .mtop { position: sticky; top: 0; z-index: 20; min-height: 56px; display: flex; align-items: center; gap: 8px; padding: 6px 16px; background: var(--bg); box-shadow: 0 1px 0 var(--border); }
+.mob .mtop h1 { font-size: 22px; margin-right: auto; display: flex; align-items: center; gap: 8px; }
+.mob .back { min-width: 44px; min-height: 44px; border: 0; background: var(--tint); border-radius: 50%; display: grid; place-items: center; }
+.mob .m-main { padding: 16px 16px 136px; display: grid; gap: 16px; }
+.mob .m-main.nofab { padding-bottom: 96px; }
+.mob .m-card { background: var(--bg); border-radius: var(--radius-md); box-shadow: 0 0 0 1px var(--border); padding: 20px; display: grid; gap: 12px; }
+.mob .m-card.sel { background: var(--mint); box-shadow: none; border: 2px solid var(--fg); }
+.mob .m-card h2 { font-size: 28px; line-height: 1; }
+.mob .row2 { display: flex; flex-wrap: wrap; gap: 8px; }
+.mob .row2 .btn { flex: 1 1 auto; }
+.mob .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: grid; grid-template-columns: repeat(4, 1fr); height: calc(56px + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); background: var(--bg); box-shadow: 0 -1px 0 var(--border); }
+.mob .tabbar button { min-height: 56px; border: 0; background: transparent; display: grid; place-items: center; align-content: center; gap: 0; font: 600 14px/1.2 var(--font-body); }
+.mob .tabbar button[aria-current=page] { background: var(--mint); box-shadow: inset 0 3px 0 var(--fg); }
+.mob .stepbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: flex; gap: 8px; padding: 8px 16px calc(8px + env(safe-area-inset-bottom)); background: var(--bg); box-shadow: 0 -1px 0 var(--border); }
+.mob .stepbar .btn { flex: 1; }
+.mob #add-service { position: fixed; right: 16px; bottom: calc(56px + env(safe-area-inset-bottom) + 16px); z-index: 25; }
+.mob .tabs { display: flex; gap: 4px; padding: 4px; border-radius: var(--radius-pill); background: var(--tint); }
+.mob .tabs button { flex: 1; min-height: 44px; border: 0; border-radius: var(--radius-pill); background: transparent; font: 600 14px/1.2 var(--font-body); padding: 0 4px; }
+.mob .tabs button[aria-selected=true] { background: var(--bg); box-shadow: 0 0 0 2px var(--fg); }
+.mob .fact { padding: 12px; }
+.mob .agent, .mob .agent h3 { padding: 16px; }
+.mob .agent { padding: 16px; }
+.mob .stationsx { display: grid; }
+.mob .stations { grid-template-columns: 1fr; }
+.mob .slip { padding: 14px 16px; }
+.mob .cn { gap: 16px; }
+.mob .cn .card { padding: 20px; }
+.mob .settings { grid-template-columns: 1fr; gap: 32px; }
+.mob .page > h1, .mob .svc-title h2 { font-size: 28px; line-height: 1; }
+.mob dialog { margin: auto 0 0; width: 100%; max-width: none; border-radius: var(--radius-md) var(--radius-md) 0 0; padding-bottom: env(safe-area-inset-bottom); }
+.mob .stamp { font-size: 22px; }
+.mob .empty { margin: 16px 0; padding: 16px; }
+@media (max-width: 767px) {
+  dialog { margin: auto 0 0; width: 100%; max-width: none; border-radius: var(--radius-md) var(--radius-md) 0 0; padding-bottom: env(safe-area-inset-bottom); animation: sheet var(--m-sheet) var(--ease-standard); }
+  @keyframes sheet { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div id="app"></div>
+<dialog id="dlg" data-od-id="confirm-dialog"></dialog>
+<div id="say" class="sr" role="status" aria-live="polite"></div>
+
+<script>
+'use strict';
+/* ---------- fixture (synthetic; the only data) ---------- */
+const BASE = Date.parse('2026-10-13T14:24:26Z');
+const T = s => Date.parse(s);
+const WORD = { healthy: 'Healthy', needs_attention: 'Needs a human', unavailable: 'Unavailable', stale: 'Stale', unknown: 'Unknown', not_configured: 'Not configured', live: 'Live' };
+const UNKNOWN_COPY = "Worlds has no current reading for this and won't guess.";
+const own = (app, route, label) => ({ app, route, label, href: 'https://example.invalid/app/' + route.replace('app://', '') });
+function F(id, label, value, unit, state, obs, source, agent, human, ar, hr) {
+  return { id, label, value, unit, state, observedAt: obs ? T(obs) : null, checkedAt: obs ? T(obs) : null, source, perm: { agent, human, agentReason: ar || '', humanReason: hr || '' } };
+}
+function makeServices() {
+  const S0 = {
+    'media-shelf': { id: 'media-shelf', name: 'Media Shelf', kind: 'media library', state: 'healthy', summary: 'Library reachable and indexing is current.', owner: own('Media', 'app://media', 'Open Media app'), checkedAt: T('2026-10-13T14:23:58Z'), source: 'local',
+      facts: [F('media.items', 'Items in library', 1284, 'items', 'live', '2026-10-13T14:23:58Z', 'local', 'read', 'read'), F('media.indexing', 'Indexing backlog', 0, 'items', 'live', '2026-10-13T14:23:58Z', 'local', 'read', 'read'), F('media.played-recently', 'Played in the last 7 days', 12, 'items', 'live', '2026-10-13T14:23:58Z', 'local', 'read', 'read')] },
+    'front-door': { id: 'front-door', name: 'Front Door', kind: 'home access', state: 'needs_attention', summary: "Back door has been unlocked for longer than the person's usual window.", attentionReason: 'A decision is required; the local app will not act on its own.', owner: own('Home', 'app://home', 'Open Home app'), checkedAt: T('2026-10-13T14:24:02Z'), source: 'local',
+      facts: [F('frontdoor.back-door', 'Back door', 'unlocked', null, 'live', '2026-10-13T14:24:02Z', 'local', 'read', 'act', '', "Locking the door changes the external system and is the person's decision."), F('frontdoor.unlocked-for', 'Unlocked for', 47, 'minutes', 'live', '2026-10-13T14:24:02Z', 'local', 'read', 'read'), F('frontdoor.guest-code-used', 'Guest code last used by', 'visitor-3', null, 'live', '2026-10-13T14:20:11Z', 'local', 'none', 'read', 'Identifying a person is human-only in this fixture; the agent sees that a guest code was used, not who.')] },
+    'notes-sync': { id: 'notes-sync', name: 'Notes Sync', kind: 'sync', state: 'unavailable', summary: 'The sync provider did not answer its last two checks. Local notes still work; retry is offered.', owner: own('Memory', 'app://memory', 'Open Memory app'), checkedAt: T('2026-10-13T14:20:00Z'), source: 'none',
+      retry: { label: 'Check provider now', attempts: 2, lastError: 'provider timed out' },
+      facts: [F('sync.provider-reachable', 'Provider reachable', null, null, 'unavailable', '2026-10-13T14:20:00Z', 'external', 'read', 'read'), F('sync.local-pending', 'Local notes waiting to upload', 3, 'notes', 'live', '2026-10-13T14:23:30Z', 'local', 'read', 'read'), F('sync.last-synced', 'Last successful sync', '2026-10-13T13:58:00Z', null, 'stale', '2026-10-13T13:58:00Z', 'local', 'read', 'read')] }
+  };
+  for (const k in S0) { S0[k].configured = true; S0[k].sim = false; S0[k].shared = S0[k].facts.map(f => f.id); }
+  return S0;
+}
+const WEATHER = { name: 'Local Weather', stateLabel: 'Not configured', summary: 'No weather provider has ever been set up. The tile holds zero data until the person chooses one; nothing is guessed.', emptyReason: 'No provider configured, so there are no facts to show.', fallback: { label: 'Open provider settings', route: 'app://settings/providers', href: 'https://example.invalid/app/settings/providers' } };
+
+/* ---------- store ---------- */
+const S = {
+  view: 'home', sel: 'front-door', push: null, mtab: 'app', conn: ['media-shelf', 'front-door'], svc: makeServices(),
+  refs: { 'media-shelf': 'ref://media-shelf', 'front-door': 'ref://front-door' },
+  open: new Set(['frontdoor.back-door']),
+  live: true, cadence: 5, motion: 'system', frozen: null, ticks: 0, elapsed: 0, since: 0, staleDone: false,
+  lastCheck: { 'front-door': 0, 'media-shelf': 0 }, applied: false, hl: {}, hand: {}, flash: {}, settle: {}, changed: {}, feedNote: null,
+  frame: {}, failFrame: false, notice: null, secs: 'svc', setLoad: true, setSeen: false, replace: null, failSave: false, setMsg: '', cx: null, msg: '', invoker: null
+};
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const now = () => BASE + S.elapsed;
+const perf = () => performance.now();
+const isMob = () => matchMedia('(max-width:767px)').matches;
+const reduced = () => S.motion === 'reduce' || matchMedia('(prefers-reduced-motion: reduce)').matches;
+const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const fmtT = ms => new Date(ms).toISOString().slice(11, 19) + ' UTC';
+const fmtD = ms => { const d = new Date(ms); return d.getUTCDate() + ' ' + MON[d.getUTCMonth()] + ' ' + d.toISOString().slice(11, 16) + ' UTC'; };
+const ageSec = ts => Math.max(0, Math.floor((now() - ts) / 1000));
+const ageText = s => s < 60 ? s + 's' : s < 3600 ? Math.floor(s / 60) + 'm ' + (s % 60) + 's' : Math.floor(s / 3600) + 'h ' + Math.floor((s % 3600) / 60) + 'm';
+
+/* ---------- icons + Dot ---------- */
+const IC = {
+  check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>', alert: '<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17.5v.01"/>', x: '<circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 015 .5c0 1.5-2.5 2-2.5 3.5M12 17v.01"/>', dash: '<circle cx="12" cy="12" r="9"/><path d="M8 12h8"/>',
+  home: '<path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v-6h4v6"/>', plug: '<path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 01-12 0zM12 17v4"/>', mem: '<path d="M4 7l8-4 8 4-8 4z"/><path d="M4 12l8 4 8-4M4 17l8 4 8-4"/>',
+  gear: '<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/>', back: '<path d="M15 5l-7 7 7 7"/>',
+  chev: '<path d="M9 6l6 6-6 6"/>', ext: '<path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/>', pause: '<path d="M9 5v14M15 5v14"/>', live: '<circle cx="12" cy="12" r="5" fill="currentColor"/>', plus: '<path d="M12 5v14M5 12h14"/>', lock: '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/>'
+};
+const ic = (n, c = '') => `<svg class="ic ${c}" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${IC[n]}</svg>`;
+const SI = { healthy: 'check', needs_attention: 'alert', unavailable: 'x', stale: 'clock', unknown: 'help', not_configured: 'dash', live: 'check' };
+const pill = (st, extra = '') => `<span class="pill p-${st}">${ic(SI[st])}<span>${WORD[st]}</span></span>${extra}`;
+function dot(pose, size = 64, cls = '') {
+  const asleep = pose === 'asleep', parcel = pose === 'parcel';
+  const eyes = asleep ? '<path class="o" d="M47 13q2 2.5 4 0M56 13q2 2.5 4 0"/>' : '<circle class="fe" cx="49" cy="12" r="2.3"/><circle class="fe" cx="58" cy="12" r="2.3"/>';
+  return `<svg class="dot ${cls}" width="${size}" height="${Math.round(size * .75)}" viewBox="0 0 68 51" role="img" aria-label="Dot the snail, ${asleep ? 'asleep' : parcel ? 'carrying a parcel' : 'awake'}">
+    <rect class="o f1" x="4" y="36" width="52" height="10" rx="5"/><circle class="o f1" cx="54" cy="33" r="7"/>
+    <path class="o" d="M51 27L49 14M57 27L58 14"/>${eyes}
+    <circle class="o f2" cx="28" cy="27" r="13"/><path class="o sp" d="M28 27a2.5 2.5 0 112.5 2.5 5 5 0 11-5-5 8 8 0 118 8"/>
+    ${parcel ? '<rect class="o f3" x="20" y="3" width="16" height="11" rx="2"/><path class="o" d="M28 3v11M20 8h16"/>' : ''}
+    ${asleep ? '<path class="o" d="M60 4h5l-5 6h5"/>' : ''}</svg>`;
+}
+
+/* ---------- derived views of the store ---------- */
+function E(id) {
+  const s = S.svc[id], nc = !s.configured;
+  let summary = nc ? "This service has no credential reference. Worlds has no current reading for it and won't guess." : s.summary;
+  if (!nc && s.state === 'stale' && s.sim) summary = `Nothing has changed since ${fmtT(s.checkedAt)} that Worlds knows of.`;
+  return { ...s, state: nc ? 'not_configured' : s.state, summary, sim: !nc && s.sim, nc };
+}
+const effFact = (f, id) => S.svc[id].configured ? f : { ...f, value: null, state: 'unknown', source: 'none', checkedAt: null };
+const visFacts = id => S.svc[id].facts.filter(f => S.svc[id].shared.includes(f.id)).map(f => effFact(f, id));
+const attention = () => S.conn.filter(id => E(id).state === 'needs_attention').length;
+const countText = n => n === 1 ? '1 needs you' : n + ' need you';
+function minAge() { const a = S.conn.map(id => S.svc[id]).filter(s => s.configured && s.checkedAt).map(s => ageSec(s.checkedAt)); return a.length ? Math.min(...a) : null; }
+function liveLabel() {
+  const a = minAge();
+  if (S.live) return a === null ? 'Live · no services to check yet' : `Live · checked ${ageText(a)} ago`;
+  return `Paused · frozen at ${ageText(S.frozen === null ? 0 : S.frozen)}`;
+}
+const freshText = e => e.nc ? 'No current reading' : e.checkedAt ? `Checked ${ageText(ageSec(e.checkedAt))} ago · source ${e.source}` : 'No reading yet';
+function fmtVal(f) {
+  if (f.value === null || f.value === undefined) return f.state === 'unavailable' ? 'No reading: the source did not answer' : 'No reading';
+  if (typeof f.value === 'string' && /^\d{4}-\d\d-\d\dT/.test(f.value)) return fmtD(T(f.value));
+  return f.unit ? `${f.value} ${f.unit}` : String(f.value);
+}
+const say = t => { $('#say').textContent = ''; setTimeout(() => $('#say').textContent = t, 30); };
+const later = ms => setTimeout(() => renderTick(), ms + 40);
+
+/* ---------- shared components ---------- */
+function factRow(f, sid) {
+  const open = S.open.has(f.id), set = (S.settle[f.id] || 0) > perf();
+  const src = f.source, chk = f.checkedAt ? `checked ${ageText(ageSec(f.checkedAt))} ago` : 'never checked';
+  const owner = S.svc[sid].owner;
+  const actTo = f.id === 'frontdoor.back-door' ? 'Project Home' : owner.app + ' app';
+  const handKey = f.id === 'frontdoor.back-door' ? 'lock' : null;
+  let ctl = '';
+  if (f.perm.human === 'act') {
+    const h = S.hand[f.id], locked = f.value === 'locked';
+    ctl += locked ? `<span class="cap">${ic('check')} Locked. The person did it through Project Home.</span>` :
+      `<button class="btn btn-2" data-act="handoff" data-arg="${f.id}" ${h === 'pending' ? 'aria-busy="true"' : ''}>${ic('ext')}${h === 'pending' ? 'Handing off…' : h === 'done' ? 'Handed off to Project Home' : 'Hand off to Project Home'}</button>`;
+  }
+  if (f.perm.agent === 'none') ctl += `<button class="btn" aria-disabled="true" aria-describedby="r-${f.id.replace(/\W/g, '-')}" data-act="noop">Let the agent read this fact</button>`;
+  const rsn = [];
+  if (f.perm.agentReason) rsn.push(`<p class="reason" id="r-${f.id.replace(/\W/g, '-')}">${esc(f.perm.agentReason)}</p>`);
+  if (f.perm.humanReason) rsn.push(`<p class="reason">${esc(f.perm.humanReason)}</p>`);
+  const unk = f.state === 'unknown' ? `<p class="reason">${UNKNOWN_COPY}</p>` : '';
+  const srcWord = src === 'local' ? 'The local app answered' : src === 'external' ? 'A remote provider answered' : 'No source has answered';
+  const journey = open ? `<ol class="stations" id="j-${f.id}" aria-label="Journey of ${esc(f.label)}">
+      <li class="st" style="--i:0"><span class="sn">1 · Source</span><b>${src}</b><span>${srcWord}</span><span>${f.checkedAt ? fmtT(f.checkedAt) : 'No check time'}</span><span class="tk">${ic('check')}</span></li>
+      <li class="st" style="--i:1"><span class="sn">2 · Worlds</span><b class="mono">${f.id}</b><span>${WORD[f.state]}${S.live ? '' : ' (paused)'}</span><span>${chk}</span><span class="tk">${ic('check')}</span></li>
+      <li class="st" style="--i:2"><span class="sn">3 · Agent / You</span><span>Agent can <b>${f.perm.agent}</b></span><span>Human can <b>${f.perm.human}</b></span>${f.perm.agentReason || f.perm.humanReason ? '<span>Reasons are listed under the row.</span>' : ''}<span class="tk">${ic('check')}</span></li></ol>` : '';
+  return `<li class="fact${set ? ' settle' : ''}" data-od-id="fact-${f.id.replace(/\W/g, '-')}">
+    <h4 class="fact-h"><button class="fact-t" data-act="toggle" data-arg="${f.id}" aria-expanded="${open}" ${open ? `aria-controls="j-${f.id}"` : ''}>
+      <span class="chev">${ic('chev')}</span><span class="fl">${esc(f.label)}</span><span class="fv">${esc(fmtVal(f))}</span><span class="fp ${set ? 'fade-in' : ''}">${pill(f.state)}</span></button></h4>
+    <p class="cap">Source ${src} · ${chk}</p>
+    <div class="perm"><p><b>Agent can:</b> ${f.perm.agent}</p><p><b>Human can:</b> ${f.perm.human}${f.perm.human === 'act' ? ` (through ${actTo})` : ''}</p></div>
+    ${rsn.join('')}${unk}${ctl ? `<div class="ctl">${ctl}</div>` : ''}${journey}</li>`;
+}
+function receipt(id) {
+  const fs = visFacts(id);
+  return `<section class="group" data-od-id="fact-receipt" aria-labelledby="rc-h"><div class="sec-h"><h3 id="rc-h">Fact journey receipt</h3><p class="cap">Every fact says where it came from and who can act on it. Open a fact to read its journey.</p></div>
+    ${fs.length ? `<ul class="facts">${fs.map(f => factRow(f, id)).join('')}</ul>` : '<p class="callout">This service offers no facts yet. Nothing is guessed.</p>'}</section>`;
+}
+function agentStrip(id) {
+  const fs = visFacts(id), e = E(id);
+  const sees = fs.filter(f => f.perm.agent !== 'none'), hid = fs.filter(f => f.perm.agent === 'none'), acts = fs.filter(f => f.perm.human === 'act');
+  let who = 'Nothing here needs anyone to act.';
+  if (id === 'front-door' && S.applied) who = 'Done: the person locked the back door through Project Home (mock). The agent saw it as read-only.';
+  else if (acts.length) who = `You act on ${acts.map(f => esc(f.label)).join(', ')}, through Project Home. The agent can only read it.`;
+  else if (e.retry) who = `You act through the ${e.owner.app} app (“${e.retry.label}”). The agent can only read.`;
+  return `<section class="agent" data-od-id="agent-strip" aria-labelledby="ag-h"><h3 id="ag-h">Agent sees</h3>
+    ${sees.length ? `<ul>${sees.map(f => `<li><b>${esc(f.label)}:</b> ${esc(fmtVal(f))} ${pill(f.state)}</li>`).join('')}</ul>` : `<p>${UNKNOWN_COPY}</p>`}
+    ${hid.length ? `<p><b>Hidden from the agent:</b> ${hid.map(f => esc(f.label)).join(', ')}. ${esc(hid[0].perm.agentReason)}</p>` : ''}
+    <p><b>Who acts:</b> ${who}</p><p class="cap">Feed tick ${S.ticks} · ${S.live ? 'live' : 'paused'} · changes are simulated</p></section>`;
+}
+function frameState(id) { const f = S.frame[id]; if (f === 'loading') return 'loading'; return S.failFrame ? 'fail' : 'ok'; }
+function frame(id) {
+  const e = E(id), st = frameState(id), o = e.owner;
+  let body;
+  if (e.nc) body = `<p>${UNKNOWN_COPY}</p>`;
+  else if (st === 'loading') body = `${dot('idle', 56)}<p><b>Dot is fetching the facts…</b></p><a class="link" href="${o.href}" target="_blank" rel="noopener noreferrer">${o.label}${ic('ext')}</a>`;
+  else if (st === 'fail') body = `<p><b>This app didn't load inside Worlds.</b></p><p>Use the link below, or try again.</p><button class="btn btn-2" data-act="frame-retry" data-arg="${id}">Try again</button>`;
+  else body = `<div class="drawn" aria-hidden="true"><i></i><i></i><i></i></div><p class="cap">Drawn stand-in for the ${o.app} app. This frame is given no Worlds credential. Real embedding and sandbox flags are UNKNOWN.</p>`;
+  return `<section class="frame" data-od-id="app-frame" aria-label="${o.app} app frame"><div class="frame-head"><strong>${o.app} app</strong>${pill(e.state)}</div><div class="frame-body">${body}</div>
+    <div class="frame-edge"><a class="link" href="${o.href}" target="_blank" rel="noopener noreferrer" data-od-id="fallback-link">${o.label}${ic('ext')}</a><span class="cap mono">${o.route}</span>
+    <label class="chk"><input type="checkbox" id="fail-frame" ${S.failFrame ? 'checked' : ''}> Simulate the app not loading (mock)</label></div></section>`;
+}
+function stateBlock(id) {
+  const e = E(id); let h = '';
+  if (e.nc) h += `<div class="callout"><p>${UNKNOWN_COPY}</p><div class="row"><button class="btn btn-primary" data-act="reconnect" data-arg="${id}">Reconnect</button></div></div>`;
+  if (e.state === 'needs_attention' && e.attentionReason) h += `<div class="callout"><div class="row">${ic('alert')}<b>${esc(e.attentionReason)}</b></div></div>`;
+  if (e.state === 'stale' && e.sim) h += `<div class="callout"><p>${esc(e.summary)}</p><div class="row"><button class="btn btn-2" id="check-now">Check now</button><span class="sim">simulated</span></div></div>`;
+  if (e.retry && !e.nc) h += `<div class="callout"><p><b>Last error:</b> ${esc(e.retry.lastError)} · attempts ${e.retry.attempts}</p><div class="row"><button class="btn btn-2" data-act="probe" data-arg="${id}" ${S.hand['probe:' + id] === 'pending' ? 'aria-busy="true"' : ''}>${ic('ext')}${S.hand['probe:' + id] === 'pending' ? 'Handing off…' : e.retry.label}</button><span class="cap">Hands off to the ${e.owner.app} app; never an approval.</span></div></div>`;
+  if (S.hl[id]) h += `<p class="handoff" role="status">${ic('check')}${esc(S.hl[id])}</p>`;
+  const q = S.applied && attention() === 0 ? `<p class="quiet" role="status">${dot('idle', 40)}That's the last one. Nothing needs you right now.</p>` : '';
+  return h + q;
+}
+function updatedChip(id) {
+  const fl = S.flash[id]; if (!fl || fl < perf()) return '';
+  return `<span class="upd" role="status">${dot('idle', 36, 'dot-nod')}Updated just now</span>`;
+}
+const slip = id => {
+  const e = E(id), sel = S.sel === id, m = isMob();
+  return `<button class="slip${sel ? ' sel' : ''}" data-act="${m ? 'open' : 'sel'}" data-arg="${id}" ${m ? '' : `aria-pressed="${sel}"`} data-od-id="slip-${id}">
+    <span class="slip-t">${esc(e.name)}</span><span class="slip-k">${e.kind}</span><span class="${(S.changed[id] || 0) > perf() ? 'fade-in' : ''}">${pill(e.state, e.sim ? ' <span class="sim">simulated</span>' : '')}</span>
+    <span class="slip-f">${freshText(e)}</span>${sel ? `<span class="selmark">${ic('check')}Selected</span>` : ''}</button>`;
+};
+const feedNote = () => `<div class="feed-note" data-od-id="feed-note"><p class="cap">Feed tick ${S.ticks} · every ${S.cadence}s${S.live ? '' : ' · paused'}</p><p class="cap">${S.feedNote ? esc(S.feedNote) : 'No feed events yet.'}</p></div>`;
+const noticeBar = () => S.notice ? `<div class="notice" role="status" data-od-id="notice"><p>${esc(S.notice)}</p><button class="btn btn-2" data-act="dismiss">Dismiss</button></div>` : '';
+const firstRun = () => `<div class="card empty" data-od-id="first-run">${dot('asleep', 96)}<h2 data-head tabindex="-1">The counter is quiet</h2><p>Nothing at the counter yet. Connect a service and Worlds will keep its facts, say where each came from, and leave the deciding to you.</p>
+  <button class="btn btn-ring" data-act="add-in">${ic('plus')}Connect a service</button></div>`;
+const emptyRefs = 'No references stored. Connecting a service will add one.';
+const pillBtnText = () => ({ live: liveLabel() });
+
+/* ---------- desktop shell ---------- */
+const NAVS = [['home', 'Home', 'home'], ['connect', 'Connect', 'plug'], ['memory', 'Memory', 'mem'], ['settings', 'Settings', 'gear']];
+function liveBtn() {
+  return `<button class="btn btn-2" id="live-toggle" aria-pressed="${S.live}" title="${S.live ? 'Pause the live feed' : 'Resume the live feed'}">${ic(S.live ? 'live' : 'pause')}<span class="lbl">${liveLabel()}</span></button>`;
+}
+function topbar() {
+  const n = attention(), onConnect = S.view === 'connect';
+  return `<header class="top" data-od-id="topbar"><div class="brand"><span class="mock">MOCKUP</span>Worlds</div>${liveBtn()}
+    <button class="btn btn-2" id="simulate-change">Simulate a change</button>
+    <button class="btn ${onConnect ? 'btn-2' : 'btn-primary'}" id="add-service">${ic('plus')}Add a service</button>
+    <span class="count ${n ? 'has' : ''}" id="attention-count" role="status">${ic(n ? 'alert' : 'check')}${countText(n)}</span></header>`;
+}
+function rail() {
+  return `<nav class="rail" aria-label="Worlds" data-od-id="rail">${NAVS.map(([v, l, i]) => `<button class="nv" data-act="nav" data-arg="${v}" ${S.view === v ? 'aria-current="page"' : ''}>${ic(i)}<span class="lbl">${l}</span></button>`).join('')}
+    <div class="rail-foot"><p class="cap">Synthetic data only. Nothing here is a real reading.</p></div></nav>`;
+}
+function pane(id) {
+  const e = E(id);
+  return `<article class="card" data-od-id="service-pane"><header class="svc-head"><div class="svc-title"><h2 data-head tabindex="-1">${esc(e.name)}</h2><span class="${(S.changed[id] || 0) > perf() ? 'fade-in' : ''}">${pill(e.state, e.sim ? ' <span class="sim">simulated</span>' : '')}</span>${updatedChip(id)}</div>
+    <p class="lead">${esc(e.summary)}</p><p class="cap">${freshText(e)}</p>
+    <div class="acts"><button class="btn btn-ring" id="disconnect" data-od-id="disconnect">${ic('x')}Disconnect ${esc(e.name)}</button></div></header>
+    ${stateBlock(id)}${receipt(id)}${agentStrip(id)}${frame(id)}</article>`;
+}
+function homeDesk() {
+  if (!S.conn.length) return noticeBar() + firstRun();
+  return `${noticeBar()}<div class="home"><aside class="slips" aria-label="Service slips" data-od-id="slips"><div class="slips-h"><h2>At the counter</h2><p class="cap">${countText(attention())} · ${minAge() === null ? 'no reading yet' : 'checked ' + ageText(minAge()) + ' ago'}</p></div>
+    ${S.conn.map(slip).join('')}${feedNote()}</aside><section aria-label="Selected service">${pane(S.sel)}</section></div>`;
+}
+function memoryView() {
+  const m = isMob();
+  return `<div class="page" data-od-id="memory"><h1 data-head tabindex="-1">Memory</h1><p class="lead">Agent facts: every connected service's rows, exactly as the agent sees them. Same rows, same journeys.</p>${noticeBar()}
+    ${S.conn.length ? S.conn.map(id => { const fs = visFacts(id), n = fs.filter(f => f.perm.agent !== 'none').length; return `<section class="group" aria-labelledby="m-${id}"><h2 id="m-${id}">${esc(S.svc[id].name)}</h2><p class="cap">${n} of ${fs.length} facts readable by the agent · ${pill(E(id).state)}</p><ul class="facts">${fs.map(f => factRow(f, id)).join('')}</ul></section>`; }).join('') :
+      `<div class="card empty">${dot('asleep', 96)}<p>Nothing at the counter yet. Connect a service and Worlds will keep its facts, say where each came from, and leave the deciding to you.</p></div>`}</div>`;
+}
+
+/* ---------- connect ---------- */
+const STEPS = ['Discover', 'Reference', 'Test', 'Preview', 'Choose', 'Publish'];
+const validRef = v => /^ref:\/\/[A-Za-z0-9][A-Za-z0-9._\/-]*$/.test(v.trim());
+function refCheck(v) {
+  if (!v.trim()) return { ok: false, msg: 'Enter a reference such as ref://notes-sync.' };
+  if (!/^ref:\/\//.test(v.trim())) return { ok: false, msg: 'Worlds stores a credential reference, never the secret.' };
+  if (!validRef(v)) return { ok: false, msg: "That doesn't look like a reference. Use letters, numbers, dots, dashes or slashes after ref://." };
+  return { ok: true, msg: '' };
+}
+function newConnect(target = 'notes-sync', step = 0) {
+  S.cx = { target, step, ref: '', refState: 'pristine', refMsg: '', pending: false, test: { st: 'idle', tries: 0, lastAt: 0, ref: '' }, simFail: false, shared: S.svc[target].facts.map(f => f.id), phase: 'edit', note: '' };
+}
+function canNext(c) {
+  const t = S.svc[c.target];
+  if (c.step === 0) return !(S.conn.includes(c.target) && t.configured);
+  if (c.step === 1) return validRef(c.ref) && !c.pending;
+  if (c.step === 2) return c.test.st === 'passed';
+  if (c.step === 4) return c.shared.length > 0;
+  return true;
+}
+function connectBar() {
+  const c = S.cx; if (c.phase === 'done') return '';
+  const busy = c.phase === 'delivering';
+  return `<div class="${isMob() ? 'stepbar' : 'ctrl'}" data-od-id="step-bar"><button class="btn btn-2" id="step-back" ${busy ? 'disabled' : ''}>Back</button>
+    ${c.step < 5 ? `<button class="btn btn-primary" id="step-next" ${canNext(c) ? '' : 'disabled'}>${c.pending ? 'Saving reference…' : 'Next'}</button>` : `<button class="btn btn-primary" id="publish" ${busy ? 'disabled' : ''}>${busy ? 'Publishing…' : 'Publish'}</button>`}</div>`;
+}
+function stepBody(c) {
+  const t = S.svc[c.target], e = E(c.target);
+  const nm = esc(t.name), shown = t.facts;
+  if (c.step === 0) {
+    const already = S.conn.includes(c.target) && t.configured;
+    return `<h2 data-head tabindex="-1">Discover</h2>${already ? `<p>${nm} is already connected. There is nothing else to discover in this mockup.</p><button class="btn btn-2" data-act="nav" data-arg="home">Back to the counter</button>` :
+      `<p>Worlds found one service it can connect. Nothing is connected yet.</p><div class="row-s"><div><b>${nm}</b><span class="cap">${t.kind} · owned by ${t.owner.app} (${t.owner.route})</span></div></div>`}`;
+  }
+  if (c.step === 1) {
+    const ok = c.refState === 'valid', bad = c.refState === 'invalid';
+    return `<h2 data-head tabindex="-1">Credential reference</h2><p>Give Worlds a pointer to the credential, held by its owner. Worlds stores a credential reference, never the secret.</p>
+      <div class="field"><label for="ref-input">Credential reference</label><input type="text" id="ref-input" value="${esc(c.ref)}" placeholder="ref://${t.id}" autocomplete="off" spellcheck="false" aria-describedby="ref-msg" ${bad ? 'aria-invalid="true"' : ''}>
+      <div id="ref-msg" aria-live="polite">${refMsgHtml(c)}</div></div>`;
+  }
+  if (c.step === 2) {
+    const tt = c.test, left = 3 - tt.tries, lim = tt.tries >= 3 && tt.st !== 'passed';
+    let st = '<p class="cap">Not run yet. The test reads a single status value and changes nothing.</p>';
+    if (tt.st === 'running') st = `<p role="status"><b>Running the safe test…</b></p>`;
+    if (tt.st === 'passed') st = `<p role="status" class="err" style="color:var(--success)">${ic('check')}Passed. The reference reached ${nm} (mock, no provider call).</p>`;
+    if (tt.st === 'failed') st = `<div role="status" class="callout"><p class="err">${ic('x')}<span>${lim ? "That's three tries. Check the reference with the owning app, then edit it to start again." : "That didn't go through, and the reference is still here. Try again whenever you like."}</span></p>
+      <p class="cap">Error: ${esc(t.retry ? t.retry.lastError : 'provider timed out')} · last tried <span class="agom" data-e="${tt.lastAt}">${Math.floor((S.elapsed - tt.lastAt) / 1000)}s</span> ago · try ${tt.tries} of 3</p>${lim ? '<button class="btn btn-2" id="fix-ref" data-act="fix-ref">Edit the reference</button>' : ''}</div>`;
+    return `<h2 data-head tabindex="-1">Safe test</h2><p>Reference <span class="mono">${esc(c.ref)}</span></p><div class="acts"><button class="btn btn-2" id="run-test" ${tt.st === 'running' || lim ? 'disabled' : ''}>${tt.st === 'running' ? 'Running…' : tt.st === 'failed' ? 'Try again' : 'Run safe test'}</button></div>
+      <label class="chk"><input type="checkbox" id="fail-test" ${c.simFail ? 'checked' : ''}> Simulate a failed test (mock)</label>${st}`;
+  }
+  if (c.step === 3) {
+    return `<h2 data-head tabindex="-1">Preview</h2><p>This is what ${nm} would hand across. Each fact keeps its own state; nothing is merged.</p>
+      ${shown.length ? `<ul class="facts">${shown.map(f => `<li class="fact"><div class="row-s" style="box-shadow:none;padding:0"><div><b>${esc(f.label)}</b><span>${esc(fmtVal(f))}</span><span class="cap">Source ${f.source} · ${f.id}</span></div>${pill(f.state)}</div></li>`).join('')}</ul>` : '<p class="callout">This service offers no facts yet. Nothing is guessed.</p>'}`;
+  }
+  if (c.step === 4) {
+    return `<h2 data-head tabindex="-1">Choose what to share</h2><p>Worlds will share ${c.shared.length} of ${shown.length} facts with you and the agent. Unticked facts stay at the owner. At least one fact stays ticked.</p>
+      <div class="facts">${shown.map(f => { const on = c.shared.includes(f.id), last = on && c.shared.length === 1; return `<div class="pick"><input type="checkbox" id="pk-${f.id}" data-fact="${f.id}" ${on ? 'checked' : ''} ${last ? 'aria-disabled="true"' : ''}><label for="pk-${f.id}"><b>${esc(f.label)}</b><span class="cap">${WORD[f.state]} · ${f.source}${last ? ' · must stay shared' : ''}</span></label></div>`; }).join('')}</div>${c.note ? `<p class="err" role="status">${ic('alert')}${esc(c.note)}</p>` : ''}`;
+  }
+  if (c.phase === 'delivering') return `<h2 data-head tabindex="-1">Publishing</h2><div class="track"><div class="dot-wrap carry">${dot('parcel', 96)}</div><p role="status"><b>Dot is carrying the parcel to the counter…</b></p></div>`;
+  return `<h2 data-head tabindex="-1">Publish</h2><p>Publish ${nm} to the counter. It will appear in the slips and in Settings.</p><div class="row-s"><div><b>${nm}</b><span class="mono">${esc(c.ref)}</span><span class="cap">${c.shared.length} of ${shown.length} facts shared · no provider is called</span></div></div>`;
+}
+function refMsgHtml(c) {
+  if (c.pending) return '<p class="cap" role="status">Saving reference…</p>';
+  if (c.refState === 'invalid') return `<p class="err">${ic('alert')}<span>${esc(c.refMsg)}</span></p>`;
+  if (c.refState === 'valid') return `<p class="cap" style="color:var(--success)">${ic('check')} Looks like a reference.</p>`;
+  if (c.refState === 'dirty') return '<p class="cap">Edited. Worlds checks it when you leave the field.</p>';
+  return '<p class="cap">Not edited yet. Use the form ref://name.</p>';
+}
+function connectView() {
+  if (!S.cx) newConnect();
+  const c = S.cx, m = isMob(), t = S.svc[c.target];
+  const prog = m ? `<p class="cap">Step ${c.step + 1} of 6 · ${STEPS[c.step]}</p>` : `<ol class="steps" aria-label="Steps">${STEPS.map((s, i) => `<li class="${i === c.step ? 'cur' : i < c.step || c.phase === 'done' ? 'done' : ''}" ${i === c.step ? 'aria-current="step"' : ''}><span class="n">${i < c.step || c.phase === 'done' ? ic('check') : i + 1}</span>${s}</li>`).join('')}</ol>`;
+  let body;
+  if (c.phase === 'done') {
+    body = `<div class="track"><div class="dot-wrap">${dot('idle', 96)}</div><span class="stamp">${ic('check')}Connected</span></div><h2 data-head tabindex="-1">${esc(t.name)} is at the counter</h2>
+      <p>${esc(t.name)} now shows in the slips and in Settings. Its facts keep their own states.</p><div class="acts"><button class="btn btn-2" data-act="goto-settings">Manage this reference in Settings</button><button class="btn btn-ring" data-act="sel-go" data-arg="${c.target}">Open ${esc(t.name)}</button></div>`;
+  } else body = stepBody(c);
+  return `<div class="cn" data-od-id="connect"><div><h1 class="sr">Connect a service</h1>${prog}</div><div class="card" aria-live="off">${body}${m ? '' : connectBar()}</div></div>`;
+}
+
+/* ---------- settings ---------- */
+function secSvc() {
+  return `<section class="group" aria-labelledby="s-svc" data-od-id="settings-services"><h2 id="s-svc" ${isMob() ? '' : 'data-head tabindex="-1"'}>Connected services</h2>
+    ${S.conn.length ? S.conn.map(id => { const e = E(id); return `<div class="row-s"><div><b>${esc(e.name)}</b><span class="cap">${freshText(e)}</span></div>${pill(e.state)}<div class="acts"><button class="btn btn-ring" id="disconnect-${id}" data-act="disconnect-svc" data-arg="${id}">Disconnect</button></div></div>`; }).join('') :
+      '<p class="callout">Nothing at the counter yet. Connect a service and Worlds will keep its facts, say where each came from, and leave the deciding to you.</p>'}</section>`;
+}
+function secRefs() {
+  const rows = S.conn.map(id => {
+    const s = S.svc[id], ref = S.refs[id];
+    if (S.replace && S.replace.id === id) {
+      const r = S.replace;
+      return `<div class="row-s"><div class="field"><label for="replace-input">New reference for ${esc(s.name)}</label><input type="text" id="replace-input" value="${esc(r.v)}" autocomplete="off" spellcheck="false" aria-describedby="rep-msg" ${r.err ? 'aria-invalid="true"' : ''}><div id="rep-msg" aria-live="polite">${r.err ? `<p class="err">${ic('alert')}<span>${esc(r.err)}</span></p>` : ''}</div></div>
+        <div class="acts"><button class="btn btn-primary" data-act="replace-save">Save reference</button><button class="btn btn-2" data-act="replace-cancel">Cancel</button></div></div>`;
+    }
+    if (!ref) return `<div class="row-s"><div><b>${esc(s.name)}</b><span class="pill p-not_configured" style="width:fit-content">${ic('dash')}Not configured</span></div><div class="acts"><button class="btn btn-primary" data-act="reconnect" data-arg="${id}">Reconnect</button></div></div>`;
+    return `<div class="row-s"><div><b>${esc(s.name)}</b><span class="mono">${esc(ref)}</span></div><div class="acts"><button class="btn btn-2" data-act="replace" data-arg="${id}">Replace</button><button class="btn btn-ring" data-act="remove-ref" data-arg="${id}">Remove</button></div></div>`;
+  });
+  return `<section class="group" aria-labelledby="s-ref" data-od-id="settings-references"><h2 id="s-ref" ${isMob() ? '' : 'data-head tabindex="-1"'}>Credential references</h2><p>Worlds stores a credential reference, never the secret.</p>
+    ${rows.length ? rows.join('') : `<p class="callout">${emptyRefs}</p>`}${S.setMsg ? `<p class="err" role="status">${ic('alert')}${esc(S.setMsg)}</p>` : ''}
+    <label class="chk"><input type="checkbox" id="fail-save" ${S.failSave ? 'checked' : ''}> Simulate a save failure (mock)</label></section>`;
+}
+function secProv() {
+  const w = WEATHER;
+  return `<section class="group" aria-labelledby="s-prov" data-od-id="settings-providers"><h2 id="s-prov" ${isMob() ? '' : 'data-head tabindex="-1"'}>Providers</h2><div class="row-s"><div><b>${w.name}</b><span class="pill p-not_configured" style="width:fit-content">${ic('dash')}${w.stateLabel}</span>
+    <p>${w.summary}</p><p class="reason">${w.emptyReason}</p><a class="link" href="${w.fallback.href}" target="_blank" rel="noopener noreferrer">${w.fallback.label}${ic('ext')}</a><span class="cap mono">${w.fallback.route}</span></div></div></section>`;
+}
+function secFeed() {
+  return `<section class="group" aria-labelledby="s-feed" data-od-id="settings-feed"><h2 id="s-feed" ${isMob() ? '' : 'data-head tabindex="-1"'}>Live feed</h2>
+    <div class="row-s"><div><b id="sl-l">Live feed</b><span class="cap">${S.live ? 'On. Ages tick and re-checks are simulated.' : 'Paused. The mock clock is frozen; data and actions still work.'}</span></div><button class="btn btn-2" id="settings-live" role="switch" aria-checked="${S.live}" aria-labelledby="sl-l">${ic(S.live ? 'live' : 'pause')}${S.live ? 'On' : 'Off'}</button></div>
+    <fieldset><legend>Tick cadence</legend>${[5, 10, 30].map(n => `<label class="seg"><input type="radio" name="cad" value="${n}" ${S.cadence === n ? 'checked' : ''}><span>${n}s${n === 5 ? ' (default)' : ''}</span></label>`).join('')}</fieldset>
+    <fieldset><legend>Reduce motion</legend><label class="seg"><input type="radio" name="mot" value="system" ${S.motion === 'system' ? 'checked' : ''}><span>Follow system (default)</span></label><label class="seg"><input type="radio" name="mot" value="reduce" ${S.motion === 'reduce' ? 'checked' : ''}><span>Always</span></label></fieldset>
+    <p class="cap">Reduced motion removes animation, not data. The feed keeps updating.</p></section>`;
+}
+function secAbout() {
+  return `<section class="group" aria-labelledby="s-ab" data-od-id="settings-about"><h2 id="s-ab" ${isMob() ? '' : 'data-head tabindex="-1"'}>About</h2><p><span class="mock">MOCKUP</span></p><p>Synthetic data only. Nothing here is a real reading.</p>
+    <p><b>Still UNKNOWN</b></p><ul class="unk-list"><li>Embed support and isolation, including real browser enforcement and sandbox flags.</li><li>The Connect API.</li><li>Whether disconnect retains history.</li><li>Fidelity of system fonts across platforms.</li></ul>
+    <div class="row-s"><div><button class="btn" aria-disabled="true" aria-describedby="hist-r" data-act="noop">Keep history after disconnect</button><p class="reason" id="hist-r">Not decided yet; this mockup keeps nothing.</p></div></div></section>`;
+}
+function settingsView() {
+  const secs = [['svc', 'Connected services', secSvc], ['refs', 'Credential references', secRefs], ['prov', 'Providers', secProv], ['feed', 'Live feed', secFeed], ['about', 'About', secAbout]];
+  if (S.setLoad) return `<div class="page"><h1 data-head tabindex="-1">Settings</h1><div class="card empty">${dot('idle', 80)}<p role="status"><b>Dot is fetching your settings…</b></p></div></div>`;
+  const m = isMob();
+  const cur = secs.find(s => s[0] === S.secs) || secs[0];
+  return `<div class="page" style="max-width:1000px" data-od-id="settings"><h1 ${m ? 'data-head tabindex="-1"' : ''}>Settings</h1>${noticeBar()}${m ? `<div class="settings">${secs.map(s => s[2]()).join('')}</div>` :
+    `<div class="settings"><nav class="sub" aria-label="Settings sections">${secs.map(s => `<button data-act="sec" data-arg="${s[0]}" ${s[0] === cur[0] ? 'aria-current="true"' : ''}>${s[1]}</button>`).join('')}</nav><div>${cur[2]()}</div></div>`}</div>`;
+}
+function viewBody() {
+  if (S.view === 'connect') return connectView();
+  if (S.view === 'memory') return memoryView();
+  if (S.view === 'settings') return settingsView();
+  return homeDesk();
+}
+
+/* ---------- mobile shell ---------- */
+function mHeader(title, back) {
+  return `<header class="mtop" data-od-id="page-header">${back ? `<button class="back" data-act="back" aria-label="${back}">${ic('back')}</button>` : ''}<h1>${title}</h1><span class="mock">MOCKUP</span></header>`;
+}
+function statusRow() {
+  const a = minAge(), n = attention();
+  return `<p class="cap" role="status"><span id="attention-count">${countText(n)}</span> · ${a === null ? 'no reading yet' : 'checked ' + ageText(a) + ' ago'}</p>
+    <div class="row2">${liveBtn()}<button class="btn btn-2" id="simulate-change">Simulate a change</button></div>`;
+}
+function mobileHome() {
+  if (!S.conn.length) return `${noticeBar()}${firstRun()}`;
+  const id = S.sel, e = E(id), others = S.conn.filter(x => x !== id);
+  return `${noticeBar()}<section class="m-card" data-od-id="counter-card" aria-label="Counter">${statusRow()}<p class="cap">${S.feedNote ? esc(S.feedNote) : 'No feed events yet.'} · tick ${S.ticks}</p></section>
+    <section class="m-card sel" data-od-id="selected-service" aria-label="Selected service"><div class="svc-title"><h2>${esc(e.name)}</h2></div><div><span class="${(S.changed[id] || 0) > perf() ? 'fade-in' : ''}">${pill(e.state, e.sim ? ' <span class="sim">simulated</span>' : '')}</span> <span class="selmark">${ic('check')}Selected</span></div>
+    <p>${esc(e.summary)}</p>${e.attentionReason && e.state === 'needs_attention' ? `<p class="callout">${esc(e.attentionReason)}</p>` : ''}${updatedChip(id)}<p class="cap">${freshText(e)}</p>
+    <div class="acts"><button class="btn btn-primary" data-act="open" data-arg="${id}">Open ${esc(e.name)}</button><button class="btn btn-ring" id="disconnect">Disconnect ${esc(e.name)}</button></div>${S.applied && attention() === 0 ? `<p class="quiet" role="status">${dot('idle', 36)}That's the last one. Nothing needs you right now.</p>` : ''}</section>
+    ${others.map(slip).join('')}`;
+}
+function mobilePushed() {
+  const id = S.push, e = E(id), tabs = [['app', 'App'], ['facts', 'Facts'], ['agent', 'Agent view']];
+  const panel = S.mtab === 'app' ? frame(id) : S.mtab === 'facts' ? receipt(id) : agentStrip(id);
+  return `<section class="m-card" data-od-id="status-row">${statusRow()}</section>
+    <div class="svc-title"><h2 data-head tabindex="-1">${esc(e.name)}</h2><span class="${(S.changed[id] || 0) > perf() ? 'fade-in' : ''}">${pill(e.state, e.sim ? ' <span class="sim">simulated</span>' : '')}</span>${updatedChip(id)}</div>
+    <p>${esc(e.summary)}</p><div class="acts"><button class="btn btn-ring" id="disconnect">Disconnect ${esc(e.name)}</button></div>${stateBlock(id)}
+    <div class="tabs" role="tablist" aria-label="Service sections">${tabs.map(([k, l]) => `<button role="tab" id="tab-${k}" data-act="mtab" data-arg="${k}" aria-selected="${S.mtab === k}" tabindex="${S.mtab === k ? 0 : -1}" aria-controls="tp">${l}</button>`).join('')}</div><div id="tp" role="tabpanel" aria-labelledby="tab-${S.mtab}">${panel}</div>`;
+}
+function mobileShell() {
+  const v = S.view, pushed = v === 'home' && S.push && S.conn.includes(S.push);
+  let head, main, bottom = '', fab = true;
+  if (v === 'connect') { head = mHeader('Connect', 'Leave Connect'); main = connectView(); bottom = S.cx && S.cx.phase !== 'done' ? connectBar() : tabbar(); fab = false; }
+  else if (pushed) { head = mHeader('Service', 'Back to the counter'); main = mobilePushed(); fab = false; }
+  else if (v === 'memory') { head = mHeader('Worlds'); main = memoryView(); bottom = tabbar(); }
+  else if (v === 'settings') { head = mHeader('Worlds'); main = settingsView(); bottom = tabbar(); }
+  else { head = mHeader('<span data-head tabindex="-1">Worlds</span>'); main = mobileHome(); bottom = tabbar(); }
+  const hasFab = fab && bottom.includes('tabbar') && !(S.view === 'settings' && S.setLoad);
+  return `${head}<main id="main" tabindex="-1" class="m-main ${hasFab ? '' : 'nofab'}">${main}</main>${hasFab ? `<button class="btn btn-primary" id="add-service">${ic('plus')}Add a service</button>` : ''}${bottom}`;
+}
+const tabbar = () => `<nav class="tabbar" aria-label="Worlds" data-od-id="tab-bar">${NAVS.map(([v, l, i]) => `<button data-act="nav" data-arg="${v}" ${S.view === v ? 'aria-current="page"' : ''}>${ic(i)}${l}</button>`).join('')}</nav>`;
+
+/* ---------- render ---------- */
+const app = $('#app');
+const keyOf = el => el && el !== document.body ? (el.id || (el.dataset && el.dataset.act ? el.dataset.act + ':' + (el.dataset.arg || '') : el.dataset && el.dataset.fact ? 'fact:' + el.dataset.fact : null)) : null;
+function findKey(k) {
+  if (!k) return null;
+  const byId = document.getElementById(k); if (byId && app.contains(byId)) return byId;
+  return [...app.querySelectorAll('[data-act],[data-fact]')].find(e => keyOf(e) === k) || null;
+}
+function render(o = {}) {
+  const ak = keyOf(document.activeElement), m = isMob();
+  document.documentElement.dataset.motion = S.motion === 'reduce' ? 'reduce' : 'system';
+  app.className = m ? 'mob' : 'desk';
+  app.innerHTML = m ? mobileShell() : `${topbar()}<div class="shell">${rail()}<main id="main" tabindex="-1" class="content" data-od-id="main">${viewBody()}</main></div>`;
+  let el = null;
+  if (o.focus === 'head') el = $('[data-head]', app); else if (o.focus) el = findKey(o.focus); else if (ak) el = findKey(ak);
+  if (!el && o.fallback) el = findKey(o.fallback);
+  if (el) el.focus({ preventScroll: !o.focus });
+  if (o.focus === 'head') window.scrollTo(0, 0);
+}
+function renderTick() {
+  const a = document.activeElement;
+  if (a && a.matches && a.matches('#app input[type=text]')) return patchChrome();
+  render();
+}
+function patchChrome() {
+  const l = $('#live-toggle .lbl'); if (l) l.textContent = liveLabel();
+  const c = $('#attention-count'); if (c) c.lastChild.textContent = countText(attention());
+}
+function patchAges() { app.querySelectorAll('.agom').forEach(e => e.textContent = Math.floor((S.elapsed - +e.dataset.e) / 1000) + 's'); }
+function markSettle(ids) { ids.forEach(i => S.settle[i] = perf() + 1200); later(1200); }
+function markChange(id) { S.changed[id] = perf() + 800; S.flash[id] = perf() + 3000; later(800); later(3000); }
+
+/* ---------- feed engine ---------- */
+const PERIOD = { 'front-door': 20000, 'media-shelf': 30000 };
+const recheckable = id => { const s = S.svc[id]; return S.conn.includes(id) && s.configured && (s.state === 'healthy' || s.state === 'needs_attention') && s.facts.every(f => f.state === 'live'); };
+function doCheck(id) {
+  const s = S.svc[id], t = now(); s.checkedAt = t; S.lastCheck[id] = S.elapsed;
+  s.facts.forEach(f => { if (f.state === 'live') { f.checkedAt = t; if (f.id !== 'frontdoor.guest-code-used') f.observedAt = t; } });
+  markSettle(s.facts.map(f => f.id)); S.feedNote = `${s.name} re-checked (simulated) at ${fmtT(t)}`;
+}
+function tick() {
+  S.ticks++;
+  if (!S.staleDone && S.elapsed >= 90000) {
+    const id = ['media-shelf', 'front-door'].find(i => recheckable(i) && S.svc[i].state === 'healthy');
+    if (id) {
+      const s = S.svc[id]; S.staleDone = true; s.state = 'stale'; s.sim = true; s.facts.forEach(f => f.state = 'stale');
+      markSettle(s.facts.map(f => f.id)); markChange(id); S.feedNote = `${s.name} missed a re-check (simulated); it is now Stale`; say(`${s.name} is now Stale, simulated.`);
+    }
+  }
+  for (const id in PERIOD) if (recheckable(id) && S.elapsed - S.lastCheck[id] >= PERIOD[id]) doCheck(id);
+  renderTick();
+}
+let lastReal = perf();
+setInterval(() => {
+  const r = perf(), d = r - lastReal; lastReal = r;
+  if (!S.live) return;
+  S.elapsed += d; S.since += d; patchAges();
+  if (S.since >= S.cadence * 1000) { S.since = 0; tick(); }
+}, 250);
+function setLive(on) {
+  if (on === S.live) return;
+  if (!on) { const a = minAge(); S.frozen = a === null ? 0 : a; }
+  S.live = on; lastReal = perf(); render(); say(on ? 'Live feed resumed.' : 'Live feed paused.');
+}
+
+/* ---------- actions ---------- */
+function simulate() {
+  if (!S.conn.includes('front-door')) { S.msg = ''; S.feedNote = "Front Door isn't connected, so there is nothing to change."; render(); say(S.feedNote); return; }
+  if (S.applied) { S.feedNote = 'Already applied (simulated): the back door is locked.'; render(); say(S.feedNote); return; }
+  const s = S.svc['front-door'], f = s.facts.find(x => x.id === 'frontdoor.back-door');
+  S.applied = true; f.value = 'locked'; s.state = 'healthy'; s.summary = 'Back door is locked. Nothing is waiting on a decision.'; delete s.attentionReason; s.checkedAt = now(); f.checkedAt = now(); f.observedAt = now();
+  S.hl['front-door'] = 'Mock handoff recorded; Worlds locked nothing.'; S.feedNote = 'Back door locked through Project Home (simulated).';
+  markSettle(s.facts.map(x => x.id)); markChange('front-door'); render(); say('Front Door is now Healthy. Mock handoff recorded; Worlds locked nothing. Nothing needs you right now.');
+}
+function handoff(fid) {
+  S.hand[fid] = 'pending'; render();
+  setTimeout(() => { S.hand[fid] = 'done'; S.hl['front-door'] = 'Mock handoff recorded; Worlds locked nothing.'; render(); say('Handed off to Project Home. Mock handoff recorded; Worlds locked nothing.'); }, reduced() ? 150 : 600);
+}
+function probe(id) {
+  const k = 'probe:' + id; S.hand[k] = 'pending'; render();
+  setTimeout(() => { S.hand[k] = 'done'; const e = E(id); S.hl[id] = `Handed off to the ${e.owner.app} app (mock). It owns the retry. Last error: ${e.retry.lastError}. Mock handoff recorded; Worlds changed nothing.`; render(); say(S.hl[id]); }, reduced() ? 150 : 600);
+}
+function select(id) {
+  S.sel = id; if (!S.frame[id]) { S.frame[id] = 'loading'; setTimeout(() => { S.frame[id] = 'ok'; renderTick(); }, reduced() ? 100 : 900); }
+}
+function dlg(o) {
+  const d = $('#dlg'); S.dlg = o; S.dlgDone = false;
+  d.innerHTML = `<form method="dialog" class="dlg-in"><h2 id="dlg-t">${o.title}</h2><p>${o.body}</p><div class="dlg-b"><button type="button" class="btn btn-2" id="dlg-cancel">Cancel</button><button type="button" class="btn btn-danger" id="dlg-ok">${o.label}</button></div></form>`;
+  d.setAttribute('aria-labelledby', 'dlg-t'); d.showModal(); $('#dlg-cancel').focus();
+}
+$('#dlg').addEventListener('close', () => { if (!S.dlgDone && S.dlg) { const el = findKey(S.dlg.fk); if (el) el.focus(); } });
+function askDisconnect(id, fk) {
+  const e = E(id), n = visFacts(id).length;
+  dlg({ title: `Disconnect ${esc(e.name)}?`, body: `Worlds will remove its ${n} facts and its app frame from the counter. The ${e.owner.app} app itself is untouched.`, label: 'Disconnect', fk, run: () => doDisconnect(id) });
+}
+function doDisconnect(id) {
+  const s = S.svc[id], n = visFacts(id).length, idx = S.conn.indexOf(id);
+  S.conn = S.conn.filter(x => x !== id); delete S.refs[id]; s.configured = true;
+  S.notice = `${s.name}'s ${n} facts and its app frame are removed from Worlds; the app itself is untouched.`;
+  const nxt = S.conn[Math.min(idx, S.conn.length - 1)] || null;
+  if (S.sel === id) S.sel = nxt; if (S.push === id) S.push = null;
+  const m = isMob(); S.setLoad = false;
+  render(nxt && S.view === 'home' ? { focus: (m ? 'open:' : 'sel:') + nxt } : { focus: 'head' }); say(S.notice);
+}
+function toggleLive() { setLive(!S.live); }
+function goto(v, step) {
+  S.view = v; S.push = null; if (v === 'connect') { newConnect(); if (step) S.cx.step = step; }
+  if (v === 'settings' && !S.setSeen) { S.setSeen = true; S.setLoad = true; setTimeout(() => { S.setLoad = false; render(); }, reduced() ? 100 : 700); }
+  render({ focus: 'head' });
+}
+function startConnect(target, step) { S.view = 'connect'; S.push = null; newConnect(target, step); render({ focus: 'head' }); }
+function advance(c, step) { c.step = step; render({ focus: 'head' }); }
+function validateRef() {
+  const c = S.cx, r = refCheck(c.ref); c.refState = r.ok ? 'valid' : 'invalid'; c.refMsg = r.msg;
+  const inp = $('#ref-input'); if (inp) inp.setAttribute('aria-invalid', r.ok ? 'false' : 'true');
+  const m = $('#ref-msg'); if (m) m.innerHTML = refMsgHtml(c);
+}
+function stepNext() {
+  const c = S.cx; if (!canNext(c)) return;
+  if (c.step === 1) { c.pending = true; render(); setTimeout(() => { c.pending = false; c.refState = 'valid'; advance(c, 2); }, reduced() ? 80 : 450); return; }
+  advance(c, c.step + 1);
+}
+function stepBack() {
+  const c = S.cx;
+  if (c.step === 0 || c.phase === 'delivering') { goto('home'); return; }
+  advance(c, c.step - 1);
+}
+function runTest() {
+  const c = S.cx, t = c.test; if (t.st === 'running' || t.tries >= 3 || !canTest(c)) return;
+  t.st = 'running'; t.tries++; t.ref = c.ref; render({ focus: 'run-test' });
+  setTimeout(() => {
+    if (c.simFail) { t.st = 'failed'; t.lastAt = S.elapsed; } else t.st = 'passed';
+    render({ focus: 'run-test', fallback: 'fix-ref' }); say(t.st === 'passed' ? 'Safe test passed.' : t.tries >= 3 ? "That's three tries. Check the reference with the owning app, then edit it to start again." : "That didn't go through, and the reference is still here.");
+    if (t.st === 'failed' && t.tries >= 3) { const f = $('#fix-ref'); if (f) f.focus(); }
+  }, reduced() ? 150 : 1000);
+}
+const canTest = c => validRef(c.ref);
+function publish() {
+  const c = S.cx; if (c.phase !== 'edit') return;
+  c.phase = 'delivering'; render({ focus: 'head' });
+  setTimeout(() => {
+    const s = S.svc[c.target]; s.configured = true; s.shared = c.shared.slice();
+    if (!S.conn.includes(c.target)) S.conn.push(c.target);
+    S.refs[c.target] = c.ref.trim(); S.sel = c.target; c.phase = 'done'; markChange(c.target);
+    S.feedNote = `${s.name} connected (simulated)`; render({ focus: 'head' }); say(`${s.name} connected.`);
+  }, reduced() ? 100 : (isMob() ? 300 : 400) + 150);
+}
+function replaceSave() {
+  const r = S.replace, v = refCheck(r.v);
+  if (!v.ok) { r.err = v.msg; render({ focus: 'replace-input' }); return; }
+  if (S.failSave) { S.setMsg = "Couldn't save that. Nothing was changed. Try again."; render({ focus: 'replace-save:' }); return; }
+  S.refs[r.id] = r.v.trim(); S.replace = null; S.setMsg = ''; render({ focus: 'replace:' + r.id }); say('Reference replaced.');
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click', ev => {
+  const b = ev.target.closest('button, a'); if (!b || !app.contains(b) && b.id !== 'dlg-ok' && b.id !== 'dlg-cancel') return;
+  const id = b.id, act = b.dataset.act, arg = b.dataset.arg;
+  if (id === 'dlg-cancel') { $('#dlg').close(); return; }
+  if (id === 'dlg-ok') { S.dlgDone = true; $('#dlg').close(); S.dlg.run(); return; }
+  if (id === 'live-toggle' || id === 'settings-live') return toggleLive();
+  if (id === 'simulate-change') return simulate();
+  if (id === 'add-service') return startConnect('notes-sync');
+  if (id === 'disconnect') return askDisconnect(S.push && isMob() ? S.push : S.sel, 'disconnect');
+  if (id === 'check-now') { const s = S.svc[S.push && isMob() ? S.push : S.sel]; s.state = 'healthy'; s.sim = false; s.facts.forEach(f => f.state = 'live'); doCheck(s.id); markChange(s.id); render(); say(`${s.name} is Healthy again, simulated re-check.`); return; }
+  if (id === 'run-test') return runTest();
+  if (id === 'step-next') return stepNext();
+  if (id === 'step-back') return stepBack();
+  if (id === 'publish') return publish();
+  if (id && id.startsWith('disconnect-')) return askDisconnect(id.slice(11), id);
+  switch (act) {
+    case 'nav': return goto(arg);
+    case 'sel': select(arg); S.invoker = 'sel:' + arg; return render();
+    case 'sel-go': S.view = 'home'; select(arg); if (isMob()) S.push = arg; return render({ focus: 'head' });
+    case 'open': S.invoker = 'open:' + arg; select(arg); S.push = arg; S.mtab = 'app'; return render({ focus: 'head' });
+    case 'back':
+      if (S.view === 'connect') return goto('home');
+      { const inv = S.invoker; S.push = null; render({ focus: inv || ('open:' + S.sel) }); window.scrollTo(0, 0); return; }
+    case 'mtab': S.mtab = arg; return render({ focus: 'tab-' + arg });
+    case 'toggle': S.open.has(arg) ? S.open.delete(arg) : S.open.add(arg); return render();
+    case 'handoff': return handoff(arg);
+    case 'probe': return probe(arg);
+    case 'frame-retry': S.frame[arg] = 'loading'; render(); setTimeout(() => { S.frame[arg] = 'ok'; renderTick(); }, reduced() ? 100 : 700); return;
+    case 'dismiss': S.notice = null; return render();
+    case 'add-in': return startConnect('notes-sync');
+    case 'fix-ref': return advance(S.cx, 1);
+    case 'goto-settings': {
+      S.secs = 'refs'; S.view = 'settings'; S.push = null; S.setSeen = true; S.setLoad = false; render({ focus: 'head' });
+      const h = $('#s-ref'); if (isMob() && h) { h.tabIndex = -1; h.focus(); } return;
+    }
+    case 'sec': S.secs = arg; return render({ focus: 'head' });
+    case 'disconnect-svc': return askDisconnect(arg, 'disconnect-' + arg);
+    case 'replace': S.replace = { id: arg, v: S.refs[arg] || '', err: '' }; S.setMsg = ''; return render({ focus: 'replace-input' });
+    case 'replace-cancel': { const r = S.replace; S.replace = null; return render({ focus: 'replace:' + r.id }); }
+    case 'replace-save': return replaceSave();
+    case 'remove-ref': return dlg({ title: `Remove the reference for ${esc(S.svc[arg].name)}?`, body: 'Removing a reference does not disconnect the service. It becomes Not configured, and Worlds has no current reading for it.', label: 'Remove', fk: 'remove-ref:' + arg, run: () => {
+      if (S.failSave) { S.setMsg = "Couldn't save that. Nothing was changed. Try again."; render({ focus: 'remove-ref:' + arg }); return; }
+      delete S.refs[arg]; S.svc[arg].configured = false; S.setMsg = ''; render({ focus: 'reconnect:' + arg }); say('Reference removed. Service is Not configured.'); } });
+    case 'reconnect': return startConnect(arg, 1);
+  }
+});
+document.addEventListener('input', ev => {
+  const t = ev.target;
+  if (t.id === 'ref-input') {
+    const c = S.cx; c.ref = t.value; c.refState = 'dirty'; c.pending = false;
+    if (c.test.ref && c.ref !== c.test.ref) c.test = { st: 'idle', tries: 0, lastAt: 0, ref: '' };
+    const n = $('#step-next'); if (n) n.disabled = !validRef(c.ref);
+    const m = $('#ref-msg'); if (m) m.innerHTML = refMsgHtml(c); t.setAttribute('aria-invalid', 'false');
+  }
+  if (t.id === 'replace-input') { S.replace.v = t.value; S.replace.err = ''; const m = $('#rep-msg'); if (m) m.innerHTML = ''; t.setAttribute('aria-invalid', 'false'); }
+});
+document.addEventListener('focusout', ev => {
+  const t = ev.target;
+  if (t.id === 'ref-input' && S.cx && S.cx.step === 1 && S.cx.refState !== 'pristine') validateRef();
+  if (t.id === 'replace-input' && S.replace && S.replace.v !== '') { const r = refCheck(S.replace.v); S.replace.err = r.ok ? '' : r.msg; const m = $('#rep-msg'); if (m) m.innerHTML = r.ok ? '' : `<p class="err">${ic('alert')}<span>${esc(r.msg)}</span></p>`; t.setAttribute('aria-invalid', r.ok ? 'false' : 'true'); }
+});
+document.addEventListener('change', ev => {
+  const t = ev.target;
+  if (t.id === 'fail-test') S.cx.simFail = t.checked;
+  else if (t.id === 'fail-frame') { S.failFrame = t.checked; render({ focus: 'fail-frame' }); }
+  else if (t.id === 'fail-save') S.failSave = t.checked;
+  else if (t.dataset && t.dataset.fact) {
+    const c = S.cx, on = c.shared.includes(t.dataset.fact);
+    if (on && c.shared.length === 1) { t.checked = true; c.note = 'At least one fact stays shared.'; }
+    else { c.shared = on ? c.shared.filter(x => x !== t.dataset.fact) : [...c.shared, t.dataset.fact]; c.note = ''; }
+    render({ focus: 'pk-' + t.dataset.fact });
+  }
+  else if (t.name === 'cad') { S.cadence = +t.value; S.since = 0; }
+  else if (t.name === 'mot') { S.motion = t.value; render({ focus: undefined }); }
+});
+document.addEventListener('click', ev => { const t = ev.target; if (t.dataset && t.dataset.fact && t.getAttribute('aria-disabled') === 'true') { ev.preventDefault(); S.cx.note = 'At least one fact stays shared.'; render({ focus: 'pk-' + t.dataset.fact }); } }, true);
+document.addEventListener('keydown', ev => {
+  if (ev.key === 'Escape' && S.replace && !$('#dlg').open) { const r = S.replace; S.replace = null; render({ focus: 'replace:' + r.id }); }
+  const tab = ev.target.closest && ev.target.closest('[role=tab]');
+  if (tab && (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft')) {
+    const ks = ['app', 'facts', 'agent'], i = ks.indexOf(S.mtab), n = ks[(i + (ev.key === 'ArrowRight' ? 1 : 2)) % 3];
+    S.mtab = n; render({ focus: 'tab-' + n }); ev.preventDefault();
+  }
+});
+matchMedia('(max-width:767px)').addEventListener('change', () => render());
+select('front-door'); S.frame['front-door'] = 'ok'; S.frame['media-shelf'] = 'ok';
+render();
+</script>
+</body>
+</html>

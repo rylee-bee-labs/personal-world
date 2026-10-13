@@ -1,0 +1,26 @@
+/*
+ * Front-door UI. Tokens and rules ported from the owner-approved "Instruments" design lab; class names are ours.
+ * Dark is the default (Starfield, Plain); Daylight is the light set. Contrast is checked by axe in e2e-fd.
+ */
+@font-face { font-family: "Atkinson Hyperlegible Next"; font-style: normal; font-weight: 400 700; font-display: swap; src: url("/assets/fonts/AtkinsonHyperlegibleNext-Regular.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible Next"; font-style: normal; font-weight: 700; font-display: swap; src: url("/assets/fonts/AtkinsonHyperlegibleNext-Bold.woff2") format("woff2"); }
+@font-face { font-family: "Young Serif"; font-style: normal; font-weight: 400; font-display: swap; src: url("/assets/fonts/young-serif-latin.woff2") format("woff2"); }
+
+/* Mulberry & Mint: the estate base (design-system tokens/mulberry-mint.tokens.json, Dark), the default since 2026-10-12. */
+:root {
+  --void: #1f1625; --canvas: #291d30; --hull: #2e2136; --panel: #352640; --elevated: #3d2d49; --raised: #45334f;
+  --accent: #a7e6ce; --on-accent: #291d30; --accent-soft: rgba(167, 230, 206, 0.14);
+  --teal: #a9d4ff; --teal-soft: rgba(169, 212, 255, 0.14);
+  --good: #c3e79b; --warn: #f6cea2; --bad: #ffa8b4;
+  --text: #f5ecf2; --text-2: #dacad9; --muted: #cbbcce;
+  --line: rgba(245, 236, 242, 0.12); --line-strong: rgba(245, 236, 242, 0.24);
+  --focus: #72b1b1;   /* the accessibility contract's teal ring (station accent), kept in every dark theme */
+  --font-body: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, sans-serif;
+  --font-display: "Young Serif", Georgia, "Times New Roman", serif;
+  --font-mono: "Atkinson Hyperlegible Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --sp-xs: 4px; --sp-sm: 8px; --sp-md: 12px; --sp-lg: 16px; --sp-xl: 24px; --sp-2xl: 32px;
+  --r-sm: 8px; --r: 12px; --r-lg: 16px; --r-full: 999px;
+  --target-min: 44px; --target-lg: 56px;
+  --fd-safe-bottom: env(safe-area-inset-bottom, 0px);
+  color-scheme: dark;
+}
