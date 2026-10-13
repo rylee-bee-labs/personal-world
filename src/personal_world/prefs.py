@@ -25,7 +25,6 @@ TARGET_SIZE_FLOOR = 44
 """Interactive targets >= 44x44 CSS px (WCAG 2.5.5 + Apple HIG)."""
 
 MOTION_FLOOR = "off"
-CONTRAST_FLOOR = "comfortable"
 TEXT_SCALE_FLOOR = 1.0
 DENSITY_FLOOR = "compact"
 
