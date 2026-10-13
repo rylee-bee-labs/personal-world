@@ -376,8 +376,8 @@ The capability is what a connection *has*; a `ReadSpec` is the one bounded, read
 
 | Threat | Where it enters | Control in this contract | Already in code at | Security test to write |
 |---|---|---|---|---|
-| SSRF into loopback / RFC1918 / CGNAT, or DNS rebinding between resolve and dial | 1, 6, and every dispatch | One confinement seam; resolve once, classify every answer, dial a pinned IP literal | `confinement.py:136`, `:593` | "A rebinding resolver whose second answer is 169.254.169.254 sends nothing" |
-| Cloud metadata theft, even for a `lan: true` provider | 1, 6 | Metadata refused unconditionally | `confinement.py:82`, `:155` | "`network.lan: true` does not unblock 169.254.169.254" |
+| SSRF into loopback, private or link-local ranges, or DNS rebinding between resolve and dial | 1, 6, and every dispatch | One confinement seam; resolve once, classify every answer, dial a pinned IP literal | `confinement.py:136`, `:593` | "A rebinding resolver whose second answer is the cloud metadata address sends nothing" |
+| Cloud metadata theft, even for a `lan: true` provider | 1, 6 | Metadata refused unconditionally | `confinement.py:82`, `:155` | "`network.lan: true` does not unblock the cloud metadata address" |
 | Borrowing a Worlds secret to call an attacker's URL | 1, 2, 6 | Unsaved providers may name a ref; Worlds' own names are refused | `connect_routes.py:37`, `:101` | "`env:PW_BOOTSTRAP_TOKEN` is refused with 422 and no request is sent" |
 | A secret value round-tripping into the browser | 1, 6, 7 | References only; samples redacted *before* serialization | `connect_routes.py:191`; `production.py:88` | "A response body echoing the live token has that token replaced in the sample" |
 | A credential sent to a capability outside its scope | 6, dispatch | `CredentialReference.scope` checked before dialling | new (scoping is new; the send is `confinement.py:228`) | "A capability outside `scope` fails with no DNS lookup" |
