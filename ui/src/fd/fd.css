@@ -14,7 +14,7 @@
   --good: #c3e79b; --warn: #f6cea2; --bad: #ffa8b4;
   --text: #f5ecf2; --text-2: #dacad9; --muted: #cbbcce;
   --line: rgba(245, 236, 242, 0.12); --line-strong: rgba(245, 236, 242, 0.24);
-  --focus: #c4f5e2;
+  --focus: #72b1b1;   /* the accessibility contract's teal ring (station accent), kept in every dark theme */
   --font-body: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, sans-serif;
   --font-display: "Young Serif", Georgia, "Times New Roman", serif;
   --font-mono: "Atkinson Hyperlegible Mono", ui-monospace, "SF Mono", Menlo, monospace;
