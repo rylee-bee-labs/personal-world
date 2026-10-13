@@ -1,0 +1,844 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Worlds · MOCKUP</title>
+<style>
+/* Rylee-Bee Design System tokens (Mulberry & Mint). Structural roles, then one block per mode. */
+:root{--space-xs:.25rem;--space-sm:.5rem;--space-md:1rem;--space-lg:1.5rem;--space-xl:2rem;--space-2xl:3rem;--space-3xl:4rem;--radius-sm:.25rem;--radius-md:.5rem;--radius-lg:1rem;--radius-full:999rem;--type-micro:.75rem;--type-small:.875rem;--type-label:.875rem;--type-body:1rem;--type-lead:1.25rem;--type-h1:1.5rem}
+:root,:root[data-theme="dark"]{--surface-base:#291d30;--surface-raised:#352640;--surface-sunken:#1f1625;--text-primary:#f5ecf2;--text-soft:#dacad9;--border-line:#8b7791;--border-line-strong:#b09ab3;--action-primary:#a7e6ce;--action-on-primary:#291d30;--focus-ring:#c4f5e2;--status-needs-you:#f6cea2;--status-working:#a9d4ff;--status-held:#dcc2f7;--status-done:#c3e79b;--status-failed:#ffa8b4;--status-unknown:#cbbcce;--accent-mint:#a7e6ce;--accent-apricot:#f6cea2;--accent-lilac:#dcc2f7;--accent-honey:#e8c56a;--status-healthy:#c3e79b;--status-warning:#f6cea2;--status-needs_attention:#f6cea2;--status-degraded:#dcc2f7;--status-unavailable:#ffa8b4;--status-not_configured:#cbbcce;--status-disabled:#cbbcce;--status-stale:#f6cea2;--status-waiting:#dcc2f7;--status-blocked:#ffa8b4;--status-deferred:#dcc2f7;--status-partial:#c8ccff;--status-complete:#c3e79b;--accent-tide:#a9d4ff;--accent-kelp:#c3e79b;--accent-mermaid:#dcc2f7;--accent-iris:#c8ccff;--accent-coral:#ffa8b4;--accent-sunbeam:#e8c56a;color-scheme:dark}
+@media(prefers-color-scheme:light){:root:not([data-theme]){--surface-base:#f7f1f4;--surface-raised:#fffafc;--surface-sunken:#ece1e8;--text-primary:#291d30;--text-soft:#5c4a62;--border-line:#8b7791;--border-line-strong:#5c4a62;--action-primary:#1f5c47;--action-on-primary:#fffafc;--focus-ring:#291d30;--status-needs-you:#8a4a12;--status-working:#2d5a8a;--status-held:#6a4a8f;--status-done:#3f6b1f;--status-failed:#9b3346;--status-unknown:#5c4a62;--accent-mint:#1f5c47;--accent-apricot:#8a4a12;--accent-lilac:#6a4a8f;--accent-honey:#7a5208;--status-healthy:#3f6b1f;--status-warning:#8a4a12;--status-needs_attention:#8a4a12;--status-degraded:#6a4a8f;--status-unavailable:#9b3346;--status-not_configured:#5c4a62;--status-disabled:#5c4a62;--status-stale:#8a4a12;--status-waiting:#6a4a8f;--status-blocked:#9b3346;--status-deferred:#6a4a8f;--status-partial:#4b4f9b;--status-complete:#3f6b1f;--accent-tide:#2d5a8a;--accent-kelp:#3f6b1f;--accent-mermaid:#6a4a8f;--accent-iris:#4b4f9b;--accent-coral:#9b3346;--accent-sunbeam:#7a5208;color-scheme:light}}
+@media(prefers-contrast:more){:root:not([data-theme]){--surface-base:#170f1b;--surface-raised:#291d30;--surface-sunken:#0f0912;--text-primary:#fffafd;--text-soft:#f5ecf2;--border-line:#fffafd;--border-line-strong:#fffafd;--action-primary:#c4f5e2;--action-on-primary:#170f1b;--focus-ring:#fffafd;--status-needs-you:#ffd9b0;--status-working:#c2e0ff;--status-held:#e8d6ff;--status-done:#d6f5b0;--status-failed:#ffc2cb;--status-unknown:#f5ecf2;--accent-mint:#c4f5e2;--accent-apricot:#ffd9b0;--accent-lilac:#e8d6ff;--accent-honey:#f0d27c;--status-healthy:#d6f5b0;--status-warning:#ffd9b0;--status-needs_attention:#ffd9b0;--status-degraded:#e8d6ff;--status-unavailable:#ffc2cb;--status-not_configured:#f5ecf2;--status-disabled:#f5ecf2;--status-stale:#ffd9b0;--status-waiting:#e8d6ff;--status-blocked:#ffc2cb;--status-deferred:#e8d6ff;--status-partial:#d8dbff;--status-complete:#d6f5b0;--accent-tide:#c2e0ff;--accent-kelp:#d6f5b0;--accent-mermaid:#e8d6ff;--accent-iris:#d8dbff;--accent-coral:#ffc2cb;--accent-sunbeam:#f0d27c}}
+:root[data-theme="light"]{--surface-base:#f7f1f4;--surface-raised:#fffafc;--surface-sunken:#ece1e8;--text-primary:#291d30;--text-soft:#5c4a62;--border-line:#8b7791;--border-line-strong:#5c4a62;--action-primary:#1f5c47;--action-on-primary:#fffafc;--focus-ring:#291d30;--status-needs-you:#8a4a12;--status-working:#2d5a8a;--status-held:#6a4a8f;--status-done:#3f6b1f;--status-failed:#9b3346;--status-unknown:#5c4a62;--accent-mint:#1f5c47;--accent-apricot:#8a4a12;--accent-lilac:#6a4a8f;--accent-honey:#7a5208;--status-healthy:#3f6b1f;--status-warning:#8a4a12;--status-needs_attention:#8a4a12;--status-degraded:#6a4a8f;--status-unavailable:#9b3346;--status-not_configured:#5c4a62;--status-disabled:#5c4a62;--status-stale:#8a4a12;--status-waiting:#6a4a8f;--status-blocked:#9b3346;--status-deferred:#6a4a8f;--status-partial:#4b4f9b;--status-complete:#3f6b1f;--accent-tide:#2d5a8a;--accent-kelp:#3f6b1f;--accent-mermaid:#6a4a8f;--accent-iris:#4b4f9b;--accent-coral:#9b3346;--accent-sunbeam:#7a5208;color-scheme:light}
+:root[data-theme="high-contrast"]{--surface-base:#170f1b;--surface-raised:#291d30;--surface-sunken:#0f0912;--text-primary:#fffafd;--text-soft:#f5ecf2;--border-line:#fffafd;--border-line-strong:#fffafd;--action-primary:#c4f5e2;--action-on-primary:#170f1b;--focus-ring:#fffafd;--status-needs-you:#ffd9b0;--status-working:#c2e0ff;--status-held:#e8d6ff;--status-done:#d6f5b0;--status-failed:#ffc2cb;--status-unknown:#f5ecf2;--accent-mint:#c4f5e2;--accent-apricot:#ffd9b0;--accent-lilac:#e8d6ff;--accent-honey:#f0d27c;--status-healthy:#d6f5b0;--status-warning:#ffd9b0;--status-needs_attention:#ffd9b0;--status-degraded:#e8d6ff;--status-unavailable:#ffc2cb;--status-not_configured:#f5ecf2;--status-disabled:#f5ecf2;--status-stale:#ffd9b0;--status-waiting:#e8d6ff;--status-blocked:#ffc2cb;--status-deferred:#e8d6ff;--status-partial:#d8dbff;--status-complete:#d6f5b0;--accent-tide:#c2e0ff;--accent-kelp:#d6f5b0;--accent-mermaid:#e8d6ff;--accent-iris:#d8dbff;--accent-coral:#ffc2cb;--accent-sunbeam:#f0d27c;color-scheme:dark}
+:root[data-theme="low-stimulation"]{--surface-base:#291d30;--surface-raised:#30233a;--surface-sunken:#1f1625;--text-primary:#ece4ea;--text-soft:#cbbfca;--border-line:#8b7791;--border-line-strong:#a593a8;--action-primary:#7fc4aa;--action-on-primary:#1f1625;--focus-ring:#a7e6ce;--status-needs-you:#e3c09a;--status-working:#9cc3e8;--status-held:#c9b4e0;--status-done:#b3d394;--status-failed:#e9a2ac;--status-unknown:#bfb2c2;--accent-mint:#9bd3bd;--accent-apricot:#e3c09a;--accent-lilac:#c9b4e0;--accent-honey:#d4b56a;--status-healthy:#b3d394;--status-warning:#e3c09a;--status-needs_attention:#e3c09a;--status-degraded:#c9b4e0;--status-unavailable:#e9a2ac;--status-not_configured:#bfb2c2;--status-disabled:#bfb2c2;--status-stale:#bfb2c2;--status-waiting:#c9b4e0;--status-blocked:#e9a2ac;--status-deferred:#c9b4e0;--status-partial:#b8bbe8;--status-complete:#b3d394;--accent-tide:#9cc3e8;--accent-kelp:#b3d394;--accent-mermaid:#c9b4e0;--accent-iris:#b8bbe8;--accent-coral:#e9a2ac;--accent-sunbeam:#d4b56a;color-scheme:dark}
+
+/* Worlds-local handles: layout and motion only, no colour */
+:root{--wv-target-min:2.75rem;--wv-hairline:.0625rem;--wv-frame-line:.125rem;--wv-ring-width:.1875rem;--wv-rail-w:13rem;--wv-slips-w:23rem;--wv-top-h:4.5rem;--wv-tab-h:3.5rem;--wv-ease:cubic-bezier(.2,0,0,1);--wv-dur-state:150ms;--wv-dur-stagger:60ms;--wv-dur-sheet:200ms;--wv-dur-nod:200ms;--wv-dur-carry:400ms;--wv-travel:-10rem;--wv-lift:-.125rem;--wv-display-page:2.5rem;--wv-display-section:1.85rem;--wv-serif:"Young Serif",Georgia,"Times New Roman",serif;--wv-sans:"Atkinson Hyperlegible Next","Atkinson Hyperlegible",Verdana,sans-serif}
+@media(max-width:59.99rem){:root{--wv-rail-w:5.5rem;--wv-top-h:7rem}}
+@media(max-width:47.99rem){:root{--wv-top-h:4.5rem;--wv-dur-state:120ms;--wv-dur-carry:300ms;--wv-travel:-7rem}}
+@media(prefers-reduced-motion:reduce){:root{--wv-dur-state:0ms;--wv-dur-stagger:0ms;--wv-dur-sheet:0ms;--wv-dur-nod:0ms;--wv-dur-carry:0ms;--wv-travel:0rem;--wv-lift:0rem}}
+:root[data-motion="reduce"]{--wv-dur-state:0ms;--wv-dur-stagger:0ms;--wv-dur-sheet:0ms;--wv-dur-nod:0ms;--wv-dur-carry:0ms;--wv-travel:0rem;--wv-lift:0rem}
+
+*{box-sizing:border-box}
+html{background:var(--surface-base);color:var(--text-primary);font-family:var(--wv-sans);font-size:100%;-webkit-text-size-adjust:100%;scroll-padding-top:calc(var(--wv-top-h) + 1rem);scroll-padding-bottom:6rem}
+body{margin:0;min-width:20rem;background:var(--surface-base);font-size:var(--type-body);line-height:1.55;overflow-wrap:anywhere}
+h1,h2,h3{font-family:var(--wv-serif);font-weight:400;line-height:1.15;margin:0;color:var(--text-primary)}
+h1{font-size:var(--wv-display-page);letter-spacing:-.02em}
+h2{font-size:var(--wv-display-section);letter-spacing:-.01em}
+h3{font-size:var(--type-lead)}
+h1:focus,h2:focus,h3:focus,.main:focus{outline:none}
+p{margin:.35rem 0}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:var(--type-small)}
+ul,ol{margin:0;padding:0}
+.muted{color:var(--text-soft)}.micro{font-size:var(--type-small)}.sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+:focus-visible{outline:var(--wv-ring-width) solid var(--focus-ring);outline-offset:.1875rem}
+button,input,select{font:inherit;color:inherit}
+.skip{position:fixed;left:var(--space-md);top:-6rem;z-index:50;background:var(--action-primary);color:var(--action-on-primary);padding:.65rem 1rem;border-radius:var(--radius-md);font-weight:600}
+.skip:focus{top:var(--space-md)}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--space-sm);min-height:var(--wv-target-min);padding:.5rem var(--space-md);border:var(--wv-hairline) solid var(--border-line-strong);border-radius:var(--radius-full);background:var(--surface-raised);color:var(--text-primary);font-size:var(--type-label);font-weight:600;letter-spacing:.02em;text-decoration:none;cursor:pointer;transition:background var(--wv-dur-state) var(--wv-ease),border-color var(--wv-dur-state) var(--wv-ease),color var(--wv-dur-state) var(--wv-ease)}
+.btn:hover{background:var(--surface-sunken);border-color:var(--action-primary)}
+.btn:active{transform:translateY(.0625rem)}
+.btn.primary{background:var(--action-primary);color:var(--action-on-primary);border-color:var(--action-primary)}
+.btn.primary:hover{background:var(--text-primary);color:var(--surface-base);border-color:var(--text-primary)}
+.btn.danger{color:var(--status-failed);border-color:var(--status-failed)}
+.btn.danger:hover{background:var(--status-failed);color:var(--surface-base);border-color:var(--status-failed)}
+.btn.text{border-color:transparent;background:transparent;text-decoration:underline;text-underline-offset:.2rem}
+.btn.text:hover{background:var(--surface-sunken);border-color:transparent}
+.btn[aria-disabled="true"]{opacity:.62;cursor:not-allowed}
+.btn[aria-disabled="true"]:hover{background:var(--surface-raised);border-color:var(--border-line-strong)}
+.btn.primary[aria-disabled="true"]:hover{background:var(--action-primary);color:var(--action-on-primary);border-color:var(--action-primary)}
+.btn.danger[aria-disabled="true"]:hover{background:var(--surface-raised);color:var(--status-failed);border-color:var(--status-failed)}
+.btn svg{width:1.25rem;height:1.25rem;flex:none}
+.actions{display:flex;gap:var(--space-sm);flex-wrap:wrap;align-items:center;margin-top:var(--space-lg)}
+.link{color:var(--text-primary);text-decoration:underline;text-underline-offset:.2rem;text-decoration-thickness:.1rem}
+
+/* shell */
+.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:var(--space-md);min-height:var(--wv-top-h);padding:var(--space-sm) var(--space-lg);background:var(--surface-raised);border-bottom:var(--wv-hairline) solid var(--border-line)}
+.brand{display:flex;align-items:center;gap:var(--space-md);margin-right:auto}
+.wordmark{font-family:var(--wv-serif);font-size:var(--type-h1);margin:0;line-height:1}
+.mockup{font-size:var(--type-micro);font-weight:700;letter-spacing:.09em;border:var(--wv-hairline) solid var(--accent-mint);color:var(--accent-mint);padding:.2rem .45rem;border-radius:var(--radius-sm)}
+.controls{display:flex;gap:var(--space-sm);flex-wrap:wrap;align-items:center;justify-content:flex-end}
+.strip{padding:var(--space-sm) var(--space-lg);background:var(--surface-raised);border-bottom:var(--wv-frame-line) solid var(--status-stale);font-weight:600}
+.strip[hidden]{display:none}
+#hdr-settings{display:none}
+.app{display:grid;grid-template-columns:var(--wv-rail-w) minmax(0,1fr);min-height:calc(100dvh - var(--wv-top-h))}
+.rail{background:var(--surface-sunken);border-right:var(--wv-hairline) solid var(--border-line)}
+.rail-in{position:sticky;top:var(--wv-top-h);height:calc(100dvh - var(--wv-top-h));padding:var(--space-lg) var(--space-md);display:flex;flex-direction:column;gap:var(--space-xs);overflow:auto}
+.rail-in .spacer{flex:1}
+.nav-item{position:relative;display:flex;align-items:center;gap:.75rem;min-height:var(--wv-target-min);padding:.5rem .75rem;border-radius:var(--radius-md);color:var(--text-primary);text-decoration:none;border:var(--wv-hairline) solid transparent;font-weight:600;background:transparent}
+.nav-item svg{width:1.4rem;height:1.4rem;flex:none}
+.nav-item:hover{background:var(--surface-raised);border-color:var(--border-line)}
+.nav-item[aria-current="page"]{background:var(--surface-raised);border-color:var(--action-primary);font-weight:700}
+.badge{min-width:1.5rem;height:1.5rem;padding:0 .4rem;border-radius:var(--radius-full);background:var(--status-needs-you);color:var(--surface-base);font-size:var(--type-small);font-weight:700;display:inline-grid;place-items:center;margin-left:auto}
+.tabbar,.fab-slot{display:none}
+.main{padding:var(--space-xl);width:100%;max-width:92rem;margin:0 auto;min-width:0}
+.page-head{display:flex;gap:var(--space-lg);align-items:flex-end;justify-content:space-between;flex-wrap:wrap;margin-bottom:var(--space-xl)}
+.status-slot{display:flex;gap:var(--space-sm);flex-wrap:wrap}
+.status-slot:empty{display:none}
+.fresh{display:flex;align-items:center;gap:var(--space-sm);margin:var(--space-sm) 0 0;color:var(--text-soft);flex-wrap:wrap}
+.status-word{font-weight:700;color:var(--status-needs-you)}
+.upd{color:var(--status-done);margin-left:var(--space-sm)}
+.sec-title{margin:var(--space-xl) 0 var(--space-md)}
+.note{background:var(--surface-raised);border:var(--wv-hairline) solid var(--border-line-strong);border-radius:var(--radius-lg);padding:var(--space-md) var(--space-lg);margin-bottom:var(--space-lg)}
+.note .actions{margin-top:var(--space-sm)}
+
+/* chips, dot, stamp */
+.chip{display:inline-flex;align-items:center;gap:.35rem;font-size:var(--type-small);font-weight:700}
+.chip svg{width:1rem;height:1rem;flex:none}
+.c-healthy,.c-live{color:var(--status-healthy)}.c-needs_attention{color:var(--status-needs-you)}.c-stale{color:var(--status-stale)}.c-unavailable{color:var(--status-unavailable)}.c-unknown{color:var(--status-unknown)}.c-not_configured{color:var(--status-not_configured)}.c-done{color:var(--status-done)}.c-failed{color:var(--status-failed)}
+.dot{width:3.75rem;height:auto;flex:none}.dot.lg{width:9rem}
+.dot .shell{fill:var(--accent-apricot);stroke:var(--surface-base);stroke-width:1.5}
+.dot .body{fill:var(--accent-mint);stroke:var(--surface-base);stroke-width:1.5}
+.dot .ink{fill:none;stroke:var(--surface-base);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.dot .stalk{fill:none;stroke:var(--accent-mint);stroke-width:3.2;stroke-linecap:round}
+.dot .eye{fill:var(--accent-mint)}.dot .pupil{fill:var(--surface-base)}
+.dot .paper{fill:var(--surface-raised);stroke:var(--border-line-strong);stroke-width:1.5}
+.dot .ribbon{fill:none;stroke:var(--accent-mint);stroke-width:2.5;stroke-linecap:round}
+.dot .zz{fill:var(--text-soft);font-family:var(--wv-serif);font-size:14px}
+.dot.nod{transform-origin:25% 90%;animation:nod var(--wv-dur-nod) var(--wv-ease) 1}
+.stamp{display:inline-flex;align-items:center;gap:.4rem;border:var(--wv-frame-line) solid var(--status-done);color:var(--status-done);border-radius:var(--radius-sm);padding:.3rem .7rem;font-family:var(--wv-serif);text-transform:uppercase;letter-spacing:.1em;font-size:var(--type-lead);transform:rotate(-4deg);animation:land var(--wv-dur-nod) var(--wv-ease) both}
+.stamp svg{width:1.3rem;height:1.3rem}
+.lane{display:flex;align-items:center;justify-content:space-between;gap:var(--space-md);padding:var(--space-md);background:var(--surface-sunken);border-radius:var(--radius-lg);overflow:hidden}
+.lane .dot{animation:carry var(--wv-dur-carry) var(--wv-ease) both}
+.lane-end{border:var(--wv-frame-line) dashed var(--border-line-strong);border-radius:var(--radius-md);padding:var(--space-sm) var(--space-md);color:var(--text-soft)}
+@keyframes carry{from{transform:translateX(var(--wv-travel));opacity:0}to{transform:none;opacity:1}}
+@keyframes land{from{transform:rotate(-4deg) scale(1.35);opacity:0}to{transform:rotate(-4deg) scale(1);opacity:1}}
+@keyframes nod{0%,100%{transform:none}50%{transform:rotate(-9deg) translateY(.15rem)}}
+@keyframes settle{from{opacity:.35;transform:translateY(.4rem)}to{opacity:1;transform:none}}
+@keyframes tick{from{opacity:0}to{opacity:1}}
+@keyframes sheet{from{opacity:0;transform:translateY(1rem)}to{opacity:1;transform:none}}
+
+/* welcome + empty */
+.welcome{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(14rem,.7fr);gap:var(--space-xl);padding:var(--space-2xl);background:var(--surface-raised);border:var(--wv-frame-line) solid var(--border-line-strong);border-radius:var(--radius-lg)}
+.welcome p{max-width:55ch}
+.welcome-dot{display:grid;place-items:center;align-content:center;gap:var(--space-md);background:var(--surface-sunken);border-radius:var(--radius-lg);min-height:15rem;padding:var(--space-lg)}
+.empty{display:grid;grid-template-columns:auto 1fr;gap:var(--space-xl);align-items:center;padding:var(--space-xl);border:var(--wv-frame-line) dashed var(--border-line-strong);border-radius:var(--radius-lg);color:var(--text-soft)}
+.empty h2{color:var(--text-primary)}
+.sel-strip{display:flex;gap:var(--space-md);align-items:center;flex-wrap:wrap;margin-bottom:var(--space-lg)}
+.sel-card{display:none}
+.checks{display:grid;gap:var(--space-sm);border:0;padding:0;margin:var(--space-md) 0}
+.checks legend{font-weight:700;padding:0;margin-bottom:var(--space-sm)}
+.check{display:flex;gap:var(--space-md);align-items:flex-start;min-height:var(--wv-target-min);padding:.6rem var(--space-md);background:var(--surface-sunken);border-radius:var(--radius-md);cursor:pointer}
+.check input{width:1.4rem;height:1.4rem;margin:.1rem 0 0;accent-color:var(--action-primary);flex:none}
+.check[aria-disabled="true"]{opacity:.8}
+
+/* counter */
+.home-grid{display:grid;grid-template-columns:minmax(16rem,var(--wv-slips-w)) minmax(0,1fr);gap:var(--space-xl);align-items:start}
+.slips{list-style:none;display:grid;gap:var(--space-md)}
+.slip{display:block;width:100%;text-align:left;padding:var(--space-lg);border-radius:var(--radius-lg);background:var(--surface-raised);border:var(--wv-frame-line) solid var(--border-line);color:var(--text-primary);cursor:pointer;transition:transform var(--wv-dur-state) var(--wv-ease),border-color var(--wv-dur-state) var(--wv-ease)}
+.slip:hover,.slip[aria-pressed="true"]{transform:translateY(var(--wv-lift));border-color:var(--action-primary)}
+.slip-top{display:flex;justify-content:space-between;gap:var(--space-sm);align-items:flex-start}
+.slip-name{display:block;font-family:var(--wv-serif);font-size:var(--type-lead);line-height:1.2}
+.slip-kind{display:block;font-size:var(--type-small);color:var(--text-soft)}
+.slip-reason{display:block;margin-top:var(--space-sm);color:var(--text-soft)}
+.slip-peek{display:flex;justify-content:space-between;gap:var(--space-sm);margin-top:var(--space-md);padding-top:var(--space-md);border-top:var(--wv-hairline) solid var(--border-line)}
+.slip-foot{display:flex;justify-content:space-between;gap:var(--space-sm);margin-top:var(--space-sm);font-size:var(--type-small);color:var(--text-soft)}
+.sel-word{display:inline-flex;gap:.25rem;align-items:center;color:var(--accent-mint);font-weight:700}
+.sel-word svg{width:1rem;height:1rem}
+.detail{min-width:0}
+.svc-head{display:flex;justify-content:space-between;gap:var(--space-lg);align-items:flex-start;flex-wrap:wrap;margin-bottom:var(--space-lg)}
+.svc-title{font-size:var(--wv-display-page);letter-spacing:-.02em}
+.meta{display:flex;gap:var(--space-md);flex-wrap:wrap;align-items:center;color:var(--text-soft);margin-top:var(--space-sm)}
+.facts-list{list-style:none;display:grid;gap:var(--space-sm);margin:0 0 var(--space-lg)}
+.fact{display:flex;justify-content:space-between;gap:var(--space-md);align-items:center;width:100%;min-height:var(--wv-target-min);text-align:left;padding:var(--space-md) var(--space-lg);background:var(--surface-raised);border:var(--wv-frame-line) solid var(--border-line);border-radius:var(--radius-lg);cursor:pointer;transition:border-color var(--wv-dur-state) var(--wv-ease)}
+.fact:hover,.fact[aria-pressed="true"]{border-color:var(--action-primary)}
+.fact-main{display:grid;min-width:0}.fact-label{font-weight:700}
+.fact-val{display:grid;justify-items:end;text-align:right;gap:.15rem}
+.fact-val strong{font-size:var(--type-lead)}
+.receipt{background:var(--surface-raised);border:var(--wv-frame-line) solid var(--border-line-strong);border-radius:var(--radius-lg);padding:var(--space-xl)}
+.receipt-head{margin-bottom:var(--space-lg)}
+.receipt-head .val{font-size:var(--type-lead);font-weight:700;margin:.25rem 0 0}
+.stations{display:grid;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr));gap:var(--space-md)}
+.station{background:var(--surface-sunken);border-radius:var(--radius-md);padding:var(--space-md);min-width:0}
+.station h3{font-size:var(--type-lead);display:flex;align-items:center;gap:var(--space-sm);margin-bottom:var(--space-sm)}
+.tk{display:none;color:var(--status-done)}.tk svg{width:1rem;height:1rem}
+.settle .tk{display:inline-flex;animation:tick var(--wv-dur-state) var(--wv-ease) both;animation-delay:calc(var(--i) * var(--wv-dur-stagger))}
+.settle .station{animation:settle var(--wv-dur-state) var(--wv-ease) both;animation-delay:calc(var(--i) * var(--wv-dur-stagger))}
+.st-line{display:block;margin-top:.45rem;font-size:var(--type-small)}
+.perm{margin-top:.5rem}
+.perm .btn{width:100%;justify-content:flex-start;text-align:left;border-radius:var(--radius-md)}
+.perm-none{border-style:dashed}
+.perm-line{font-size:var(--type-small)}
+.sees{margin-top:var(--space-lg);padding-top:var(--space-md);border-top:var(--wv-hairline) solid var(--border-line)}
+.event{margin-top:var(--space-md);padding:var(--space-md);border:var(--wv-hairline) solid var(--status-done);border-radius:var(--radius-md)}
+.retry,.proposal{background:var(--surface-sunken);border:var(--wv-hairline) solid var(--border-line);border-radius:var(--radius-md);padding:var(--space-md);margin-top:var(--space-md)}
+.proposal{border:var(--wv-frame-line) dashed var(--border-line-strong)}
+.journey{background:var(--surface-raised);border:var(--wv-hairline) solid var(--border-line-strong);border-radius:var(--radius-lg);padding:var(--space-lg);margin-bottom:var(--space-lg)}
+.mini-stations{display:flex;gap:var(--space-sm);flex-wrap:wrap;margin:var(--space-sm) 0}
+.mini-stations span{background:var(--surface-sunken);border-radius:var(--radius-md);padding:.4rem .8rem}
+.frame{margin-top:var(--space-lg);background:var(--surface-raised);border:var(--wv-hairline) solid var(--border-line);border-radius:var(--radius-lg);overflow:hidden}
+.frame-bar{display:flex;align-items:center;justify-content:space-between;gap:var(--space-md);flex-wrap:wrap;padding:var(--space-sm) var(--space-md);border-bottom:var(--wv-hairline) solid var(--border-line)}
+.frame-body{background:var(--surface-sunken);padding:var(--space-lg);margin:var(--space-md);border-radius:var(--radius-md)}
+.frame-foot{padding:0 var(--space-md) var(--space-md)}
+.mini-app{border:var(--wv-hairline) solid var(--border-line);border-radius:var(--radius-md);padding:var(--space-md);background:var(--surface-raised)}
+.tabs{display:none}
+
+/* memory + needs */
+.mem-group{margin-bottom:var(--space-xl)}
+.mem-head{display:flex;justify-content:space-between;gap:var(--space-md);align-items:center;flex-wrap:wrap;margin-bottom:var(--space-md)}
+.fact-card{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:var(--space-md);padding:var(--space-lg);background:var(--surface-raised);border:var(--wv-hairline) solid var(--border-line);border-radius:var(--radius-lg);margin-bottom:var(--space-sm)}
+.fact-card.settle{animation:settle var(--wv-dur-state) var(--wv-ease) both}
+.fact-card .big{font-size:var(--type-lead);font-weight:700;margin:.2rem 0}
+.field{display:grid;gap:var(--space-sm)}
+input[type=text],select{width:100%;min-height:var(--wv-target-min);border:var(--wv-hairline) solid var(--border-line-strong);border-radius:var(--radius-md);padding:.6rem .8rem;background:var(--surface-sunken);color:var(--text-primary)}
+select{width:auto;min-width:12rem}
+.measure{max-width:55ch}
+.narrow{max-width:60rem}
+.card{background:var(--surface-raised);border:var(--wv-hairline) solid var(--border-line);border-radius:var(--radius-lg);padding:var(--space-lg);margin-bottom:var(--space-md)}
+.card .actions{margin-top:var(--space-md)}
+
+/* connect */
+.cx{display:grid;grid-template-columns:14rem minmax(0,1fr) 18rem;gap:var(--space-xl);align-items:start}
+.steps{list-style:none;display:grid;gap:var(--space-sm)}
+.steps li{display:flex;align-items:center;gap:var(--space-sm);min-height:var(--wv-target-min);color:var(--text-soft)}
+.steps .num{width:2rem;height:2rem;border-radius:var(--radius-full);border:var(--wv-frame-line) solid var(--border-line);display:grid;place-items:center;font-weight:700;flex:none}
+.steps .num svg{width:1.1rem;height:1.1rem}
+.steps li.done .num{background:var(--action-primary);border-color:var(--action-primary);color:var(--action-on-primary)}
+.steps li[aria-current="step"]{color:var(--text-primary);font-weight:700}
+.steps li[aria-current="step"] .num{border-color:var(--action-primary);color:var(--text-primary)}
+.step-line{display:none;font-weight:700;color:var(--text-soft)}
+.cx-body,.cx-aside{background:var(--surface-raised);border:var(--wv-hairline) solid var(--border-line);border-radius:var(--radius-lg);padding:var(--space-xl)}
+.cx-aside{background:var(--surface-sunken);font-size:var(--type-small)}
+.cx-aside h2{font-size:var(--type-lead);margin-bottom:var(--space-sm)}
+.cx-aside ul{list-style:none;display:grid;gap:var(--space-sm)}
+.says{color:var(--text-soft);margin:var(--space-sm) 0 var(--space-lg)}
+.cx-bar{display:flex;gap:var(--space-sm);flex-wrap:wrap;justify-content:flex-end;align-items:center;margin-top:var(--space-xl);padding-top:var(--space-md);border-top:var(--wv-hairline) solid var(--border-line)}
+.cand{display:grid;grid-template-columns:auto 1fr;gap:var(--space-md);padding:var(--space-md) var(--space-lg);background:var(--surface-sunken);border:var(--wv-frame-line) solid var(--border-line);border-radius:var(--radius-lg);cursor:pointer;margin-bottom:var(--space-sm)}
+.cand:has(input:checked){border-color:var(--action-primary)}
+.cand:has(input:focus-visible){outline:var(--wv-ring-width) solid var(--focus-ring);outline-offset:.1875rem}
+.cand input{width:1.4rem;height:1.4rem;margin-top:.2rem;accent-color:var(--action-primary)}
+.cand ul{list-style:none;margin-top:.3rem;font-size:var(--type-small);color:var(--text-soft)}
+.msg{display:flex;gap:var(--space-sm);align-items:flex-start;min-height:4.25rem;margin:0;font-size:var(--type-small)}
+.msg svg{width:1.1rem;height:1.1rem;flex:none;margin-top:.15rem}
+.panel{background:var(--surface-sunken);border-radius:var(--radius-md);padding:var(--space-lg);margin:var(--space-md) 0}
+.pre-fact{display:flex;justify-content:space-between;gap:var(--space-md);padding:var(--space-md);background:var(--surface-sunken);border-radius:var(--radius-md);margin-bottom:var(--space-sm);align-items:center}
+
+/* settings */
+.set-grid{display:grid;grid-template-columns:14rem minmax(0,1fr);gap:var(--space-xl);align-items:start}
+.set-nav{position:sticky;top:calc(var(--wv-top-h) + 1rem);display:grid;gap:var(--space-xs)}
+.set-nav a{display:flex;align-items:center;min-height:var(--wv-target-min);padding:.4rem .8rem;border-radius:var(--radius-md);color:var(--text-primary);text-decoration:none;border:var(--wv-hairline) solid transparent}
+.set-nav a:hover{background:var(--surface-raised);border-color:var(--border-line)}
+.set-nav a[aria-current="true"]{background:var(--surface-raised);border-color:var(--action-primary);font-weight:700}
+.set-sec{background:var(--surface-raised);border:var(--wv-hairline) solid var(--border-line);border-radius:var(--radius-lg);padding:var(--space-xl);margin-bottom:var(--space-lg)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:var(--space-md);flex-wrap:wrap;padding:var(--space-md) 0;border-bottom:var(--wv-hairline) solid var(--border-line)}
+.row:last-child{border-bottom:0}
+.row>div:first-child{min-width:0;flex:1 1 14rem}
+.radios{display:flex;gap:var(--space-sm);flex-wrap:wrap;border:0;padding:0;margin:0}
+.radios label{display:inline-flex;align-items:center;gap:.5rem;min-height:var(--wv-target-min);padding:.4rem var(--space-md);border:var(--wv-hairline) solid var(--border-line-strong);border-radius:var(--radius-full);background:var(--surface-base);cursor:pointer}
+.radios label:has(input:checked){border-color:var(--action-primary);font-weight:700}
+.radios input{accent-color:var(--action-primary);width:1.2rem;height:1.2rem}
+
+/* dialog, toast */
+dialog{border:0;padding:0;background:transparent;color:var(--text-primary);width:min(40rem,calc(100% - 2rem));max-width:none;max-height:calc(100dvh - 2rem)}
+dialog[open]{animation:sheet var(--wv-dur-sheet) var(--wv-ease)}
+dialog::backdrop{background:color-mix(in oklch,var(--surface-sunken) 82%,transparent)}
+.dlg-card{background:var(--surface-raised);border:var(--wv-frame-line) solid var(--border-line-strong);border-radius:var(--radius-lg);padding:var(--space-xl);max-height:calc(100dvh - 2rem);overflow:auto}
+.goes{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-md);margin-top:var(--space-md)}
+.goes>div{background:var(--surface-sunken);border-radius:var(--radius-md);padding:var(--space-md)}
+.goes h3{font-size:var(--type-body);font-family:var(--wv-sans);font-weight:700;margin-bottom:var(--space-xs)}
+.goes ul{padding-left:1.1rem}
+.toast{position:fixed;right:var(--space-lg);bottom:var(--space-lg);max-width:28rem;z-index:60;background:var(--surface-raised);border:var(--wv-frame-line) solid var(--status-done);border-radius:var(--radius-lg);padding:var(--space-md) var(--space-lg);box-shadow:0 1rem 3rem color-mix(in oklch,var(--surface-sunken) 70%,transparent);opacity:0;transform:translateY(1rem);pointer-events:none;transition:opacity var(--wv-dur-state) var(--wv-ease),transform var(--wv-dur-state) var(--wv-ease)}
+.toast.show{opacity:1;transform:none}
+
+/* tablet */
+@media(max-width:75rem){.home-grid{grid-template-columns:1fr}.slips{grid-template-columns:repeat(auto-fill,minmax(16rem,1fr))}.cx{grid-template-columns:14rem minmax(0,1fr)}.cx-aside{grid-column:2}}
+@media(max-width:59.99rem){
+ .topbar{flex-wrap:wrap;padding:var(--space-sm) var(--space-lg)}.controls{width:100%;justify-content:flex-start}
+ .rail-in{padding:var(--space-md) .35rem;align-items:stretch}
+ .nav-item{flex-direction:column;justify-content:center;gap:.15rem;text-align:center;font-size:var(--type-small);padding:.4rem .2rem;min-height:3.6rem}
+ .nav-item .badge{position:absolute;top:.15rem;right:.2rem;margin:0}
+ .nav-item:focus-visible::after{content:attr(data-tip);position:absolute;left:calc(100% + .5rem);top:50%;transform:translateY(-50%);background:var(--surface-raised);border:var(--wv-hairline) solid var(--border-line-strong);padding:.3rem .7rem;border-radius:var(--radius-md);white-space:nowrap;z-index:40}
+ .main{padding:var(--space-lg)}
+ .cx{grid-template-columns:1fr}.cx-aside{grid-column:auto}.steps{display:flex;flex-wrap:wrap;gap:var(--space-xs) var(--space-md)}
+ .set-grid{grid-template-columns:1fr}.set-nav{position:static;display:flex;flex-wrap:wrap}
+}
+/* phone */
+@media(max-width:47.99rem){
+ body{padding-bottom:calc(var(--wv-tab-h) + env(safe-area-inset-bottom))}
+ .topbar{position:sticky;padding:var(--space-sm) var(--space-md);flex-wrap:nowrap}
+ .controls:empty{display:none}.controls{display:none}
+ #hdr-settings{display:inline-flex}
+ .app{display:block;min-height:0}.rail{display:none}
+ .main{padding:var(--space-lg) var(--space-md) calc(6.5rem + env(safe-area-inset-bottom))}
+ .page-head{display:block;margin-bottom:var(--space-lg)}
+ .status-slot{margin-top:var(--space-md)}.status-slot .btn{flex:1 1 9rem}
+ .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;display:grid;grid-template-columns:repeat(4,1fr);height:calc(var(--wv-tab-h) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:var(--surface-raised);border-top:var(--wv-hairline) solid var(--border-line)}
+ .tabbar .nav-item{flex-direction:column;border-radius:0;gap:.1rem;font-size:var(--type-small);justify-content:center;min-height:var(--wv-target-min);padding:.2rem}
+ .tabbar .nav-item[aria-current="page"]{border-color:transparent;border-top-color:var(--action-primary);background:var(--surface-base)}
+ .tabbar .nav-item svg{width:1.3rem;height:1.3rem}
+ .tabbar .badge{position:absolute;top:.2rem;right:.6rem;margin:0}
+ body.no-tabs .tabbar{display:none}
+ .fab-slot{display:block;position:fixed;right:1rem;bottom:calc(var(--wv-tab-h) + env(safe-area-inset-bottom) + 1rem);z-index:25}
+ .fab-slot .btn{box-shadow:0 .5rem 1.5rem color-mix(in oklch,var(--surface-sunken) 75%,transparent);border-color:var(--action-primary)}
+ body.no-fab .fab-slot{display:none}
+ .sel-card{display:block;background:var(--surface-raised);border:var(--wv-frame-line) solid var(--border-line-strong);border-radius:var(--radius-lg);padding:var(--space-lg);margin-bottom:var(--space-lg)}
+ .sel-card .actions{margin-top:var(--space-md)}.sel-card .actions .btn{flex:1 1 100%}
+ .sel-strip .disc-slot{width:100%}.disc-slot .btn{width:100%}
+ .home-grid{display:block}.detail.pushed-hide{display:none}
+ .slips{grid-template-columns:1fr}.slip{min-height:var(--wv-target-min)}
+ .welcome{grid-template-columns:1fr;padding:var(--space-lg)}.welcome-dot{order:-1;min-height:10rem}
+ .empty{grid-template-columns:1fr;justify-items:start;padding:var(--space-lg)}
+ .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-xs);margin:var(--space-md) 0}
+ .tabs .btn{border-radius:var(--radius-md);padding:.4rem}.tabs .btn[aria-selected="true"]{background:var(--action-primary);color:var(--action-on-primary);border-color:var(--action-primary)}
+ .svc[data-tab="facts"] .pane-app,.svc[data-tab="facts"] .pane-agent,.svc[data-tab="app"] .pane-facts,.svc[data-tab="app"] .pane-agent,.svc[data-tab="agent"] .pane-facts,.svc[data-tab="agent"] .pane-app{display:none}
+ .svc-title{font-size:var(--wv-display-page)}
+ .receipt{padding:var(--space-lg)}.stations{grid-template-columns:1fr}
+ .fact{padding:var(--space-md)}
+ .fact-card{grid-template-columns:1fr}
+ .cx-body{padding:var(--space-lg)}.cx-aside,.steps{display:none}.step-line{display:block;margin-bottom:var(--space-md)}
+ .cx-bar{position:fixed;left:0;right:0;bottom:0;z-index:30;margin:0;padding:var(--space-sm) var(--space-md) calc(var(--space-sm) + env(safe-area-inset-bottom));background:var(--surface-raised);border-top:var(--wv-hairline) solid var(--border-line);justify-content:space-between;flex-wrap:nowrap}
+ .cx-body{margin-bottom:5rem}
+ .set-sec{padding:var(--space-lg)}.set-nav{display:none}
+ .goes{grid-template-columns:1fr}
+ dialog{width:100%;margin:auto 0 0;max-height:100dvh}
+ .dlg-card{border-radius:var(--radius-lg) var(--radius-lg) 0 0;max-height:100dvh;padding:var(--space-lg) var(--space-lg) calc(var(--space-lg) + env(safe-area-inset-bottom))}
+ .toast{left:var(--space-md);right:var(--space-md);bottom:calc(var(--wv-tab-h) + env(safe-area-inset-bottom) + var(--space-md))}
+ .strip{padding:var(--space-sm) var(--space-md)}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to Worlds</a>
+<header class="topbar" data-od-id="worlds-header">
+  <div class="brand"><span class="mockup">MOCKUP</span><p class="wordmark">Worlds</p></div>
+  <div class="controls" id="controls">
+    <button class="btn" id="live-toggle" data-act="live" aria-pressed="true" type="button">Live · checked 24s ago</button>
+    <button class="btn" id="simulate-change" data-act="simulate" type="button" aria-label="Simulate change: the Home app reports the back door locked">Simulate change</button>
+    <button class="btn" id="add-service" data-act="add" type="button">Add service</button>
+    <button class="btn danger" id="disconnect" data-act="disconnect" type="button">Disconnect</button>
+  </div>
+  <a class="btn" id="hdr-settings" href="#/settings/services" data-act="hdr-settings"></a>
+  <span id="disc-reason-sr" class="sr-only">Connect a service before disconnecting</span>
+</header>
+<div class="strip" id="strip" hidden></div>
+<div class="app">
+  <nav class="rail" aria-label="Worlds sections" id="rail"></nav>
+  <main class="main" id="main" tabindex="-1" data-od-id="main"></main>
+</div>
+<nav class="tabbar" id="tabbar" aria-label="Worlds sections"></nav>
+<div class="fab-slot" id="fab-slot"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="sr-only" id="alert" role="alert"></div>
+<dialog id="dlg" aria-labelledby="dlg-h"><div class="dlg-card" id="dlg-card"></div></dialog>
+
+<script>
+(()=>{'use strict';
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const T0=Date.parse('2026-10-13T14:24:26Z'),ms=s=>s?Date.parse(s):null;
+const pl=(n,w)=>n+' '+w+(n===1?'':'s');
+const capN=n=>n===1?'1 capability':n+' capabilities';
+const list=a=>a.length<2?a.join(''):a.length===2?a.join(' and '):a.slice(0,-1).join(', ')+' and '+a[a.length-1];
+const fmtT=t=>new Date(t).toLocaleTimeString('en-US',{timeZone:'UTC',hour:'numeric',minute:'2-digit'});
+const fmtDT=t=>new Date(t).toLocaleString('en-US',{timeZone:'UTC',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+const isPhone=()=>matchMedia('(max-width:47.99rem)').matches;
+let uid=0;
+
+/* ---------- fixture (synthetic; mirrors fixture.json) ---------- */
+const F=(id,label,value,unit,state,obs,src,agent,human,x)=>Object.assign({id,label,value,unit,state,obs:ms(obs),src,agent,human},x||{});
+const DEFS={
+'media-shelf':{name:'Media Shelf',kind:'media library',state:'healthy',summary:'Library reachable and indexing is current.',owner:{app:'Media',route:'app://media',label:'Open Media app'},checked:'2026-10-13T14:23:58Z',src:'local',
+ facts:()=>[F('media.items','Items in library',1284,'items','live','2026-10-13T14:23:58Z','local','read','read'),F('media.indexing','Indexing backlog',0,'items','live','2026-10-13T14:23:58Z','local','read','read'),F('media.played-recently','Played in the last 7 days',12,'items','live','2026-10-13T14:23:58Z','local','read','read')]},
+'front-door':{name:'Front Door',kind:'home access',state:'needs_attention',summary:"Back door has been unlocked for longer than the person's usual window.",reason:'A decision is required; the local app will not act on its own.',owner:{app:'Home',route:'app://home',label:'Open Home app'},checked:'2026-10-13T14:24:02Z',src:'local',
+ facts:()=>[F('frontdoor.back-door','Back door','unlocked',null,'live','2026-10-13T14:24:02Z','local','read','act',{hReason:"Locking the door changes the external system and is the person's decision."}),F('frontdoor.unlocked-for','Unlocked for',47,'minutes','live','2026-10-13T14:24:02Z','local','read','read'),F('frontdoor.guest-code-used','Guest code last used by','visitor-3',null,'live','2026-10-13T14:20:11Z','local','none','read',{aReason:'Identifying a person is human-only in this fixture; the agent sees that a guest code was used, not who.'})]},
+'nightly-backup':{name:'Nightly Backup',kind:'backup',state:'stale',summary:'Last successful run is older than the configured daily window.',owner:{app:'Settings',route:'app://settings/backups',label:'Open Backup settings'},checked:'2026-10-13T06:00:00Z',src:'local',
+ facts:()=>[F('backup.last-success','Last successful backup','2026-10-09T06:00:00Z',null,'stale','2026-10-09T06:00:00Z','local','read','read'),F('backup.last-attempt','Last attempt','failed: destination unreachable',null,'stale','2026-10-13T06:00:00Z','local','read','read'),F('backup.size','Last backup size',4.2,'GB','stale','2026-10-09T06:00:00Z','local','read','read')]},
+'garden-camera':{name:'Garden Camera',kind:'camera',state:'unknown',summary:'Disconnected since a restart; the local app has no current observation and will not invent one.',unknownReason:"The device stopped answering at the fixture's baseline; no source has answered since.",owner:{app:'Home',route:'app://home/cameras',label:'Open Home cameras'},checked:'2026-10-13T11:02:00Z',src:'none',
+ facts:()=>[F('camera.last-frame','Last frame',null,null,'unknown',null,'none','read','read'),F('camera.reachability','Reachable',null,null,'unknown',null,'none','read','read'),F('camera.human-detected-today','Human detected today',null,null,'unknown',null,'none','none','read',{aReason:'The agent may not assert a detection while the source is unknown.'})]},
+'studio-printer':{name:'Studio Printer',kind:'printer',state:'unavailable',summary:'The last job failed; the printer is reachable but rejected the job. Retry is offered.',owner:{app:'Studio',route:'app://studio/printers',label:'Open Studio app'},checked:'2026-10-13T14:22:40Z',src:'local',retry:{label:'Retry last job',attempts:1,lastError:'job rejected: no media loaded'},
+ facts:()=>[F('printer.status','Printer status','error',null,'unavailable','2026-10-13T14:22:40Z','local','read','read'),F('printer.queue','Jobs queued',1,'jobs','live','2026-10-13T14:22:40Z','local','read','read'),F('printer.last-error-code','Last error code','E-MEDIA-02',null,'live','2026-10-13T14:22:40Z','local','read','read')]},
+'notes-sync':{name:'Notes Sync',kind:'sync',state:'unavailable',summary:'The sync provider did not answer its last two checks. Local notes still work; retry is offered.',owner:{app:'Memory',route:'app://memory',label:'Open Memory app'},checked:'2026-10-13T14:20:00Z',src:'none',retry:{label:'Check provider now',attempts:2,lastError:'provider timed out'},
+ facts:()=>[F('sync.provider-reachable','Provider reachable',null,null,'unavailable','2026-10-13T14:20:00Z','external','read','read'),F('sync.local-pending','Local notes waiting to upload',3,'notes','live','2026-10-13T14:23:30Z','local','read','read'),F('sync.last-synced','Last successful sync','2026-10-13T13:58:00Z',null,'stale','2026-10-13T13:58:00Z','local','read','read')]},
+'local-weather':{name:'Local Weather',kind:'weather',state:'not_configured',summary:'No weather provider has ever been set up. The tile holds zero data until the person chooses one; nothing is guessed.',emptyReason:'No provider configured, so there are no facts to show. Nothing is guessed.',owner:{app:'Settings',route:'app://settings/providers',label:'Open provider settings'},checked:null,src:'none',facts:()=>[]}
+};
+const ORDER=Object.keys(DEFS),CANDS=['notes-sync','nightly-backup','garden-camera','studio-printer','media-shelf','front-door'];
+const mkBase=id=>{const d=DEFS[id];return{id,name:d.name,kind:d.kind,state:d.state,summary:d.summary,reason:d.reason||null,unknownReason:d.unknownReason||null,emptyReason:d.emptyReason||null,owner:d.owner,checkedAt:ms(d.checked),src:d.src,retry:d.retry||null,facts:d.facts(),refused:false}};
+const svcs={};ORDER.forEach(id=>svcs[id]=Object.assign(mkBase(id),{connected:false,ref:null,scope:null,heldRef:false,during:null,connectedAt:null,keptOut:[]}));
+const caps=id=>DEFS[id].facts().map(f=>f.label);
+const newCx=()=>({sid:null,mode:'new',ref:'',refState:'pristine',scope:new Set(),test:{n:0,state:'idle',at:null},simFail:false,chosen:new Set(),phase:'confirm',ready:false,returnTo:'#/home'});
+const st={now:T0,live:true,cadence:5,sec:0,offline:false,welcomeDone:false,replay:false,beat:1,wstate:{},wscope:{'media-shelf':new Set(caps('media-shelf')),'front-door':new Set(caps('front-door'))},connected:[],selected:null,fact:{},tab:'facts',memFilter:'all',frames:{},cx:newCx(),note:null,journeySeen:false,doorLocked:false,lastOne:false,nodUntil:0,updUntil:0,settleUntil:0,settleSvc:null,scripted:new Set(),armConn:false,replacing:null,inv:{},curKey:null,lastFk:null,dlgInv:null,backTo:'#/home',theme:'dark',motion:'follow'};
+
+/* ---------- formatting ---------- */
+const shortAge=n=>n<60?n+'s':n<3600?Math.floor(n/60)+'m':Math.floor(n/3600)+'h';
+const ageTxt=t=>t==null?'Never checked':shortAge(Math.max(0,Math.round((st.now-t)/1000)))+' ago';
+const fmtVal=(v,u)=>(typeof v==='string'&&/^\d{4}-\d\d-\d\dT/.test(v)?fmtDT(Date.parse(v)):typeof v==='number'?v.toLocaleString('en-US'):v)+(u?' '+u:'');
+const fv=f=>f.value==null?(f.state==='unknown'?'Unknown':'Unavailable'):fmtVal(f.value,f.unit);
+const freshest=()=>{const ts=st.connected.map(id=>svcs[id].checkedAt).filter(x=>x!=null);return ts.length?Math.max(...ts):null};
+const tsOf=k=>{if(k==='top')return freshest();const[t,a,b]=k.split('|');if(t==='s')return svcs[a]&&svcs[a].checkedAt;if(t==='f'){const f=svcs[a]&&svcs[a].facts.find(x=>x.id===b);return f&&f.obs}if(t==='t')return st.cx.test.at;return null};
+const ageSpan=k=>`<span data-ak="${esc(k)}">${ageTxt(tsOf(k))}</span>`;
+function refreshAges(){$$('[data-ak]').forEach(el=>{el.textContent=ageTxt(tsOf(el.dataset.ak))})}
+
+/* ---------- glyphs ---------- */
+const GL={check:'<path d="M3.5 8.5l3 3 6-7"/>',alert:'<path d="M8 2.5l6 10.5H2z"/><path d="M8 6.5v3M8 11.2v.1"/>',clock:'<circle cx="8" cy="8" r="6"/><path d="M8 4.5V8l2.5 1.5"/>',x:'<circle cx="8" cy="8" r="6"/><path d="M5.8 5.8l4.4 4.4M10.2 5.8l-4.4 4.4"/>',q:'<circle cx="8" cy="8" r="6"/><path d="M6.2 6.3a1.9 1.9 0 013.6.7c0 1.2-1.8 1.4-1.8 2.6M8 11.6v.1"/>',dash:'<circle cx="8" cy="8" r="6"/><path d="M5.5 8h5"/>'};
+const svg=(p,c='',vb='0 0 16 16')=>`<svg class="${c}" viewBox="${vb}" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const IC={home:'<path d="M3 9.5L10 3l7 6.5V17H3z"/><path d="M8 17v-5h4v5"/>',plug:'<path d="M7 3v4M13 3v4M5 7h10v3a5 5 0 01-10 0zM10 15v3"/>',alert:'<path d="M10 3l8 14H2z"/><path d="M10 8v4M10 14.2v.1"/>',book:'<path d="M4 3.5h8a3 3 0 013 3V17H7a3 3 0 01-3-3z"/><path d="M4 14a3 3 0 013-3h8"/>',gear:'<circle cx="10" cy="10" r="2.5"/><path d="M10 2.5v2.2M10 15.3v2.2M2.5 10h2.2M15.3 10h2.2M4.7 4.7l1.6 1.6M13.7 13.7l1.6 1.6M4.7 15.3l1.6-1.6M13.7 6.3l1.6-1.6"/>',back:'<path d="M12 4l-6 6 6 6"/>'};
+const ico=n=>svg(IC[n],'','0 0 20 20');
+const SW={healthy:['check','Healthy'],live:['check','Live'],needs_attention:['alert','Needs you'],stale:['clock','Stale'],unavailable:['x','Unavailable'],unknown:['q','Unknown'],not_configured:['dash','Not configured'],done:['check','Done'],failed:['x','Failed']};
+const chip=(k,extra)=>{const[g,w]=SW[k];return `<span class="chip c-${k}">${svg(GL[g])}<span>${w}${extra||''}</span></span>`};
+
+function dot(pose='rest',cls=''){
+ const asleep=pose==='asleep',parcel=pose==='parcel';
+ const eyes=asleep?`<path class="stalk" d="M80 54c3-4 7-5 10-3M91 55c3-3 7-3 10-1"/><circle class="eye" cx="91" cy="50" r="3.6"/><circle class="eye" cx="102" cy="53" r="3.6"/><path class="ink" d="M89.2 50h3.6M100.2 53h3.6"/>`:
+ `<path class="stalk" d="M82 54c0-8 0-13 4-19M92 55c1-7 4-12 9-15"/><circle class="eye" cx="86" cy="33" r="4"/><circle class="eye" cx="102" cy="38" r="4"/><circle class="pupil" cx="87" cy="33" r="1.6"/><circle class="pupil" cx="103" cy="38" r="1.6"/>`;
+ return `<svg class="dot ${cls}" viewBox="0 0 112 92" aria-hidden="true" focusable="false"><g transform="translate(0 14)"><path class="body" d="M8 62c0-7 7-11 18-11h50c10 0 18 3 20 9 1 4-1 7-6 7H14c-4 0-6-2-6-5Z"/><circle class="shell" cx="44" cy="38" r="24"/><path class="ink" d="M44 38c0-4 4-6 7-4s3 8-2 10-11-1-12-8 5-13 12-13 14 6 14 14"/><path class="ink" d="M90 62q3 2 6 0"/>${eyes}</g>${parcel?'<rect class="paper" x="26" y="2" width="36" height="22" rx="3"/><path class="ribbon" d="M44 2v22M26 13h36M44 2c-5-5-9-2-6 1M44 2c5-5 9-2 6 1"/>':''}${asleep?'<text class="zz" x="94" y="26">z</text><text class="zz" x="104" y="14" style="font-size:10px">z</text>':''}</svg>`;
+}
+
+/* ---------- state helpers ---------- */
+function svcState(s){if(s.refused)return['unavailable',false];if(s.state==='healthy'){if(s.facts.some(f=>f.sim==='unknown'))return['unknown',true];if(s.facts.some(f=>f.sim==='stale'))return['stale',true]}return[s.state,false]}
+function simAt(s){const f=s.facts.find(x=>x.sim);return f?(f.staleAt||st.now):st.now}
+function lines(s,full){
+ const[k,sim]=svcState(s),o=[];
+ if(s.refused){o.push(`${s.name} stopped accepting this reference. Its last facts are still here, marked with when Worlds checked. Worlds can't fix this on ${s.name}'s side.`);return o}
+ if(sim){o.push(k==='stale'?`Nothing has changed since ${fmtT(simAt(s))} that Worlds knows of.`:"Worlds has no current reading for this and won't guess.");return o}
+ if(k==='needs_attention'&&s.reason)o.push(s.reason);
+ o.push(s.summary);
+ if(k==='stale')o.push(`Nothing has changed since ${fmtT(s.checkedAt)} that Worlds knows of.`);
+ if(k==='unknown'){if(full&&s.unknownReason)o.push(s.unknownReason);o.push("Worlds has no current reading for this and won't guess.")}
+ if(full&&k==='unavailable')o.push(s.id==='studio-printer'?'The printer answered, so Worlds is not treating it as silent.':"That service stopped answering. Its last facts are still here, marked with when Worlds checked.");
+ if(k==='not_configured')o.push(`${s.name} isn't set up. Open its settings.`);
+ return o;
+}
+const attn=()=>st.connected.filter(id=>svcs[id].state==='needs_attention').length;
+const selSvc=()=>st.selected&&svcs[st.selected]&&svcs[st.selected].connected?svcs[st.selected]:null;
+const selFact=s=>s.facts.find(f=>f.id===st.fact[s.id])||s.facts[0];
+function statusHTML(){
+ if(!st.connected.length)return 'No services are connected yet.';
+ const n=attn(),a=` · checked ${ageSpan('top')}`;
+ if(n)return `<span class="status-word">${n} needs you</span>${a}`;
+ return (st.lastOne?'That was the last one. ':'')+'Nothing needs you right now'+(st.lastOne?'.':'')+a;
+}
+const nod=()=>performance.now()<st.nodUntil,upd=()=>performance.now()<st.updUntil;
+const freshLine=()=>`<p class="fresh">${dot('rest',nod()?'nod':'')}<span>${statusHTML()}</span>${upd()?'<strong class="upd">Updated just now</strong>':''}</p>`;
+const noteTop=()=>(route()[0]||'home');
+function noteHTML(){const n=st.note;if(!n||n.view!==noteTop())return '';return `<div class="note" data-od-id="last-change"><p>${esc(n.text)}</p><div class="actions">${n.reconnect?`<button class="btn" type="button" data-act="reconnect" data-id="${n.reconnect}">Reconnect</button>`:''}${n.owner?ownerLink(svcs[n.owner]):''}<button class="btn text" type="button" data-act="dismiss-note">Dismiss</button></div></div>`}
+const pageHead=title=>`<header class="page-head" data-od-id="page-head"><div><h1 tabindex="-1">${title}</h1>${freshLine()}</div><div class="status-slot"></div></header>${noteHTML()}`;
+const ownerLink=(s,cls='')=>`<a class="btn ${cls}" href="${esc(s.owner.route)}" data-act="owner" data-fk="owner-${s.id}" data-app="${esc(s.owner.app)}">${esc(s.owner.label)}</a>`;
+const permText=(s,f)=>({a:{read:'see it',act:'act on it',none:'not at all'}[f.agent],h:{read:'see it',write:'edit the local copy',act:`act on it in the ${s.owner.app} app`,none:'not at all'}[f.human]});
+function permHTML(s,f){const t=permText(s,f);const row=(who,p,txt,reason)=>{if(p==='none'){const id='pr'+(++uid);return `<div class="perm"><button type="button" class="btn perm-none" aria-disabled="true" aria-describedby="${id}">${who} can: ${txt}</button><span class="perm-line muted" id="${id}">${esc(reason||'')}</span></div>`}return `<p class="perm-line"><strong>${who} can:</strong> ${txt}.${reason?` <span class="muted">${esc(reason)}</span>`:''}</p>`};return row('Agent',f.agent,t.a,f.aReason)+row('Human',f.human,t.h,f.hReason)}
+const scopeWord=s=>s.scope?`Scoped to ${capN(s.scope.length)}`:'Unscoped';
+const provenance=s=>`${s.during==='first run'?'Connected during first run':'Connected '+fmtT(s.connectedAt)} · reference held, never the secret.`;
+function factInner(f){const lk=f.state==='stale'?'<span class="micro muted">last known</span>':'';return `<span class="fact-main"><span class="fact-label">${esc(f.label)}</span><span class="micro muted">observed ${f.obs?ageSpan('x'):'never'}</span></span><span class="fact-val"><strong>${esc(fv(f))}</strong>${lk}${chip(f.state,f.sim?' (simulated)':'')}</span>`}
+function factBtn(s,f){return `<li><button type="button" class="fact" data-act="fact" data-s="${s.id}" data-f="${esc(f.id)}" data-fk="fact-${s.id}-${esc(f.id)}" aria-pressed="${selFact(s)===f}">${factInner(f).replace('data-ak="x"',`data-ak="f|${s.id}|${esc(f.id)}"`)}</button></li>`}
+
+/* ---------- receipt ---------- */
+function receiptHTML(s,f){
+ if(!f)return `<section class="receipt" data-od-id="fact-receipt"><h3>No facts</h3><p>${esc(s.emptyReason||'This service has no facts at the counter.')}</p></section>`;
+ const settle=performance.now()<st.settleUntil&&st.settleSvc===s.id;
+ const srcW=f.src==='local'?'From this device':f.src==='external'?"From the service's provider":'No source answered';
+ let lead;
+ if(f.state==='unknown')lead=`No current reading. <strong>Unknown</strong>.${f.lastVal!==undefined?` Last known: ${esc(fmtVal(f.lastVal,f.unit))} at ${fmtT(f.lastAt)}.`:''}`;
+ else if(f.state==='stale')lead=`${esc(s.owner.app)} last reported <strong>${esc(fv(f))}</strong> (last known).`;
+ else if(f.state==='unavailable')lead=f.value==null?`Nothing came back. <strong>Unavailable</strong>.`:`${esc(s.owner.app)} reported <strong>${esc(fv(f))}</strong> but marked it unavailable.`;
+ else lead=`${esc(s.owner.app)} reported <strong>${esc(fv(f))}</strong>.`;
+ const tk=svg(GL.check);
+ return `<section class="receipt ${settle?'settle':''}" data-od-id="fact-receipt" aria-label="Receipt for ${esc(f.label)}"><div class="receipt-head"><p class="micro muted">Where this fact came from</p><h3>${esc(f.label)}</h3><p class="val">${esc(fv(f))}</p></div>
+ <div class="stations">
+  <div class="station" style="--i:0"><h3>Source<span class="tk">${tk}</span></h3><p>${lead}</p><span class="st-line">${srcW}</span><span class="st-line">State: ${chip(f.state,f.sim?' (simulated)':'')}</span><span class="st-line">Checked ${f.obs?ageSpan('f|'+s.id+'|'+f.id):'never'}</span>${f.sim?`<div class="actions"><button type="button" class="btn" data-act="check" data-s="${s.id}" data-f="${esc(f.id)}">Check now</button></div>`:''}</div>
+  <div class="station" style="--i:1"><h3>Worlds<span class="tk">${tk}</span></h3><p>Shared as <strong>${esc(f.label)}</strong>.</p><span class="st-line">Fact id: <code>${esc(f.id)}</code></span><span class="st-line">${esc(provenance(s))}</span><span class="st-line">${scopeWord(s)}</span></div>
+  <div class="station" style="--i:2"><h3>Agent / Human<span class="tk">${tk}</span></h3>${permHTML(s,f)}</div>
+ </div></section>`;
+}
+function seesHTML(s){const a=s.facts.filter(f=>f.agent!=='none'),h=s.facts.filter(f=>f.agent==='none');if(!s.facts.length)return '';return `<p class="sees"><strong>Agent sees:</strong> ${esc(list(a.map(f=>f.label))||'nothing')}.${h.length?` <span class="muted">Agent can't see: ${esc(list(h.map(f=>f.label)))}.</span>`:''}</p>`}
+function retryHTML(s){if(!s.retry)return '';return `<div class="retry" data-od-id="owner-retry-${s.id}"><p><strong>${esc(s.retry.label)}</strong>, tried ${pl(s.retry.attempts,'time')}. Last error: ${esc(s.retry.lastError)}.</p><p class="muted">This happens in ${esc(s.owner.app)}, by you. Worlds can't retry it.</p>${ownerLink(s)}</div>`}
+
+/* ---------- app frame ---------- */
+const PLAN={'front-door':'refused','notes-sync':'timeout'};
+function ensureFrame(id){if(st.frames[id])return;st.frames[id]={state:'loading',tries:0};loadFrame(id)}
+function loadFrame(id){const fr=st.frames[id];fr.state='loading';fr.tries++;paintFrame(id);clearTimeout(fr.t);fr.t=setTimeout(()=>{if(fr.state!=='loading')return;fr.state=fr.tries===1&&PLAN[id]?PLAN[id]:'loaded';paintFrame(id)},fr.tries===1?900:500)}
+function frameInner(s){const fr=st.frames[s.id]||{state:'loading'};const w={loading:'Loading',loaded:'Loaded',refused:'Not shown',timeout:'Not shown',cancelled:'Not shown'}[fr.state];let body='',ctl='';
+ if(fr.state==='loading'){body=`<div class="frame-body" style="display:flex;gap:1rem;align-items:center">${dot('rest')}<p>Dot is fetching the app…</p></div>`;ctl=`<button type="button" class="btn" data-act="frame-cancel" data-id="${s.id}">Cancel</button>`}
+ else if(fr.state==='loaded'){body=`<div class="frame-body"><div class="mini-app" role="group" aria-label="Contained preview of the ${esc(s.owner.app)} app"><p class="micro muted">${esc(s.owner.app)} · contained preview</p><p><strong>${esc(s.name)}</strong></p><p class="muted">${esc(s.summary)}</p><ul style="list-style:none">${s.facts.map(f=>`<li>${esc(f.label)}: <strong>${esc(fv(f))}</strong></li>`).join('')}</ul></div></div><p class="frame-foot muted">This app doesn't receive Worlds' credentials.</p>`;ctl=`<button type="button" class="btn" data-act="frame-retry" data-id="${s.id}">Reload</button>`}
+ else{const cause=fr.state==='timeout'?'It took too long to answer.':fr.state==='cancelled'?'Loading was cancelled.':"The app doesn't allow being shown inside another page.";body=`<div class="frame-body"><p><strong>This app didn't load inside Worlds.</strong></p><p class="muted">${cause} Use the link below, or try again.</p></div>`;ctl=`<button type="button" class="btn" data-act="frame-retry" data-id="${s.id}">Try again</button>`}
+ return `<div class="frame-bar"><strong>${esc(s.owner.app)} app, shown inside Worlds</strong><span class="micro muted">${w}</span></div>${body}<div class="frame-foot actions" style="margin-top:0">${ownerLink(s)}${ctl}</div>`}
+function paintFrame(id){const el=document.getElementById('frame-'+id);if(el&&svcs[id].connected)keepFocus(()=>{el.innerHTML=frameInner(svcs[id])})}
+
+/* ---------- views ---------- */
+function slipHTML(s){const[k,sim]=svcState(s),f=s.facts[0],sel=s.id===st.selected;const peek=f?`<span>${esc(f.label)}</span><strong>${esc(fv(f))}${f.state==='stale'?' (last known)':''}</strong>`:'<span>No facts</span><strong>None</strong>';
+ return `<li><button type="button" class="slip" data-act="slip" data-id="${s.id}" data-fk="slip-${s.id}" aria-pressed="${sel}"><span class="slip-top"><span><span class="slip-name">${esc(s.name)}</span><span class="slip-kind">${esc(s.kind)}</span></span>${chip(k,sim?' (simulated)':'')}</span><span class="slip-reason">${lines(s,false).map(esc).join(' ')}</span><span class="slip-peek">${peek}</span><span class="slip-foot"><span>Checked ${s.checkedAt==null?'never':ageSpan('s|'+s.id)}</span>${sel?`<span class="sel-word">${svg(GL.check)}Selected</span>`:''}</span></button></li>`}
+function journeyHTML(){if(st.journeySeen)return '';return `<aside class="journey" data-od-id="fact-journey"><h3>Here's one fact on its way.</h3><p>Media Shelf says it holds 1,284 items. Worlds shows where that came from and who can see it or act on it.</p><div class="mini-stations" aria-hidden="true"><span>Source · Media Shelf, local</span><span>Worlds · Items in library</span><span>Agent / Human</span></div><p class="muted">Every fact says where it came from and who can act on it.</p><button type="button" class="btn" data-act="dismiss-journey">Got it</button></aside>`}
+function detailHTML(s,h1){
+ ensureFrame(s.id);const[k,sim]=svcState(s),f=selFact(s);const pushed=h1;
+ const title=h1?`<h1 class="svc-title" tabindex="-1">${esc(s.name)}</h1>`:`<h2 class="svc-title" tabindex="-1">${esc(s.name)}</h2>`;
+ const dis=h1?'<div class="disc-slot"></div>':'';
+ const ev=s.id==='front-door'&&st.doorLocked?`<div class="event"><p><strong>The Home app reported the back door locked. Worlds locked nothing.</strong></p>${ownerLink(s)}</div>`:'';
+ const kept=s.keptOut.length?`<p class="muted">${pl(s.keptOut.length,'fact')} ${s.keptOut.length===1?'is':'are'} kept out of Worlds. You chose not to share ${s.keptOut.length===1?'it':'them'}.</p>`:'';
+ return `<div class="detail" data-od-id="service-detail"><div class="svc-head"><div>${title}<div class="meta">${chip(k,sim?' (simulated)':'')}<span>Owned by the ${esc(s.owner.app)} app</span><span>Checked ${s.checkedAt==null?'never':ageSpan('s|'+s.id)}</span></div></div>${dis}</div>
+ <div class="lines">${lines(s,true).map(l=>`<p class="muted">${esc(l)}</p>`).join('')}</div>
+ <div class="svc" data-tab="${st.tab}"><div class="tabs" role="tablist" aria-label="${esc(s.name)} views">${['facts:Facts','app:App','agent:Agent view'].map(x=>{const[a,b]=x.split(':');return `<button type="button" role="tab" class="btn" data-act="tab" data-t="${a}" data-fk="tab-${a}" aria-selected="${st.tab===a}">${b}</button>`}).join('')}</div>
+ <section class="pane pane-facts" aria-label="Facts">${s.facts.length?`<ul class="facts-list">${s.facts.map(x=>factBtn(s,x)).join('')}</ul>`:''}${journeyHTML()}${receiptHTML(s,f)}${seesHTML(s)}${ev}${retryHTML(s)}${kept}</section>
+ <section class="pane pane-app" aria-label="App">${s.owner.app==='x'?'':`<div class="frame" id="frame-${s.id}" data-od-id="app-frame">${frameInner(s)}</div>`}</section>
+ <section class="pane pane-agent" aria-label="Agent view">${s.facts.map(x=>factCard(s,x)).join('')||`<p class="muted">${esc(s.emptyReason||'No facts.')}</p>`}</section></div></div>`;
+}
+function selCard(s){if(!s)return `<div class="sel-strip"><p>No service selected.</p><div class="disc-slot"></div><p class="muted" id="disc-reason">Connect a service before disconnecting</p></div>`;const[k,sim]=svcState(s);return `<div class="sel-card" data-od-id="selected-card"><p class="micro muted">Selected service</p><h2 style="font-size:var(--type-h1)">${esc(s.name)}</h2><p>${chip(k,sim?' (simulated)':'')}</p><p class="muted">${esc(lines(s,false)[0])}</p><div class="actions"><button type="button" class="btn" data-act="open-svc" data-id="${s.id}">Open ${esc(s.name)}</button><div class="disc-slot"></div></div></div>`}
+function viewHome(r){
+ const sid=r[1];
+ if(sid&&(!svcs[sid]||!svcs[sid].connected)){history.replaceState(null,'','#/home');r=['home']}
+ else if(sid)st.selected=sid;
+ const s=selSvc();
+ if(!st.connected.length)return `${pageHead('Your counter')}<div class="sel-strip"><p>No service selected.</p><div class="disc-slot"></div><p class="muted" id="disc-reason">Connect a service before disconnecting</p></div><section class="empty" data-od-id="empty-counter">${dot('asleep','lg')}<div><h2>The counter is quiet.</h2><p class="measure">Nothing at the counter yet. Connect a service and Worlds will keep its facts, say where each came from, and leave the deciding to you.</p><div class="actions"><button type="button" class="btn primary" data-act="add">Connect a service</button></div></div></section>`;
+ if(isPhone()&&r[1]&&s)return `<div data-od-id="pushed-service"><button type="button" class="btn text" data-act="back-home" data-fk="back-home">${ico('back')}Back to your counter</button><header class="page-head" style="margin-top:var(--space-md)"><div class="status-slot"></div></header>${noteHTML()}${detailHTML(s,true)}</div>`;
+ return `${pageHead('Your counter')}${selCard(s)}<div class="home-grid"><section aria-labelledby="slips-h" data-od-id="slips"><h2 id="slips-h" class="sr-only">Services at your counter</h2><ul class="slips">${st.connected.map(id=>slipHTML(svcs[id])).join('')}</ul></section>${s?detailHTML(s,false):''}</div>`;
+}
+function factCard(s,f){const settle=performance.now()<st.settleUntil&&st.settleSvc===s.id;const unk=f.state==='unknown';
+ return `<article class="fact-card ${settle?'settle':''}"><div><h3>${esc(f.label)}</h3><p class="big">${esc(fv(f))}${f.state==='stale'?' <span class="micro muted">(last known)</span>':''}</p>${chip(f.state,f.sim?' (simulated)':'')}<p class="micro muted">${f.src==='local'?'From this device':f.src==='external'?"From the service's provider":'No source answered'} · observed ${f.obs?ageSpan('f|'+s.id+'|'+f.id):'never'} · ${scopeWord(s)}</p>${f.lastVal!==undefined?`<p class="micro muted">Last known: ${esc(fmtVal(f.lastVal,f.unit))} at ${fmtT(f.lastAt)}.</p>`:''}${unk?`<p class="micro">Worlds can't see it. ${esc(s.unknownReason||'')} What would help: the owning app answering again.</p>`:''}${f.sim?`<button type="button" class="btn" data-act="check" data-s="${s.id}" data-f="${esc(f.id)}">Check now</button>`:''}</div><div>${permHTML(s,f)}</div></article>`}
+function viewMemory(){
+ const ids=st.memFilter==='all'||!st.connected.includes(st.memFilter)?st.connected:[st.memFilter];
+ const head=pageHead('Agent facts');
+ if(!st.connected.length)return `${head}<section class="empty" data-od-id="memory-empty">${dot('asleep','lg')}<div><h2>No agent facts yet.</h2><p class="measure">No agent facts yet. Connect a service to add facts without guessing.</p><div class="actions"><button type="button" class="btn primary" data-act="add">Connect a service</button></div></div></section>`;
+ return `${head}<div class="narrow"><div class="field" style="margin-bottom:var(--space-lg)"><label for="mem-filter"><strong>Show</strong></label><select id="mem-filter" data-chg="mem-filter"><option value="all">All services</option>${st.connected.map(id=>`<option value="${id}" ${st.memFilter===id?'selected':''}>${esc(svcs[id].name)}</option>`).join('')}</select></div>${ids.map(id=>{const s=svcs[id],[k,sim]=svcState(s);return `<section class="mem-group" aria-labelledby="mh-${id}"><div class="mem-head"><div><h2 id="mh-${id}" style="font-size:var(--type-h1)">${esc(s.name)}</h2><p class="muted">${chip(k,sim?' (simulated)':'')} · checked ${s.checkedAt==null?'never':ageSpan('s|'+id)}</p></div>${ownerLink(s)}</div>${s.facts.map(f=>factCard(s,f)).join('')}</section>`}).join('')}</div>`;
+}
+function viewNeeds(){
+ const nl=st.connected.filter(id=>svcs[id].state==='needs_attention').map(id=>svcs[id]),rt=st.connected.map(id=>svcs[id]).filter(s=>s.retry);
+ let h=pageHead('Needs you');
+ h+=`<div class="narrow">`;
+ if(!nl.length)h+=`<section class="empty" data-od-id="needs-empty">${dot('asleep','lg')}<div><h2>Nothing needs you right now.</h2><p class="measure">Worlds will say so here the moment something does.</p></div></section>`;
+ nl.forEach(s=>{h+=`<article class="card" data-od-id="needs-card-${s.id}"><h2 style="font-size:var(--type-h1)">${esc(s.name)}</h2><p>${chip('needs_attention')}</p><p>${esc(s.summary)}</p><p class="muted">${esc(s.reason)}</p><p class="micro"><strong>Facts behind it:</strong> ${esc(s.facts.map(f=>f.label+' '+fv(f)).join(' · '))}</p><div class="actions">${ownerLink(s,'primary')}<button type="button" class="btn" data-act="handoff" data-fk="handoff-${s.id}">Ask Project Home to review</button><span class="muted">Not available yet</span></div></article>`});
+ if(rt.length){h+=`<h2 class="sec-title" style="font-size:var(--type-h1)">Owner retries</h2><p class="muted measure">These are not approvals. A person retries them in the owning app.</p>`;rt.forEach(s=>{h+=`<div class="card">${chip(svcState(s)[0])} <strong>${esc(s.name)}</strong>${retryHTML(s).replace('class="retry"','class="retry" style="margin-top:.5rem"')}</div>`})}
+ h+=`<h2 class="sec-title" style="font-size:var(--type-h1)">Proposals</h2><div class="proposal" data-od-id="proposal-sample"><p class="micro"><strong>Sample. The fixture has no proposals.</strong></p><p><strong>Sample action</strong> · Changes something outside Worlds</p><p>Proposed. Not active.</p><p class="muted">Worlds can't run this. It can only show it. Decided by: not known yet. Agent can't do this.</p></div></div>`;
+ return h;
+}
+
+/* ---------- welcome ---------- */
+function viewWelcome(n){
+ st.beat=n;const head='';
+ if(n===1)return `<section class="welcome" data-od-id="welcome-1"><div class="welcome-copy"><h1 tabindex="-1">Hello, I'm Dot.</h1><p>Worlds is a small counter. Your services leave their facts here, and Worlds keeps them honest.</p><p class="muted">Shall we connect the first one together? Nothing here calls a real network.</p><div class="actions"><button type="button" class="btn primary" data-act="w-next" data-fk="w-next">Connect a service</button><button type="button" class="btn" id="skip-welcome" data-act="skip-welcome">Skip welcome</button></div></div><div class="welcome-dot">${dot('asleep','lg')}<p class="muted">Dot is asleep until you are ready.</p></div></section>`;
+ const id=n===2?'media-shelf':'front-door',s=svcs[id],w=st.wstate[id]||'idle',sc=st.wscope[id];
+ const capsHTML=caps(id).map((c,i)=>`<label class="check"><input type="checkbox" data-chg="w-cap" data-id="${id}" data-c="${esc(c)}" ${sc.has(c)?'checked':''} ${w!=='idle'?'disabled':''}><span>${esc(c)}</span></label>`).join('');
+ const heading=n===2?'First, Media Shelf.':'And one more: Front Door.';
+ let side,act;
+ if(w==='idle'){side=`<div class="welcome-dot">${dot('rest','lg')}<p class="muted">Dot is awake.</p></div>`;act=`<button type="button" class="btn primary" data-act="w-connect" data-id="${id}" data-fk="w-connect">Connect ${esc(s.name)}</button>`}
+ else if(w==='delivering'){side=`<div class="welcome-dot"><div class="lane" style="width:100%">${dot('parcel')}<span class="lane-end">Counter</span></div><p>Dot is carrying the parcel to the counter…</p></div>`;act=''}
+ else{side=`<div class="welcome-dot"><span class="stamp">${svg(GL.check)}Connected</span>${dot('rest','lg')}<p><strong>${esc(s.name)} is at the counter.</strong></p></div>`;act=`<button type="button" class="btn primary" data-act="w-continue" data-fk="w-continue" id="w-continue">${n===2?'Next: Front Door':'See your counter'}</button>`}
+ return `<section class="welcome" data-od-id="welcome-${n}"><div class="welcome-copy"><h1 tabindex="-1">${heading}</h1><p class="muted">${esc(s.kind)} · owned by the ${esc(s.owner.app)} app</p><fieldset class="checks" ${w!=='idle'?'disabled':''}><legend>Worlds will send this reference only when reading: ${esc(list([...sc]))}.</legend>${capsHTML}</fieldset><p>${chip('done')} Passed. Nothing on ${esc(s.name)} was changed.</p><p class="micro muted">The reference is <code>ref://${id}</code>, a mock handle. No real network is called.</p><div class="actions">${act}${w==='idle'&&n===3?'<button type="button" class="btn" data-act="w-back">Back</button>':''}${w==='idle'&&n===2?'<button type="button" class="btn" data-act="w-back">Back</button>':''}<button type="button" class="btn text" id="skip-welcome" data-act="skip-welcome">Skip welcome</button></div></div>${side}</section>`;
+}
+
+/* ---------- connect ---------- */
+const STEPS=['discover','reference','test','preview','choose','publish'],SN=['Discover','Reference','Test','Preview','Choose','Publish'];
+const refCheck=v=>{v=(v||'').trim();if(!v)return'empty';const m=/^ref:\/\/([A-Za-z0-9][A-Za-z0-9_-]{0,48})$/.exec(v);if(!m)return'secret';if(/^(PW_|OIDC_)/i.test(m[1])||/BOOTSTRAP/i.test(m[1]))return'own';return'valid'};
+const REFMSG={pristine:['','Not edited yet. Use the form ref://name.'],dirty:['','Edited. Worlds checks it when you leave the field.'],valid:['done','Looks like a reference.'],secret:['failed',"That looks like a secret, not a reference. Nothing was saved and the field was cleared. Worlds stores a credential reference, never the secret. Use something like ref://notes-sync."],own:['failed',"That reference points at one of Worlds' own secrets, so it can't be used for a service."],pending:['','Saving reference…']};
+const msgHTML=k=>{const[c,t]=REFMSG[k];return `${c==='done'?svg(GL.check,'c-done'):c==='failed'?svg(GL.x,'c-failed'):''}<span class="${c?'c-'+c:''}">${t}</span>`};
+function cxGuard(step){const c=st.cx,i=STEPS.indexOf(step);if(i<0)return'discover';if(i>=1&&!c.sid)return'discover';if(i>=2&&!(c.refState==='valid'&&c.scope.size))return'reference';if(i>=3&&c.test.state!=='passed')return'test';if(i>=5&&!c.chosen.size)return'choose';return step}
+function pick(id){const c=st.cx,keep=c.mode;Object.assign(c,newCx(),{mode:keep==='narrow'?'narrow':'new',sid:id,scope:new Set(caps(id)),chosen:new Set(DEFS[id].facts().map(f=>f.id))})}
+function cxBar(step){const c=st.cx,i=STEPS.indexOf(step);let next='';
+ if(step==='publish'){if(c.phase==='delivering')return '';if(c.phase==='done')return ''}
+ const dis=(step==='discover'&&!c.sid)||(step==='reference'&&!(c.refState==='valid'&&c.scope.size))||(step==='test'&&c.test.state!=='passed')||(step==='preview'&&!c.ready)||(step==='choose'&&!c.chosen.size);
+ const label=step==='publish'?'Publish':step==='reference'&&c.mode==='narrow'?'Save narrower scope':step==='reference'&&c.mode==='replace'?'Save reference':'Next';
+ next=`<button type="button" class="btn primary" id="cx-next" data-act="cx-next" ${dis?'aria-disabled="true"':''}>${label}</button>`;
+ return `<div class="cx-bar" data-od-id="connect-bar"><button type="button" class="btn text" data-act="cx-cancel">Cancel</button><span style="flex:1"></span>${i>0&&!(c.mode==='replace'&&step==='reference')?'<button type="button" class="btn" data-act="cx-back">Back</button>':''}${next}</div>`}
+function viewConnect(step){
+ const c=st.cx,i=STEPS.indexOf(step),s=c.sid?svcs[c.sid]:null;let body='';
+ const refreshStep=`<p class="step-line">Step ${i+1} of 6 · ${SN[i]}</p>`;
+ if(step==='discover'){
+  const cands=c.mode==='narrow'?[c.sid]:CANDS.filter(id=>!svcs[id].connected),here=st.connected;
+  if(!c.sid&&cands.length)pick(cands[0]);
+  body=`<h1 tabindex="-1">Find a service</h1><p class="says">Looking only. No reference has been used yet. This sends no credential and changes nothing.</p>${cands.length?`<fieldset class="checks" style="border:0;padding:0"><legend>Services Worlds could connect</legend>${cands.map(id=>{const d=svcs[id];return `<label class="cand"><input type="radio" name="cand" value="${id}" data-chg="cx-pick" ${c.sid===id?'checked':''}><span><strong class="slip-name">${esc(d.name)}</strong><br><span class="micro muted">${esc(d.kind)} · reported by the ${esc(d.owner.app)} app</span><br><span class="micro">Not connected yet · no reading</span> · <span class="micro">Auth: unknown</span><ul>${caps(id).map(x=>`<li>${esc(x)} · not verified yet</li>`).join('')}</ul></span></label>`}).join('')}</fieldset>`:'<p class="empty">No other services to connect right now.</p>'}${here.length&&c.mode!=='narrow'?`<h2 class="sec-title" style="font-size:var(--type-h1)">Already at the counter</h2><p class="muted">${esc(list(here.map(id=>svcs[id].name)))}</p>`:''}`;
+ }else if(step==='reference'){
+  const pend=c.refState==='pending';
+  body=`<h1 tabindex="-1">Credential reference</h1><p class="says">A reference is a name that points to a secret kept somewhere safe. Worlds stores the name, never the secret.</p><div class="field"><label for="cx-ref"><strong>Reference for ${esc(s.name)}</strong></label><input type="text" id="cx-ref" data-fk="cx-ref" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="ref://${esc(s.id)}" value="${esc(c.ref)}" aria-describedby="ref-msg" ${c.refState==='secret'||c.refState==='own'?'aria-invalid="true"':''} ${pend?'readonly':''}><p class="msg" id="ref-msg" aria-live="polite">${msgHTML(c.refState)}</p></div>
+  <fieldset class="checks"><legend>What this reference may be used for</legend>${caps(s.id).map(x=>`<label class="check"><input type="checkbox" data-chg="cx-cap" data-c="${esc(x)}" ${c.scope.has(x)?'checked':''}><span>${esc(x)}</span></label>`).join('')}</fieldset>
+  <p id="scope-sentence"><strong>${c.scope.size?`Worlds will send this reference only when reading: ${esc(list([...c.scope]))}.`:'Tick at least one thing this reference may be used for.'}</strong></p><p class="muted">This is about what the reference can be used for. It is not what appears on your counter.</p>`;
+ }else if(step==='test'){
+  const t=c.test;let res='';
+  if(t.state==='running')res=`<div class="panel" style="display:flex;gap:1rem;align-items:center">${dot('rest')}<p>Testing…</p></div>`;
+  else if(t.state==='passed')res=`<div class="panel"><p>${chip('done')} <strong>Passed. Worlds read ${DEFS[s.id].facts().length} facts in ${180+s.name.length*7}ms (simulated). Nothing on ${esc(s.name)} was changed.</strong></p></div>`;
+  else if(t.state==='failed'||t.state==='limit')res=`<div class="panel"><p>${chip('failed')} <strong>That didn't go through, and the reference is still here. Try again whenever you like.</strong></p><p class="muted">Cause: provider timed out · last tried ${ageSpan('t|')} · try ${t.n} of 3</p>${t.state==='limit'?"<p>That's three tries. Check the reference with the owning app, then edit it to start again.</p>":''}</div>`;
+  const dis=t.state==='running'||t.state==='limit';
+  body=`<h1 tabindex="-1">Run a safe test</h1><p class="says">One read. Nothing on ${esc(s.name)} changes. The reference is sent only within the scope you set: ${esc(list([...c.scope]))}.</p><label class="check"><input type="checkbox" data-chg="cx-sim" ${c.simFail?'checked':''}><span>Simulate a failed test (mock)</span></label><div class="actions"><button type="button" class="btn ${t.state==='passed'?'':'primary'}" id="cx-run" data-act="cx-run" ${dis?'aria-disabled="true"':''}>${t.state==='failed'?'Try again':'Run safe test'}</button></div><div aria-live="polite">${res}</div>`;
+ }else if(step==='preview'){
+  body=`<h1 tabindex="-1">What ${esc(s.name)} offers</h1>`+(c.ready?`<p class="says">These are separate facts and stay separate. Capabilities now read verified.</p>${DEFS[s.id].facts().length?DEFS[s.id].facts().map(f=>`<div class="pre-fact"><span><strong>${esc(f.label)}</strong><br><span class="micro muted">${esc(caps(s.id).includes(f.label)?'verified':'')}</span></span><span style="text-align:right"><strong>${esc(fv(f))}</strong><br>${chip(f.state)}</span></div>`).join(''):'<p class="empty">This service offers no facts yet. Nothing is guessed.</p>'}`:`<div class="panel" style="display:flex;gap:1rem;align-items:center">${dot('rest')}<div><p>Dot is fetching the facts…</p><p class="micro muted">If this stalls, ${ownerLink(s,'text')}</p></div></div>`);
+ }else if(step==='choose'){
+  const fl=DEFS[s.id].facts(),last=c.chosen.size===1;
+  body=`<h1 tabindex="-1">Choose what to show</h1><p class="says">Shown on your counter and visible to agents: ${esc(list(fl.filter(f=>c.chosen.has(f.id)).map(f=>f.label))||'nothing')}.</p><fieldset class="checks"><legend>Facts to publish</legend>${fl.map(f=>{const lock=last&&c.chosen.has(f.id);return `<label class="check" ${lock?'aria-disabled="true"':''}><input type="checkbox" data-chg="cx-fact" data-f="${esc(f.id)}" ${c.chosen.has(f.id)?'checked':''} ${lock?'aria-disabled="true"':''}><span><strong>${esc(f.label)}</strong><br><span class="micro muted">${esc(fv(f))} · ${SW[f.state][1]}${lock?' · At least one fact must stay shared.':''}</span></span></label>`}).join('')}</fieldset><p class="muted">At least one fact must stay shared.</p>`;
+ }else{
+  const fl=DEFS[s.id].facts(),shown=fl.filter(f=>c.chosen.has(f.id)),out=fl.filter(f=>!c.chosen.has(f.id));
+  let tail='';
+  if(c.phase==='delivering')tail=`<div class="lane">${dot('parcel')}<span class="lane-end">Counter</span></div><p>Dot is carrying the parcel to the counter…</p>`;
+  else if(c.phase==='done')tail=`<div class="panel" style="display:grid;gap:1rem;justify-items:start"><span class="stamp">${svg(GL.check)}Connected</span><div style="display:flex;gap:1rem;align-items:center">${dot('rest','lg')}<p><strong>${esc(s.name)} is at the counter.</strong></p></div><div class="actions" style="margin:0"><button type="button" class="btn primary" id="cx-open" data-act="cx-open">Open ${esc(s.name)}</button><button type="button" class="btn" data-act="cx-more">Add one more</button><a class="btn text" href="#/settings/references">Manage this reference in Settings</a></div></div>`;
+  body=`<h1 tabindex="-1">${c.phase==='done'?'Connected':'Publish '+esc(s.name)}</h1><p class="says">Publishing adds ${esc(s.name)} and its chosen facts to the counter.</p><ul style="list-style:none;display:grid;gap:.5rem"><li><strong>Reference:</strong> <code>${esc(c.ref)}</code>, ${capN(c.scope.size)}</li><li><strong>Shown:</strong> ${esc(list(shown.map(f=>f.label)))}</li>${out.length?`<li><strong>Kept out:</strong> ${esc(list(out.map(f=>f.label)))}</li>`:''}</ul>${tail}`;
+ }
+ const aside=`<aside class="cx-aside" aria-label="What will happen"><h2>What will happen</h2><ul><li>Service: ${s?esc(s.name):'not chosen yet'}</li><li>Reference: ${c.refState==='valid'?'looks like a reference':'not set'}</li><li>Reference may be used for: ${c.scope.size?capN(c.scope.size):'not set'}</li><li>Test: ${c.test.state==='passed'?'passed':'not run'}</li><li>Facts to show: ${c.chosen.size||'not chosen'}</li></ul><p>Nothing is saved until Publish. No real network is called in this mockup.</p></aside>`;
+ const steps=`<ol class="steps" aria-label="Connect steps">${SN.map((n,k)=>`<li class="${k<i?'done':''}" ${k===i?'aria-current="step"':''}><span class="num">${k<i?svg(GL.check):k+1}</span><span>${n}${k<i?'<span class="sr-only"> (done)</span>':''}</span></li>`).join('')}</ol>`;
+ return `<div class="cx" data-od-id="connect">${steps}<section class="cx-body" aria-label="${SN[i]}">${refreshStep}${body}${cxBar(step)}</section>${aside}</div>`;
+}
+
+/* ---------- settings ---------- */
+function viewSettings(r){
+ const refs=ORDER.map(id=>svcs[id]).filter(s=>s.ref),sec=r[1]||'services';
+ const nav=[['services','Connected services'],['references','Credential references'],['providers','Providers'],['live','Live feed'],['about','About']];
+ const rows=st.connected.map(id=>{const s=svcs[id],[k,sim]=svcState(s);return `<div class="row"><div><strong>${esc(s.name)}</strong><p class="muted">${chip(k,sim?' (simulated)':'')} · checked ${s.checkedAt==null?'never':ageSpan('s|'+id)}</p></div><button type="button" class="btn danger" id="disconnect-${id}" data-act="disc-row" data-id="${id}">Disconnect ${esc(s.name)}</button></div>`}).join('')||'<p class="empty">Nothing at the counter yet. Connect a service and Worlds will keep its facts, say where each came from, and leave the deciding to you.</p>';
+ const refRows=refs.map(s=>{const rep=st.replacing===s.id;return `<div class="row"><div><strong>${esc(s.name)}</strong><p><code>${esc(s.ref)}</code></p><p class="muted">${s.connected?(s.scope?`Scoped to ${capN(s.scope.length)}: ${esc(list(s.scope))}`:'Unscoped (older connection): this reference can be used for anything this service offers.'):'Held, not in use'}</p>${rep?`<div class="field"><label for="rep-ref"><strong>New reference</strong></label><input type="text" id="rep-ref" autocomplete="off" spellcheck="false" placeholder="ref://${esc(s.id)}" aria-describedby="rep-msg"><p class="msg" id="rep-msg" aria-live="polite">${msgHTML('pristine')}</p><div class="actions" style="margin-top:0"><button type="button" class="btn primary" data-act="ref-save" data-id="${s.id}">Save reference</button><button type="button" class="btn" data-act="ref-cancel">Cancel</button></div></div>`:''}</div><div class="actions" style="margin:0"><button type="button" class="btn" data-act="ref-replace" data-id="${s.id}" data-fk="rep-${s.id}">Replace</button><button type="button" class="btn danger" data-act="ref-remove" data-id="${s.id}" data-fk="rem-${s.id}">Remove</button>${s.connected&&!s.scope?`<button type="button" class="btn" data-act="ref-narrow" data-id="${s.id}">Narrow scope</button>`:''}</div></div>`}).join('')||'<p class="muted">No references stored. Connecting a service will add one.</p>';
+ const w=svcs['local-weather'];
+ const th=[['dark','Dark'],['light','Light'],['high-contrast','High contrast'],['low-stimulation','Low stimulation'],['system','Follow system']];
+ return `${pageHead('Settings')}<div class="set-grid"><nav class="set-nav" aria-label="Settings sections">${nav.map(([k,l])=>`<a href="#/settings/${k}" ${sec===k?'aria-current="true"':''}>${l}</a>`).join('')}</nav><div>
+ <section class="set-sec" aria-labelledby="sec-services"><h2 id="sec-services" tabindex="-1">Connected services</h2>${rows}</section>
+ <section class="set-sec" aria-labelledby="sec-references"><h2 id="sec-references" tabindex="-1">Credential references</h2><p class="muted">Worlds stores a credential reference, never the secret.</p>${refRows}</section>
+ <section class="set-sec" aria-labelledby="sec-providers"><h2 id="sec-providers" tabindex="-1">Providers</h2><div class="row"><div><strong>Local Weather</strong><p>${chip('not_configured')}</p><p>${esc(w.summary)}</p><p class="muted">${esc(w.emptyReason)}</p></div>${ownerLink(w)}</div></section>
+ <section class="set-sec" aria-labelledby="sec-live"><h2 id="sec-live" tabindex="-1">Live feed</h2>
+  <div class="row"><div><strong>Updates</strong><p class="muted">Pausing freezes freshness. Actions still work.</p></div><button type="button" class="btn" id="settings-live" data-act="live" aria-pressed="${st.live}">Live feed: ${st.live?'On':'Off'}</button></div>
+  <div class="row"><div><label for="cadence"><strong>Check cadence</strong></label></div><select id="cadence" data-chg="cadence">${[5,10,30].map(n=>`<option value="${n}" ${st.cadence===n?'selected':''}>${n} seconds${n===5?' (default)':''}</option>`).join('')}</select></div>
+  <div class="row"><fieldset class="radios"><legend><strong>Motion</strong></legend>${[['follow','Follow system'],['reduce','Reduce always']].map(([v,l])=>`<label><input type="radio" name="motion" value="${v}" data-chg="motion" ${st.motion===v?'checked':''}>${l}</label>`).join('')}</fieldset><p class="muted">Reduced motion removes animation, not data.</p></div>
+  <div class="row"><fieldset class="radios"><legend><strong>Theme</strong></legend>${th.map(([v,l])=>`<label><input type="radio" name="theme" value="${v}" data-chg="theme" ${st.theme===v?'checked':''}>${l}</label>`).join('')}</fieldset></div>
+  <div class="row"><div><strong>Text size</strong><p class="muted">Worlds follows your browser's text size; zoom to 200% reflows.</p></div></div></section>
+ <section class="set-sec" aria-labelledby="sec-about"><h2 id="sec-about" tabindex="-1">About</h2><p><span class="mockup">MOCKUP</span> Synthetic data only. Times are shown in UTC.</p><p class="measure">Worlds is the Experience layer over the World Tree Field Guide's four doors: Home, Explore, Needs You and Guide.</p>
+  <p class="muted measure">UNKNOWN: the production Connect API and reference grammar, who governs each service, Project Home approval verification, what makes a service Stale in production, the live feed transport, real sandbox rules for embedded apps, and whether any history is kept after disconnect.</p>
+  <div class="actions"><button type="button" class="btn" data-act="replay">Replay the welcome</button><button type="button" class="btn" data-act="journey">How one fact travels</button><button type="button" class="btn" aria-disabled="true" aria-describedby="hist-why">Keep history after disconnect</button></div><p class="muted" id="hist-why">Not decided yet; this mockup keeps nothing.</p>
+  <h3 style="margin-top:var(--space-lg)">Mock controls for reviewers</h3><p class="muted">These only produce failure or edge conditions.</p><div class="actions"><button type="button" class="btn" data-act="mock-stale">Make Media Shelf stale now</button><button type="button" class="btn" data-act="mock-refuse">Pretend Notes Sync refused its reference</button><button type="button" class="btn" data-act="mock-unscoped">Pretend Media Shelf has an older, unscoped connection</button></div></section>
+ </div></div>`;
+}
+function viewError(){return `<section class="empty" data-od-id="load-error">${dot('rest','lg')}<div><h1 tabindex="-1">Worlds couldn't load this.</h1><p class="measure">Worlds couldn't load this. Your services and references weren't changed.</p><div class="actions"><button type="button" class="btn" data-act="reload-view">Try again</button><a class="btn primary" href="#/home">Go to Home</a></div></div></section>`}
+
+/* ---------- chrome ---------- */
+const NAV=[['home','Home','#/home','home'],['connect','Connect','#/connect/discover','plug'],['needs-you','Needs you','#/needs-you','alert'],['memory','Memory','#/memory','book'],['settings','Settings','#/settings/services','gear']];
+function route(){return location.hash.replace(/^#\/?/,'').split('/').filter(Boolean)}
+const routeKey=()=>route().join('/')||'home';
+function navItem(n,top,n1){const cur=top===n[0],c=attn(),b=n[0]==='needs-you'&&c?`<span class="badge"><span class="sr-only">, </span>${c}</span>`:'';return `<a class="nav-item" href="${n[2]}" data-fk="nav-${n[0]}" data-tip="${n[1]}${b?', '+c:''}" ${cur?'aria-current="page"':''}>${ico(n[3])}<span>${n[1]}</span>${b}</a>`}
+function renderNav(){const top=route()[0]||'home';const t=top==='welcome'?'home':top;keepFocus(()=>{$('#rail').innerHTML=`<div class="rail-in">${NAV.slice(0,4).map(n=>navItem(n,t)).join('')}<span class="spacer"></span>${navItem(NAV[4],t)}</div>`;$('#tabbar').innerHTML=NAV.slice(0,4).map(n=>navItem(n,t)).join('')})}
+function liveLabel(){if(st.offline)return'Paused · offline';const t=freshest(),a=t==null?null:Math.max(0,Math.round((st.now-t)/1000));return st.live?`Live · checked ${a==null?'nothing yet':shortAge(a)+' ago'}`:`Paused · frozen at ${a==null?'0s':shortAge(a)}`}
+function updateTop(){
+ const lt=$('#live-toggle');lt.textContent=liveLabel();lt.setAttribute('aria-pressed',st.live&&!st.offline);
+ const sl=$('#settings-live');if(sl){sl.setAttribute('aria-pressed',st.live);sl.textContent='Live feed: '+(st.live?'On':'Off')}
+ const d=$('#disconnect'),s=selSvc();
+ if(s){d.textContent='Disconnect '+s.name;d.removeAttribute('aria-disabled');d.removeAttribute('aria-describedby')}
+ else{d.textContent='Disconnect';d.setAttribute('aria-disabled','true');d.setAttribute('aria-describedby',$('#disc-reason')?'disc-reason':'disc-reason-sr')}
+ const top=route()[0]||'home',hs=$('#hdr-settings');
+ if(top==='settings'){hs.innerHTML=ico('back')+'Back';hs.setAttribute('href',st.backTo);hs.dataset.act='hdr-back'}else{hs.innerHTML=ico('gear')+'Settings';hs.setAttribute('href','#/settings/services');hs.dataset.act='hdr-settings'}
+ const strip=$('#strip');strip.hidden=!st.offline&&!st.backOnline;strip.textContent=st.offline?"You're offline. Worlds is showing what it last knew, marked with when.":st.backOnline?'Back online. Checking now.':'';
+ const pushed=isPhone()&&top==='home'&&route()[1]&&selSvc();
+ document.body.classList.toggle('no-fab',top==='connect'||top==='welcome'||!!pushed);
+ document.body.classList.toggle('no-tabs',top==='connect'||!!pushed);
+}
+function placeControls(){
+ const phone=isPhone(),top=$('#controls'),fab=$('#fab-slot'),live=$('#live-toggle'),sim=$('#simulate-change'),add=$('#add-service'),dis=$('#disconnect');
+ const slot=$('.status-slot'),dslot=$('.disc-slot');
+ if(phone){if(slot)slot.append(live,sim);else top.append(live,sim);fab.append(add);if(dslot)dslot.append(dis);else top.append(dis)}
+ else top.append(live,sim,add,dis);
+}
+const fk=el=>el&&(el.dataset&&el.dataset.fk||el.id)||null;
+const findFk=k=>k&&(document.getElementById(k)||document.querySelector('[data-fk="'+k.replace(/(["\\])/g,'\\$1')+'"]'));
+function keepFocus(fn){const k=fk(document.activeElement);fn();if(k){const el=findFk(k);if(el&&el!==document.activeElement)el.focus({preventScroll:true})}}
+document.addEventListener('focusin',e=>{const k=fk(e.target);if(k)st.lastFk=k});
+
+function renderView(opts={}){
+ const main=$('#main'),top=$('#controls');
+ top.append($('#live-toggle'),$('#simulate-change'),$('#add-service'),$('#disconnect'));
+ const r=route(),k=fk(document.activeElement);let html;
+ const v=r[0]||'home';
+ document.body.classList.toggle('no-fab',false);
+ if(v==='welcome')html=viewWelcome(Math.min(3,Math.max(1,parseInt(r[1])||1)));
+ else if(v==='home')html=viewHome(r);
+ else if(v==='connect')html=viewConnect(r[1]||'discover');
+ else if(v==='needs-you')html=viewNeeds();
+ else if(v==='memory')html=viewMemory();
+ else if(v==='settings')html=viewSettings(r);
+ else html=viewError();
+ main.innerHTML=html;placeControls();updateTop();
+ if(!opts.focus&&k){const el=findFk(k);if(el)el.focus({preventScroll:true})}
+}
+function focusHeading(){
+ const r=route(),k=routeKey();window.scrollTo(0,0);
+ const inv=st.inv[k];if(inv){delete st.inv[k];const el=findFk(inv);if(el){el.focus();return}}
+ let h=null;if(r[0]==='settings'&&r[1])h=$('#sec-'+r[1]);
+ h=h||$('#main h1')||$('#main h2')||$('#main');h.focus();
+}
+let firstRoute=true;
+function onRoute(){
+ const r=route(),v=r[0]||'home',k=routeKey();
+ if(st.curKey&&st.curKey!==k&&st.lastFk)st.inv[st.curKey]=st.lastFk;
+ if(v==='home'&&!st.welcomeDone){history.replaceState(null,'','#/welcome/'+st.beat);return onRoute()}
+ if(v==='welcome'&&st.welcomeDone&&!st.replay){history.replaceState(null,'','#/home');return onRoute()}
+ if(v==='connect'){const g=cxGuard(r[1]||'discover');if(g!==(r[1]||'discover')||!r[1]){history.replaceState(null,'','#/connect/'+g);return onRoute()}}
+ if(v!=='settings')st.backTo=location.hash;
+ if(st.note&&st.note.view!==v)st.note=null;
+ st.curKey=routeKey();
+ renderNav();renderView({focus:true});
+ if(v==='connect'&&r[1]==='preview'&&!st.cx.ready)startPreview();
+ if(firstRoute){firstRoute=false}else focusHeading();
+}
+const go=h=>{if(location.hash===h)onRoute();else location.hash=h};
+function refreshAll(){renderNav();renderView({})}
+
+/* ---------- announcements ---------- */
+function say(msg,o={}){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(say.t);if(!o.keep)say.t=setTimeout(()=>t.classList.remove('show'),3600);if(o.loud){const a=$('#alert');a.textContent='';setTimeout(()=>{a.textContent=msg},30)}}
+
+/* ---------- connection logic ---------- */
+function resetSvc(id){Object.assign(svcs[id],mkBase(id))}
+function applyLock(s){const b=s.facts.find(f=>f.id==='frontdoor.back-door'),u=s.facts.find(f=>f.id==='frontdoor.unlocked-for');if(b){b.value='locked';b.obs=st.now}if(u){u.value=0;u.obs=st.now;u.sim='sim'}s.state='healthy';s.reason=null;s.summary='Back door is locked. The Home app remains the owner.';s.checkedAt=st.now}
+function connectSvc(id,o){
+ resetSvc(id);const s=svcs[id];
+ s.connected=true;s.ref=o.ref;s.heldRef=false;s.scope=o.scope?[...o.scope]:null;s.during=o.during;s.connectedAt=st.now;s.keptOut=o.omit||[];
+ s.facts=s.facts.filter(f=>!s.keptOut.includes(f.id));
+ s.facts.forEach(f=>{f.nextChk=st.now+30000});
+ if(id==='front-door'&&st.doorLocked)applyLock(s);
+ if(!st.connected.includes(id))st.connected.push(id);
+ st.selected=id;st.fact[id]=s.facts[0]&&s.facts[0].id;delete st.frames[id];st.lastOne=false;
+ const f=s.facts.find(x=>x.state==='live');
+ if(f&&!st.scripted.has(f.id)){
+  if(id==='media-shelf'&&!st.scripted.has('media.items')){const m=s.facts.find(x=>x.id==='media.items');if(m){st.scripted.add(m.id);m.script={since:st.now,stage:0}}}
+  else if(o.via==='connect'&&!st.armConn&&id!=='media-shelf'){st.armConn=true;st.scripted.add(f.id);f.script={since:st.now,stage:0}}
+ }
+}
+function toStale(f,s){f.state='stale';f.sim='stale';f.staleAt=st.now;f.script=f.script||{since:st.now};f.script.stage=1;f.script.at=st.now}
+function toUnknown(f){f.lastVal=f.value;f.lastAt=f.obs;f.value=null;f.state='unknown';f.sim='unknown';f.script.stage=2}
+function stepFacts(){let changed=null;
+ for(const id of st.connected){const s=svcs[id];for(const f of s.facts){
+  const sc=f.script;
+  if(sc&&sc.stage===0&&f.state==='live'&&st.now-sc.since>=90000){toStale(f,s);changed=`${s.name} is now Stale.`;continue}
+  if(sc&&sc.stage===1&&f.state==='stale'&&st.now-sc.at>=60000){toUnknown(f);changed=`${s.name} is now Unknown.`;continue}
+  if(f.state==='live'&&s.state!=='needs_attention'&&!s.refused&&f.nextChk&&st.now>=f.nextChk){f.obs=st.now;f.nextChk+=30000;if(s.state==='healthy')s.checkedAt=st.now}
+ }}
+ return changed}
+function tick(){
+ if(!st.welcomeDone||!st.live||st.offline)return;
+ st.now+=1000;st.sec++;const ch=stepFacts();
+ if(ch){st.settleUntil=performance.now()+1500;say(ch+' (simulated)');refreshAll()}
+ else if(st.sec%st.cadence===0){refreshAges();updateTop()}
+}
+setInterval(tick,1000);
+function toggleLive(){st.live=!st.live;updateTop();say(st.live?'Live feed resumed.':'Live feed paused. Freshness is frozen.',{keep:!st.live})}
+function simulate(){
+ const s=svcs['front-door'];
+ if(!s.connected){say("Front Door isn't at the counter, so there is nothing for the Home app to update.");return}
+ if(st.doorLocked){say('The Home app already reported the back door locked.');return}
+ st.doorLocked=true;applyLock(s);st.lastOne=attn()===0;
+ st.nodUntil=performance.now()+1000;st.updUntil=performance.now()+3000;st.settleUntil=performance.now()+1500;st.settleSvc='front-door';
+ say('Updated across Home, Front Door and Agent facts. The Home app reported the back door locked. Worlds locked nothing.');
+ refreshAll();clearTimeout(simulate.t);simulate.t=setTimeout(()=>{if(!$('#dlg').open&&route()[0]!=='connect'&&route()[0]!=='welcome')refreshAll()},3100);
+}
+
+/* ---------- dialogs ---------- */
+function openDlg(html,inv){const d=$('#dlg');$('#dlg-card').innerHTML=html;st.dlgInv=inv||st.dlgInv||fk(document.activeElement);if(!d.open)d.showModal();const h=$('#dlg-card [data-dh]');if(h)h.focus()}
+$('#dlg').addEventListener('close',()=>{const el=findFk(st.dlgInv);(el||$('#main h1')||$('#main')).focus();st.dlgInv=null});
+function openDisconnect(id){const s=svcs[id];if(!s||!s.connected)return;st.dlgInv=fk(document.activeElement);const n=s.facts.length;
+ openDlg(`<h2 id="dlg-h" data-dh tabindex="-1">Disconnect ${esc(s.name)}?</h2><p>${esc(s.name)}'s ${pl(n,'fact')} and its app frame will be removed from Worlds. The ${esc(s.owner.app)} app is untouched.</p><p>Its reference stays in Settings, held and unused.</p><div class="goes"><div><h3>Goes from Worlds</h3><ul><li>The slip, its facts and receipts</li><li>Its app frame and kept-out note</li><li>Last-known values Worlds remembered</li></ul></div><div><h3>Stays</h3><ul><li>The ${esc(s.owner.app)} app, untouched</li><li>The credential reference (held, nothing is sent with it)</li></ul></div></div><div class="actions"><button type="button" class="btn" data-act="dlg-close">Keep service</button><button type="button" class="btn danger" id="confirm-disconnect" data-act="dlg-disc" data-id="${id}">Disconnect</button></div>`,st.dlgInv)}
+function dropSvc(id){const s=svcs[id],n=s.facts.length;st.connected=st.connected.filter(x=>x!==id);s.connected=false;s.facts=[];delete st.frames[id];if(st.selected===id)st.selected=st.connected[0]||null;return n}
+function doDisconnect(id){const s=svcs[id],app=s.owner.app,n=dropSvc(id);s.heldRef=!!s.ref;
+ const text=`${s.name}'s ${pl(n,'fact')} and its app frame are removed from Worlds. The ${app} app is untouched. Its reference is kept.`;
+ st.note={text,view:route()[0]||'home',reconnect:id};say(text);
+ st.dlgInv=st.selected?'slip-'+st.selected:'add-service';
+ if(route()[0]==='home'&&route()[1])history.replaceState(null,'','#/home');
+ $('#dlg').close();refreshAll();const el=findFk(st.dlgInv);if(el)el.focus()}
+function openRevoke(id){const s=svcs[id];st.dlgInv=fk(document.activeElement);
+ openDlg(`<h2 id="dlg-h" data-dh tabindex="-1">Remove ${esc(s.name)}'s reference?</h2><p>Worlds will delete the reference and everything it held for it. ${esc(s.name)} is disconnected too if it is still at the counter. ${esc(s.owner.app)} is untouched.</p><div class="goes"><div><h3>Goes from Worlds</h3><ul><li>The credential reference and what Worlds held for it</li><li>The connection's config</li>${s.connected?'<li>The slip, facts, receipts and frame, because it can\'t publish without its reference</li>':''}</ul></div><div><h3>Stays</h3><ul><li>The provider's own key, still active with ${esc(s.owner.app)}</li><li>Anything the ${esc(s.owner.app)} app holds</li></ul></div></div><p><strong>Worlds can't revoke the key itself. Rotate it with the ${esc(s.owner.app)} app.</strong></p><div class="actions"><button type="button" class="btn" data-act="dlg-close">Keep reference</button><button type="button" class="btn danger" data-act="dlg-revoke" data-id="${id}">Remove reference</button></div>`,st.dlgInv)}
+function doRevoke(id){const s=svcs[id],app=s.owner.app;if(s.connected)dropSvc(id);s.ref=null;s.scope=null;s.heldRef=false;
+ const text=`${s.name}'s reference is removed and its connection is gone from Worlds. The key itself is still active with ${app}. Rotate it there.`;
+ const empty=!st.connected.length;st.note={text,view:empty?'home':'settings',owner:id};say(text);st.dlgInv=null;$('#dlg').close();
+ if(empty&&route()[0]!=='home')go('#/home');else refreshAll()}
+function ownerNote(a){openDlg(`<h2 id="dlg-h" data-dh tabindex="-1">This would open the ${esc(a)} app outside Worlds.</h2><p class="muted">In this mockup the link goes nowhere, so nothing was opened and nothing changed.</p><div class="actions"><button type="button" class="btn" data-act="dlg-close">Close</button></div>`)}
+function handoff(){st.dlgInv=fk(document.activeElement);openDlg(`<h2 id="dlg-h" data-dh tabindex="-1">Approvals aren't connected yet.</h2><p>Worlds can't send this to Project Home yet, so nothing was sent. You can decide in the Home app instead.</p><p class="muted">When approvals are connected, this will open Project Home with the proposal. Project Home, not Worlds, makes the decision.</p><div class="actions"><a class="btn primary" href="app://home" data-act="owner" data-app="Home">Open Home app</a><button type="button" class="btn" data-act="dlg-close">Close</button></div>`,st.dlgInv)}
+
+/* ---------- connect actions ---------- */
+function startPreview(){const c=st.cx;clearTimeout(startPreview.t);startPreview.t=setTimeout(()=>{c.ready=true;if(routeKey()==='connect/preview')keepFocus(()=>renderView({}))},800)}
+function cxSetRef(v){const c=st.cx;c.ref=v;c.test={n:0,state:'idle',at:null};c.refState=v.trim()?'dirty':'pristine';updateRefUI()}
+function updateRefUI(){const c=st.cx,m=$('#ref-msg'),i=$('#cx-ref');if(m)m.innerHTML=msgHTML(c.refState);if(i){if(c.refState==='secret'||c.refState==='own')i.setAttribute('aria-invalid','true');else i.removeAttribute('aria-invalid')}const n=$('#cx-next');if(n){const ok=c.refState==='valid'&&c.scope.size;if(ok)n.removeAttribute('aria-disabled');else n.setAttribute('aria-disabled','true')}}
+function cxValidate(){const c=st.cx,k=refCheck(c.ref);if(k==='empty'){c.refState='pristine'}else if(k==='secret'){c.ref='';c.refState='secret';const i=$('#cx-ref');if(i)i.value=''}else if(k==='own')c.refState='own';else c.refState='valid';updateRefUI();return c.refState==='valid'}
+function cxNext(){
+ const step=route()[1],c=st.cx,i=STEPS.indexOf(step);
+ if(step==='reference'){if(!cxValidate()||!c.scope.size){const f=$('#cx-ref');f&&f.focus();return}
+  if(c.mode==='narrow'||c.mode==='replace'){const s=svcs[c.sid];s.ref=c.ref;s.scope=[...c.scope];if(c.mode==='replace'){s.refused=false;s.facts.forEach(f=>{if(f.sim==='stale'&&f.script)return;if(f.refStale){f.state='live';f.sim=null;delete f.refStale}});}const to=c.returnTo;say(c.mode==='narrow'?`${s.name}'s reference is now scoped to ${capN(c.scope.size)}.`:`${s.name}'s reference was replaced. Worlds will check it now.`);st.cx=newCx();go(to);return}
+  c.refState='pending';updateRefUI();const inp=$('#cx-ref');inp&&inp.setAttribute('readonly','');setTimeout(()=>{c.refState='valid';go('#/connect/test')},600);return}
+ if(step==='publish'){publish();return}
+ go('#/connect/'+STEPS[i+1]);
+}
+function runTest(){const c=st.cx,t=c.test;if(t.state==='running'||t.state==='limit'||refCheck(c.ref)!=='valid'||!c.scope.size)return;t.state='running';keepFocus(()=>renderView({}));
+ setTimeout(()=>{t.at=st.now;if(c.simFail){t.n++;t.state=t.n>=3?'limit':'failed';say("Test didn't pass.",{loud:true})}else{t.state='passed';t.n=0}if(routeKey()==='connect/test'){renderView({});const el=t.state==='passed'?$('#cx-next'):$('#cx-run');el&&el.focus()}},900)}
+function publish(){const c=st.cx,s=svcs[c.sid];if(c.phase!=='confirm')return;
+ const omit=DEFS[c.sid].facts().filter(f=>!c.chosen.has(f.id)).map(f=>f.id);
+ connectSvc(c.sid,{ref:c.ref,scope:c.scope,during:'connect',omit,via:'connect'});c.phase='delivering';renderNav();renderView({focus:true});updateTop();
+ const dur=matchMedia('(prefers-reduced-motion:reduce)').matches||st.motion==='reduce'?0:isPhone()?300:400;
+ setTimeout(()=>{c.phase='done';if(routeKey()==='connect/publish'){renderView({focus:true});const o=$('#cx-open');o&&o.focus()}say(`Connected ${s.name}. Its slip and facts are now at the counter.`)},dur+60)}
+
+/* ---------- actions ---------- */
+function startConnectWith(id,mode,ref,to){st.cx=newCx();const c=st.cx,s=svcs[id];Object.assign(c,{mode,sid:id,ref:ref||'',refState:ref?'valid':'pristine',scope:new Set(s.scope||caps(id)),chosen:new Set(DEFS[id].facts().map(f=>f.id)),returnTo:to||'#/home'});}
+const ACT={
+ live:toggleLive,simulate,
+ add(){if(!st.welcomeDone){st.welcomeDone=true;st.replay=false}st.cx=newCx();go('#/connect/discover')},
+ disconnect(){const s=selSvc();if(s)openDisconnect(s.id)},
+ 'disc-row'(t){openDisconnect(t.dataset.id)},
+ slip(t){st.selected=t.dataset.id;st.tab='facts';if(isPhone())go('#/home/'+t.dataset.id);else{history.replaceState(null,'','#/home/'+t.dataset.id);renderView({});updateTop()}},
+ 'open-svc'(t){go('#/home/'+t.dataset.id)},
+ 'back-home'(){go('#/home')},
+ fact(t){st.fact[t.dataset.s]=t.dataset.f;renderView({})},
+ tab(t){st.tab=t.dataset.t;renderView({})},
+ owner(t){ownerNote(t.dataset.app)},
+ 'frame-retry'(t){loadFrame(t.dataset.id)},
+ 'frame-cancel'(t){const fr=st.frames[t.dataset.id];clearTimeout(fr.t);fr.state='cancelled';paintFrame(t.dataset.id)},
+ check(t){const s=svcs[t.dataset.s],f=s.facts.find(x=>x.id===t.dataset.f);if(!f)return;if(f.lastVal!==undefined){f.value=f.lastVal;delete f.lastVal;delete f.lastAt}f.state='live';f.sim=null;f.obs=st.now;f.nextChk=st.now+30000;f.script=null;st.settleUntil=performance.now()+1500;st.settleSvc=s.id;say(`${f.label} was checked and is Live again.`);refreshAll()},
+ handoff,
+ 'dlg-close'(){$('#dlg').close()},
+ 'dlg-disc'(t){doDisconnect(t.dataset.id)},
+ 'dlg-revoke'(t){doRevoke(t.dataset.id)},
+ reconnect(t){const id=t.dataset.id,s=svcs[id];st.note=null;startConnectWith(id,'reconnect',s.ref,'#/home');go('#/connect/reference')},
+ 'dismiss-note'(){st.note=null;renderView({})},
+ 'dismiss-journey'(){st.journeySeen=true;renderView({})},
+ 'skip-welcome'(){st.welcomeDone=true;st.replay=false;st.selected=st.selected||st.connected[0]||null;go('#/home')},
+ 'w-next'(){go('#/welcome/2')},
+ 'w-back'(){go('#/welcome/'+Math.max(1,st.beat-1))},
+ 'w-connect'(t){const id=t.dataset.id;if(!st.wscope[id].size)return;st.wstate[id]='delivering';connectSvc(id,{ref:'ref://'+id,scope:st.wscope[id],during:'first run'});renderNav();renderView({focus:true});
+   const dur=matchMedia('(prefers-reduced-motion:reduce)').matches||st.motion==='reduce'?0:isPhone()?300:400;setTimeout(()=>{st.wstate[id]='done';renderView({focus:true});const b=$('#w-continue');b&&b.focus()},dur+60)},
+ 'w-continue'(){if(st.beat===2)go('#/welcome/3');else{st.welcomeDone=true;st.replay=false;go('#/home')}},
+ 'cx-next':cxNext,'cx-run':runTest,
+ 'cx-back'(){const i=STEPS.indexOf(route()[1]);go('#/connect/'+STEPS[Math.max(0,i-1)])},
+ 'cx-cancel'(){const to=st.cx.returnTo;st.cx=newCx();go(st.cx&&to&&to!=='#/home'?to:'#/home')},
+ 'cx-open'(){const id=st.cx.sid;st.cx=newCx();go('#/home/'+id)},
+ 'cx-more'(){st.cx=newCx();go('#/connect/discover')},
+ 'ref-replace'(t){st.replacing=t.dataset.id;renderView({});const i=$('#rep-ref');i&&i.focus()},
+ 'ref-cancel'(){const id=st.replacing;st.replacing=null;renderView({});const b=findFk('rep-'+id);b&&b.focus()},
+ 'ref-save'(t){const s=svcs[t.dataset.id],i=$('#rep-ref'),m=$('#rep-msg'),k=refCheck(i.value);
+   if(k==='valid'){s.ref=i.value.trim();st.replacing=null;say(`${s.name}'s reference was replaced.`);renderView({})}
+   else if(k==='empty'){m.innerHTML=msgHTML('pristine');i.focus()}
+   else{if(k==='secret')i.value='';m.innerHTML=msgHTML(k);i.setAttribute('aria-invalid','true');i.focus()}},
+ 'ref-remove'(t){openRevoke(t.dataset.id)},
+ 'ref-narrow'(t){const id=t.dataset.id;startConnectWith(id,'narrow',svcs[id].ref,'#/settings/references');go('#/connect/discover')},
+ replay(){st.welcomeDone=false;st.replay=true;st.beat=1;st.wstate={};go('#/welcome/1')},
+ journey(){st.journeySeen=false;go('#/home')},
+ 'mock-stale'(){const s=svcs['media-shelf'];const f=s.connected&&s.facts.find(x=>x.id==='media.items');if(!f){say('Connect Media Shelf first.');return}if(f.state!=='live'){say('That fact is already not live.');return}f.script={since:st.now};st.scripted.add(f.id);toStale(f,s);st.settleUntil=performance.now()+1500;st.settleSvc=s.id;say('Media Shelf is now Stale (simulated).');refreshAll()},
+ 'mock-refuse'(){const s=svcs['notes-sync'];if(!s.connected){say('Connect Notes Sync first, then try this again.');return}s.refused=true;s.facts.forEach(f=>{if(f.state==='live'){f.state='stale';f.sim='stale';f.staleAt=st.now;f.refStale=true}});say('Notes Sync stopped accepting this reference.');refreshAll()},
+ 'mock-unscoped'(){const s=svcs['media-shelf'];if(!s.connected){say('Connect Media Shelf first.');return}s.scope=null;say('Media Shelf now has an older, unscoped connection.');refreshAll()},
+ 'hdr-back'(e){},'hdr-settings'(){},
+ 'reload-view'(){renderView({focus:true})}
+};
+document.addEventListener('click',e=>{
+ const t=e.target.closest('[data-act]');if(!t)return;
+ const a=t.dataset.act;
+ if(t.getAttribute('aria-disabled')==='true'){e.preventDefault();if(a==='cx-next'||a==='cx-run'){const n={reference:'Add a valid reference and tick at least one thing it may be used for.',test:'Run the safe test and let it pass first.',discover:'Choose a service first.',preview:'Dot is still fetching the facts.'}[route()[1]];if(n&&a==='cx-next')say(n)}return}
+ if(t.tagName==='A'&&(a==='owner'||a==='hdr-settings'||a==='hdr-back'))e.preventDefault();
+ if(a==='hdr-back'){go(st.backTo||'#/home');return}
+ if(a==='hdr-settings'){go('#/settings/services');return}
+ if(ACT[a])ACT[a](t,e);
+});
+const CHG={
+ 'mem-filter'(t){st.memFilter=t.value;renderView({})},
+ 'cx-pick'(t){if(st.cx.mode==='narrow')return;pick(t.value);updateTop();const n=$('#cx-next');n&&n.removeAttribute('aria-disabled')},
+ 'cx-cap'(t){const c=st.cx;t.checked?c.scope.add(t.dataset.c):c.scope.delete(t.dataset.c);c.test={n:0,state:'idle',at:null};const m=$('#scope-sentence');if(m)m.innerHTML=`<strong>${c.scope.size?`Worlds will send this reference only when reading: ${esc(list([...c.scope]))}.`:'Tick at least one thing this reference may be used for.'}</strong>`;updateRefUI()},
+ 'cx-fact'(t){const c=st.cx;if(!t.checked&&c.chosen.size<=1){t.checked=true;say('At least one fact must stay shared.');return}t.checked?c.chosen.add(t.dataset.f):c.chosen.delete(t.dataset.f);keepFocus(()=>renderView({}))},
+ 'cx-sim'(t){st.cx.simFail=t.checked},
+ 'w-cap'(t){const s=st.wscope[t.dataset.id];if(!t.checked&&s.size<=1){t.checked=true;return}t.checked?s.add(t.dataset.c):s.delete(t.dataset.c);keepFocus(()=>renderView({}))},
+ cadence(t){st.cadence=Number(t.value);say(`Live feed now checks every ${st.cadence} seconds.`)},
+ motion(t){st.motion=t.value;applyMotion();say(t.value==='reduce'?'Motion is reduced. Data keeps updating.':'Motion now follows your system.')},
+ theme(t){st.theme=t.value;applyTheme()}
+};
+document.addEventListener('change',e=>{const t=e.target,c=t.dataset&&t.dataset.chg;if(c&&CHG[c])CHG[c](t,e)});
+document.addEventListener('input',e=>{if(e.target.id==='cx-ref')cxSetRef(e.target.value);else if(e.target.id==='rep-ref'){const m=$('#rep-msg');m&&(m.innerHTML=msgHTML('dirty'))}});
+document.addEventListener('focusout',e=>{if(e.target.id==='cx-ref'&&st.cx.refState!=='pending'&&!$('#dlg').open)cxValidate()});
+document.addEventListener('keydown',e=>{
+ if(e.key==='Enter'&&e.target.id==='cx-ref'){e.preventDefault();cxNext()}
+ if(e.key==='Enter'&&e.target.id==='rep-ref'){e.preventDefault();const b=$('[data-act="ref-save"]');b&&b.click()}
+ if(e.key==='Escape'&&!$('#dlg').open&&route()[0]==='connect'&&!e.defaultPrevented){const ph=st.cx.phase;if(ph==='confirm'){const to=st.cx.returnTo;st.cx=newCx();go(to||'#/home')}}
+});
+function applyTheme(){const h=document.documentElement;if(st.theme==='system')h.removeAttribute('data-theme');else h.setAttribute('data-theme',st.theme)}
+function applyMotion(){const h=document.documentElement;if(st.motion==='reduce')h.setAttribute('data-motion','reduce');else h.removeAttribute('data-motion')}
+window.addEventListener('hashchange',onRoute);
+window.addEventListener('offline',()=>{st.offline=true;st.backOnline=false;updateTop();say("You're offline. Worlds is showing what it last knew, marked with when.")});
+window.addEventListener('online',()=>{st.offline=false;st.backOnline=true;updateTop();say('Back online. Checking now.');setTimeout(()=>{st.backOnline=false;updateTop()},3000)});
+matchMedia('(max-width:47.99rem)').addEventListener('change',()=>{renderView({});updateTop()});
+if(!navigator.onLine){st.offline=true}
+if(!location.hash||location.hash==='#')history.replaceState(null,'','#/welcome/1');
+onRoute();
+})();
+</script>
+</body>
+</html>
