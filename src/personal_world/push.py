@@ -44,10 +44,12 @@ from collections import deque
 from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from .identity import BOOTSTRAP_PRINCIPAL_ID, Principal, principal_scoped_path
 from .status import Status
+
+if TYPE_CHECKING:  # the old app's identity layer; imported lazily so the front door never loads it
+    from .identity import Principal
 
 _logger = logging.getLogger("personal_world.push")
 
@@ -594,12 +596,17 @@ class PushHub:
     environment, and pushes. Never crashes a request: a failed delivery
     is recorded on the device or the notification, visibly."""
 
-    def __init__(self, data_dir: Path, mode: str = "single") -> None:
+    def __init__(self, data_dir: Path, mode: str = "single",
+                 store_path: Callable[[str, str], Path] | None = None) -> None:
+        """``store_path(person_id, kind)`` names a store's file. Without it the old app's
+        ``identity.principal_scoped_path`` is used (imported only then), so the front door,
+        which passes its own, never loads the old identity layer."""
         self.data_dir = Path(data_dir)
         self.mode = mode
+        self._store_path = store_path
         self.now: Callable[[], float] = _now_epoch
         #: who to deliver to when a background tick has no principal
-        self.person_ids: Callable[[], list[str]] = lambda: [BOOTSTRAP_PRINCIPAL_ID]
+        self.person_ids: Callable[[], list[str]] = self._default_person_ids
         self._rate: dict[str, deque[float]] = {}
         self._rate_lock = threading.Lock()
         self._vapid_cache: tuple[str, Any] | None = None
@@ -646,22 +653,27 @@ class PushHub:
 
     # -- per-person stores -------------------------------------------------
 
+    def _default_person_ids(self) -> list[str]:
+        if self._store_path is not None:
+            return ["owner"]
+        from .identity import BOOTSTRAP_PRINCIPAL_ID
+        return [BOOTSTRAP_PRINCIPAL_ID]
+
     def _person(self, person_id: str) -> Principal:
+        from .identity import Principal
         return Principal(id=person_id, kind="person", source="push")
 
+    def _path(self, person_id: str, kind: str) -> Path:
+        if self._store_path is not None:
+            return self._store_path(person_id, kind)
+        from .identity import principal_scoped_path
+        return principal_scoped_path(self.data_dir, self._person(person_id), kind, mode=self.mode)
+
     def _sub_store(self, person_id: str) -> SubscriptionStore:
-        return SubscriptionStore(
-            principal_scoped_path(
-                self.data_dir, self._person(person_id), "push_subscriptions", mode=self.mode
-            )
-        )
+        return SubscriptionStore(self._path(person_id, "push_subscriptions"))
 
     def _note_store(self, person_id: str) -> NotificationStore:
-        return NotificationStore(
-            principal_scoped_path(
-                self.data_dir, self._person(person_id), "notifications", mode=self.mode
-            )
-        )
+        return NotificationStore(self._path(person_id, "notifications"))
 
     # -- subscriptions -------------------------------------------------------
 
