@@ -29,7 +29,8 @@ const TEXT_OPTIONS: Option<TextSize>[] = [
 ];
 
 const THEME_OPTIONS: Option<Theme>[] = [
-  { value: "starfield", label: "Starfield", hint: "Dark and warm. The default." },
+  { value: "mulberry", label: "Mulberry & Mint", hint: "Plum and mint, the estate's look. The default." },
+  { value: "starfield", label: "Starfield", hint: "Dark and warm." },
   { value: "daylight", label: "Daylight", hint: "Light." },
 ];
 

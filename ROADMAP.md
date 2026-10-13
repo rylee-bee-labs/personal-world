@@ -39,7 +39,7 @@ coordinator. None is a dependency of the first slice.
 
 The first-release **product language & interaction contract** (owner-approved 2026-09-21) lives at
 [`docs/PRODUCT-LANGUAGE.md`](docs/PRODUCT-LANGUAGE.md): the stable skeleton (`Overview · Memory · Chat ·
-Settings`) + personal sections, Records-vs-Vault, the **dark-warm** default theme (starfield since 2026-09-25), and the theme
+Settings`) + personal sections, Records-vs-Vault, the default theme (Mulberry & Mint since 2026-10-12; starfield before), and the theme
 boundary (restyle, never rename/relocate).
 
 ## Now
