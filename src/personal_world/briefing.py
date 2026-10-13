@@ -955,11 +955,6 @@ def build_briefing(
     return {"ok": True, "status": overall, "data": data}
 
 
-# Re-exported for the route's place validation.
-def known_system(system_id) -> bool:
-    return system_id in SYSTEM_IDS
-
-
 def dumps_place(system, item_id, updated_at) -> str:
     return json.dumps(
         {"system": system, "item_id": item_id, "updated_at": updated_at}
