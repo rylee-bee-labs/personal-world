@@ -1,6 +1,9 @@
 # Security policy
 
-> **Status:** Reference · **Verified:** 2026-09-26 · **Canonical for:** the security policy and public-repository boundary · **Read this if:** you found a vulnerability, or you are about to add config, a hostname, or a credential to this public repo
+> **Status:** Reference · **Verified:** 2026-10-13 · **Canonical for:** the security policy and public-repository boundary · **Read this if:** you found a vulnerability, or you are about to add config, a hostname, or a credential to this public repo
+
+Which doc owns which command or claim (including the gates named below):
+[`docs/vnext/docs-truth.md`](docs/vnext/docs-truth.md).
 
 **In short:** Worlds is a self-hosted app that runs one private place for one person (or a household). This page says how to report a security problem privately, and what must never be committed to this public repository. The automated gate that enforces the boundary is `tests/test_public_safety.py`.
 
@@ -64,8 +67,16 @@ deliberate synthetic canary in a test must carry the marker
 
 Nothing served to the browser may ever hold a credential: the `ui/` build is
 served same-origin by the backend, and the former Vite bundle inlining
-(`import.meta.env`) was removed with the 2026-09-16 SPA cutover. Production
-runs on the **transcode host** (a LAN machine) at `/opt/personal-world` behind
-the homelab reverse proxy; that proxy carries the security headers middleware but
-no forward-auth, because Worlds owns its own auth (bearer token, sign-in,
-optional OIDC via Authelia as an identity provider).
+(`import.meta.env`) was removed with the 2026-09-16 SPA cutover. Worlds owns
+its own authentication boundary (bearer token, sign-in, optional OIDC with
+your own identity provider), so a reverse proxy in front of it is expected to
+carry transport concerns — TLS, security headers — rather than to be the
+authority.
+
+**Deployment specifics do not belong in this repository.** Host names, LAN
+addresses, filesystem paths, install directories and operator runbooks for a
+real instance are deployment facts, not product contract: they stay in the
+operator's own (private) records. This policy describes the boundary; it does
+not describe any particular deployment. If a change would only be true by
+rewriting the deployment, fix the deployment or the document — never the
+other way around.

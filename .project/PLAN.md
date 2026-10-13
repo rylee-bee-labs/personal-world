@@ -11,6 +11,11 @@ and [its executable plan](../docs/rebuild/PLAY-NICE-KERNEL-PLAN.md).
 Current work: GitHub Issues. Current code/runtime state:
 [`CURRENT.md`](CURRENT.md).
 
+Which document owns which command or claim (routes, build, install, tests,
+backup) — and which pages are superseded — is
+[`docs/vnext/docs-truth.md`](../docs/vnext/docs-truth.md). Prefer it and
+the generated inventories over a hand-copied list in any direction doc.
+
 ## North star
 
 Things come to the person.
@@ -60,16 +65,21 @@ A provider's API shape must not become the product's vocabulary.
 9. Small slices should end in something a person can actually inspect.
 10. Production cutover is an owner decision, separate from source readiness.
 
-## Rebuild lane
+## Rebuild lane — merged
 
-`rebuild/front-door` is the active integration branch for the clean rebuild
-authorized by ADR-0008.
+The front-door rebuild authorized by ADR-0008 is now `main`: `main`
+carries the front door, merged from `rebuild/front-door` in PR #277
+(2026-10-06). That was a source cutover. Merging publishes an image; it is
+not a deployment, and it is not a production cutover.
 
-It is not production merely because it is ahead of `main`.
+Issues #262 and #263 were closed as not planned on 2026-10-07; their
+remainder is carried in [`docs/BACKLOG.md`](../docs/BACKLOG.md).
 
-The existing cutover work remains tracked in #262 and #263.
+Documents that describe `main` as pre-front-door, or `rebuild/front-door`
+as the live lane, predate the merge. Keep their content and label it; do
+not read their branch claims as current direction.
 
-Before cutover, ADR-0009 proposes a fresh-ground semantic-kernel experiment:
+Next, ADR-0009 proposes a fresh-ground semantic-kernel experiment:
 keep the earned safety/durability constraints, but delete compatibility-only
 models and rebuild the smallest machine model on Play-Nice vocabulary.
 

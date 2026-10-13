@@ -68,15 +68,18 @@ format. See [`docs/rebuild/DURABILITY.md`](docs/rebuild/DURABILITY.md).
 
 ## Branches
 
-Two code lines are active for now:
+`main` is the active line, and it **is** the front-door application: the
+`rebuild/front-door` line was merged into `main` in PR #277 (2026-10-06).
+That was a *source* cutover — merging publishes an image, it does not
+deploy; deploying the front door is a separate, deliberate owner step
+(`.project/CURRENT.md`).
 
-- `main` — default/pre-front-door application and maintenance line.
-- `rebuild/front-door` — clean front-door rebuild; not production until
-  explicit cutover.
+Older documents that describe `main` as "pre-front-door", or that treat
+`rebuild/front-door` as the live lane, are drifted history. Keep their
+content; do not read their branch claims as current.
 
-Do not silently read one branch's behavior into the other.
-
-Derive divergence:
+If a `rebuild/front-door` remote branch still exists, derive divergence
+before assuming anything about it:
 
 ```sh
 git fetch origin
@@ -98,6 +101,7 @@ Current work belongs in GitHub Issues. See `.project/CURRENT.md`.
 | `.project/DECISIONS.md`, `docs/adr/` | durable decisions |
 | `.project/contracts/adoption.yaml` | Play-Nice adoption pin |
 | `docs/` | contracts, architecture, operations and history |
+| `docs/vnext/docs-truth.md` | which file owns each command/claim, and which docs are superseded |
 | `design/` | deliberate design/art sources |
 | `.agents/skills/` | repo-local task skills |
 
@@ -112,6 +116,7 @@ Use the branch's checked-in workflows as the authority. Common gates are:
 uv sync --frozen --extra test --extra crypto
 uv run pytest --timeout=30
 uv run personal-world framework validate --json
+uv run python scripts/contract-drift-check.py   # routes/spec vs. the live app
 
 cd ui
 npm ci
@@ -126,6 +131,14 @@ Run the relevant subset locally and let GitHub CI run the repository's full
 required set.
 
 A green source check is not runtime verification.
+
+**Generated inventories, not hand copies.** Routes, the OpenAPI document
+and the token set are generated; if a route or a spec shape moved, run
+`uv run python scripts/gen-openapi.py` and
+`uv run python scripts/contract-drift-check.py --write` and review the
+diff instead of editing `ui/src/generated/` or restating an endpoint list
+in a Markdown page. [`docs/vnext/docs-truth.md`](docs/vnext/docs-truth.md)
+names the owner of each command and claim.
 
 ## Work discipline
 
@@ -163,6 +176,9 @@ who just cloned the repository and nothing else.
 - Current routing: `.project/CURRENT.md`
 - Direction: `.project/PLAN.md`
 - Front-door architecture: `docs/adr/0008-front-door.md`
+- Which doc owns which command or claim: `docs/vnext/docs-truth.md`
+- Routes/API surface (generated): `scripts/route-inventory.json`, `ui/src/generated/openapi.json`
+- Browser interface: `FRONTEND-INVENTORY.md`
 - Security/public boundary: `SECURITY.md`
 - Accessibility: `docs/accessibility/ACCESSIBILITY_CONTRACT.md`
 - Human reliability: `docs/HUMAN_RELIABILITY_CONTRACT.md`
