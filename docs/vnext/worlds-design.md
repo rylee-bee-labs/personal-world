@@ -19,13 +19,13 @@ Sources studied: V2's `DESIGN.md` and `index.html` (the look as built: Mulberry 
 
 **The counter and the slips**
 
-5. **Worlds is a service counter.** "Your counter" holds one **slip** per service: name, kind, state word, one-line reason, one peeked fact, "Checked 24s ago". You pick a slip and open its **receipt** (Source → Worlds → Agent / Human), three small sunken stations inside a framed card. That receipt is the daily hero. V2: `.slips`, `.receipt-stations`; Concept 5: `.st` stations.
+5. **Worlds is a service counter.** "Your counter" holds one **slip** per service: name, kind, state word, one-line reason, one peeked fact, "checked 24s ago". You pick a slip and open its **receipt** (Source → Worlds → Agent / Human), three small sunken stations inside a framed card. That receipt is the daily hero. V2: `.slips`, `.receipt-stations`; Concept 5: `.st` stations.
 
 **Dot, and how Dot behaves**
 
 6. **Dot the snail is a small accent, never a gate and never the data courier.** Dot is drawn in line art with a spiral shell and eyestalks (Concept 5 `dot()`; V2's flatter apricot-shell, mint-body version). Fixed rules, taken from both concepts:
    - **Asleep** (closed eyes, a small "z") when the counter is empty: first run, after the last service is disconnected, empty lists. Concept 5 `dot('asleep')`, V2 §6.
-   - **Nods once** (200ms) beside "Updated just now" when a service's state word changes. Never on a plain tick. Concept 5 `.dot-nod`.
+   - **Nods once** (200ms) beside "Updated now" when a service's state word changes. Never on a plain tick. Concept 5 `.dot-nod`.
    - **Carries the parcel** across when a service is published (400ms desktop, 300ms phone). V2 `dot(true)` carries a slip; Concept 5 `dot('parcel')` carries a ribboned parcel.
    - **Rests** beside the freshness line in the header of every working screen (Home, Connect, Memory, Settings), still.
    - Dot's face and pose never say whether something is good or bad. The words say that.
@@ -36,7 +36,7 @@ Sources studied: V2's `DESIGN.md` and `index.html` (the look as built: Mulberry 
 8. **The parcel hand-off.** The Publish step is not a spinner; Dot walks the parcel to the counter and the new slip appears. Concept 5 `phase === 'delivering'`.
 9. **The quiet calm.** When nothing needs a person the counter says so in one plain line and Dot rests. No confetti, no streak, no score. V2 `home()` status line.
 10. **The receipt settling.** When a fact changes, the three stations tick in order, Source then Worlds then Agent / Human, 60ms apart. It is the counter showing its work. V2 `.station.updated`, Concept 5 §15.
-11. **Kind small print.** Care shows up as a provenance line ("Connected during first run · reference held, never the secret"), as the service-drop line, and as "Worlds locked nothing." They sound like a person who understands what is happening wrote them. The wording is free to change; the habit of saying them is protected.
+11. **Kind small print.** Care shows up as a provenance line ("Connected in first run · reference only, never the secret"), as the service-drop line, and as "Worlds locked nothing." They sound like a person who understands what is happening wrote them. The wording is free to change; the habit of saying them is protected.
 
 **The pacing**
 
@@ -51,6 +51,23 @@ Sources studied: V2's `DESIGN.md` and `index.html` (the look as built: Mulberry 
 - **Coverage must not flatten the feeling.** §4.0 carries a per-screen table naming which of items 1-13 each screen keeps, so the rule can be audited. Every working destination (Home, Connect, Memory, Settings) names at least one gesture from items 5-13 beyond the shared look. Where a screen is consequential (Needs you, disconnect confirm, revoke confirm, reference refused) it is deliberately *quiet*: no Dot, no flourish. `JOY-CURIOSITY-AND-CARE.md` says operational and consequential surfaces may be very quiet, and gifts are not toll booths.
 - **Ignorable.** A person can ignore every flourish (Dot, stamp, parcel) and finish every job.
 
+## Voice: terse warmth
+
+Rylee (2026-10-13): "the prose to be reduced down to just… terse warmth?" The rule for every visible string, aria-label and announcement:
+
+- As few words as possible while staying kind. Short sentences or fragments. Warm, not cute. No exclamation marks, no filler ("Worlds will…", "This means that…").
+- Keep every honest fact: source, freshness, who can see, who can act, what is kept, what goes, fail-closed approvals, proposals can't run.
+- State words stay exactly as `LANGUAGE.md` has them (Healthy, Needs you, Stale, Unavailable, Unknown, Not configured). Warmth never invents a state.
+- A fact says Live only with a real checked time ("checked 12s ago"). Never checked means Unknown.
+
+| Before | After |
+|---|---|
+| Nothing at the counter yet. Connect a service and Worlds will keep its facts, say where each came from, and leave the deciding to you. | Quiet here. Connect something? |
+| Media Shelf's 3 facts and its app frame are removed from Worlds. The Media app is untouched. Its reference is kept. | Media Shelf's gone from here. The app's fine. Reference kept. |
+| Passed. Worlds read 3 facts in 257ms (simulated). Nothing on Media Shelf was changed. | Passed. 3 facts read. Nothing changed. |
+| Worlds can't send this to Project Home yet, so nothing was sent. You can decide in the Home app instead. | Nothing sent. Decide in the Home app instead. |
+| You're offline. Worlds is showing what it last knew, marked with when. | Offline. Showing what was last known, with times. |
+
 ## 2. What this design is
 
 One Worlds, one flow, from an empty counter to a counter that keeps working: welcome, connect a service, preview it, publish it, watch facts change and age, follow a link out to the owning system, disconnect, revoke, and be back at an honest empty counter.
@@ -62,13 +79,13 @@ One Worlds, one flow, from an empty counter to a counter that keeps working: wel
 |---|---|---|
 | 1 | Connect is a **destination page** (desktop, tablet) and a full-screen stepper (phone), not a modal dialog. | Back-button, deep links and focus order. V2 and Concept 5 already agree Connect is a destination in the nav. |
 | 2 | **Needs you** is its own destination. | The Field Guide skeleton names it; it is also where the Project Home handoff lives (Sol condition 1). |
-| 3 | The line "Mock handoff recorded; Worlds locked nothing." and the "Hand off to Home" button are replaced. | "Handoff recorded" reads as if an approval path works. It does not yet (condition 1). Replacement: an **owner link** ("Open Home app") and a separate **approval handoff** that honestly says "Approvals aren't connected yet." |
+| 3 | The line "Mock handoff recorded; Worlds locked nothing." and the "Hand off to Home" button are replaced. | "Handoff recorded" reads as if an approval path works. It does not yet (condition 1). Replacement: an **owner link** ("Open Home app") and a separate **approval handoff** that honestly says "Approvals aren't connected." |
 | 4 | **Disconnect keeps the credential reference** and has no tick to remove it. Removing the reference is a separate **revoke** with its own confirmation. | The Connect contract separates `disconnect` (reference retained) from `revoke` (config deleted, held credentials purged). V2 deleted the reference on disconnect. |
 | 5 | Status chips say **"Needs you"** (LANGUAGE.md human label for `needs_attention`) where V2 showed the fixture `stateLabel` "Needs a human". | LANGUAGE.md owns the human labels; the fixture's `attentionReason` is still shown verbatim. |
 | 6 | Page and section titles use two Worlds-local display handles composed from `--type-h1` (§6); no `clamp()`, no loose `calc()` in the build. | The house says a heading ladder past `h1` is a product's typographic decision composed from the shared tokens (`house/DESIGN.md`). V2's *source* used untokened `calc()` multiples of `--type-h1` where its design asked for a composed handle; this spec keeps V2's size step and names the handle. |
-| 7 | Discover can name **every** not-yet-connected fixture service, shown honestly as "Not connected yet · no reading". | The proof path needs stale and unknown reached through a service the person actually connected. |
+| 7 | Discover can name **every** not-yet-connected fixture service, shown honestly as "Not connected · no reading". | The proof path needs stale and unknown reached through a service the person actually connected. |
 | 8 | The receipt is per **fact**, with a fact list above it, not only the first fact. | V2 showed `facts[0]` only. |
-| 9 | The welcome is V2's single broad card, then earns **two** connections one at a time, with the parcel each time; the fact-journey is a note reached after the first connection. | Keeps V2's named onboarding signature, and makes "Connected during first run" true of something the person watched. |
+| 9 | The welcome is V2's single broad card, then earns **two** connections one at a time, with the parcel each time; the fact-journey is a note reached after the first connection. | Keeps V2's named onboarding signature, and makes "Connected in first run" true of something the person watched. |
 
 ### Inputs honoured
 `docs/vnext/full-design-brief.md`; V2 and Concept 5; Field Guide docs; house tokens and `LANGUAGE.md`; the Connect contract `docs/vnext/connect/connect-contract.md`; `concept-brief-v2.md` requirements 1-6 and `concept-brief-v3.md`; the fixture. Rylee's standing preferences: dark by default with soft contrast, reduced motion respected, full keyboard support, 44px targets, plain words.
@@ -129,10 +146,10 @@ First run opens on Home with the welcome card in the main area; the shell (top b
 | Beat | What it shows | Primary action | Carries |
 |---|---|---|---|
 | **W1 Welcome** | V2's one broad raised card in a sunken well: **sleeping** Dot, the heading in `--wv-display-page`, two plain sentences about what Worlds is, one invitation. | "Connect a service" (to W2) | 1, 2, 4, 6, 12 |
-| **W2 First service** | A compact connect for **Media Shelf** (the first service). Shows its name, kind and owner; the scope sentence ("Worlds will send this reference only when reading: …") with its capability ticks already on; a static one-line test result ("Passed. Nothing on Media Shelf was changed."); then one button. Dot wakes, carries the parcel (400ms desktop, 300ms phone), and the **Connected** stamp lands beside Dot. | "Connect Media Shelf" | 5, 6, 7, 8, 11 |
+| **W2 First service** | A compact connect for **Media Shelf** (the first service). Shows its name, kind and owner; the scope sentence ("Reference used only to read: …") with its capability ticks already on; a static one-line test result ("Passed. Nothing on Media Shelf was changed."); then one button. Dot wakes, carries the parcel (400ms desktop, 300ms phone), and the **Connected** stamp lands beside Dot. | "Connect Media Shelf" | 5, 6, 7, 8, 11 |
 | **W3 Second service** | The same compact connect for **Front Door**. After the second parcel, the card closes and the counter appears with both slips; Front Door is selected. | "Connect Front Door" | 5, 6, 7, 8 |
 
-The welcome's connections write the same records a full Connect run writes, with the reference handles `ref://media-shelf` and `ref://front-door` (labelled mock handles, **scoped**) and the provenance line "Connected during first run · reference held, never the secret." No real network is called, and each beat says so.
+The welcome's connections write the same records a full Connect run writes, with the reference handles `ref://media-shelf` and `ref://front-door` (labelled mock handles, **scoped**) and the provenance line "Connected in first run · reference held, never the secret." No real network is called, and each beat says so.
 
 **After the first connection**, the first time a receipt is opened a dismissible note (not a beat, never blocking) draws "How one fact travels": Media Shelf, "Items in library: 1,284", as the three stations Source (Media Shelf, local), Worlds (shared as "Items in library"), Agent / Human. One sentence: every fact says where it came from and who can act. It carries 5 and 10 and is reachable again from Settings > About.
 
@@ -142,9 +159,9 @@ Rules: no countdowns, no auto-advance; "Back" from W2 and W3; the welcome is nev
 
 Shown after skip, and again whenever the last service is disconnected. This is "back to empty".
 
-- Dot **asleep** in a dashed-outline well; heading "The counter is quiet"; one sentence; `#add-service` (also in the top bar).
-- Status line: "No services are connected yet."
-- Selected-service strip: "No service selected." with `#disconnect` visible and **disabled** (`aria-disabled`), with the reason "Connect a service before disconnecting" as visible text, and `aria-describedby` pointing to it.
+- Dot **asleep** in a dashed-outline well; heading "Quiet here"; one sentence; `#add-service` (also in the top bar).
+- Status line: "Nothing connected."
+- Selected-service strip: "Nothing selected." with `#disconnect` visible and **disabled** (`aria-disabled`), with the reason "Connect something first" as visible text, and `aria-describedby` pointing to it.
 - Local Weather is **not** shown as a slip. It has no facts and is not connected; it appears in Settings > Providers as Not configured.
 - Memory shows its own empty state; Settings shows empty lists (same sentence).
 
@@ -157,9 +174,9 @@ Shown after skip, and again whenever the last service is disconnected. This is "
 Order (reading order and DOM order are the same):
 1. Page header: "Your counter" (`--wv-display-page`), with Dot resting beside the freshness line.
 2. **Status line:** "1 needs you · checked 24s ago", with the live and simulate controls (see §5 for where they sit per width).
-3. **Slips** (one per connected service). Each: name; kind; state chip (glyph + word); the fixture **summary** or `attentionReason` as the reason line; one peeked fact (label and value, or "No facts"); "Checked 24s ago". Selected slip shows the word "Selected" and a check shape plus the mint border (never colour alone).
+3. **Slips** (one per connected service). Each: name; kind; state chip (glyph + word); the fixture **summary** or `attentionReason` as the reason line; one peeked fact (label and value, or "No facts"); "checked 24s ago". Selected slip shows the word "Selected" and a check shape plus the mint border (never colour alone).
 4. **Service detail**: header (name, state chip, owner app, `#disconnect`), **fact list**, the **receipt** for the selected fact, the **Agent sees** line, then the **app frame** (secondary).
-5. Dot at rest beside the freshness line, and "Updated just now" with a nod when a state word changes.
+5. Dot at rest beside the freshness line, and "Updated now" with a nod when a state word changes.
 
 State presentation on a slip and in the detail. **The fixture's own sentence is always shown**; any Worlds explanation goes *under* it, never in its place.
 
@@ -167,12 +184,12 @@ State presentation on a slip and in the detail. **The fixture's own sentence is 
 |---|---|---|---|---|
 | Healthy | check + "Healthy" | `summary` | none | the value |
 | Needs you | alert triangle + "Needs you" | `attentionReason` first, then `summary` | none | the value |
-| Stale | clock + "Stale" | `summary` (for Nightly Backup: "Last successful run is older than the configured daily window.") | "Nothing has changed since {time} that Worlds knows of." (for a simulated stale, where there is no fixture reason, this line is the reason) | last known value, labelled "last known" with its checked time |
+| Stale | clock + "Stale" | `summary` (for Nightly Backup: "Last good backup is past its daily window.") | "No change seen since {time}." (for a simulated stale, where there is no fixture reason, this line is the reason) | last known value, labelled "last known" with its checked time |
 | Unavailable | x in circle + "Unavailable" | `summary` | per-cause line (§4.9) | "Unavailable" for a fact with no value; last good value kept and labelled |
-| Unknown | question mark + "Unknown" | `summary` and `unknownReason` | "Worlds has no current reading for this and won't guess." | "Unknown" (never blank, never 0) |
+| Unknown | question mark + "Unknown" | `summary` and `unknownReason` | "No current reading. Not guessing." | "Unknown" (never blank, never 0) |
 | Not configured | dash + "Not configured" | `summary` | none | none; no placeholder |
 
-**Quiet.** When the attention count is 0 the status line reads "Nothing needs you right now." Healthy and current are said in words, with no celebration. After `#simulate-change` with nothing else outstanding: "That was the last one. Nothing needs you right now." **Carries:** 1-5, 9, 10.
+**Quiet.** When the attention count is 0 the status line reads "Nothing needs you." Healthy and current are said in words, with no celebration. After `#simulate-change` with nothing else outstanding: "Last one done. Nothing needs you." **Carries:** 1-5, 9, 10.
 
 ### 4.4 The Connect lifecycle (C1-C6)
 
@@ -184,24 +201,24 @@ Connect follows the contract's verbs in the order the person meets them: **Disco
 
 | Step | What the person does | What Worlds says it will and won't do | Carries |
 |---|---|---|---|
-| **C1 Discover** | Picks a service from the candidates. Each shows name, kind, owner app, "Not connected yet · no reading", and the capabilities it is said to offer, each marked "not verified yet". Authentication need reads "Auth: unknown" (never a silent "none"). | "Looking only. No reference has been used yet. This sends no credential and changes nothing." Candidates are proposals, not facts: each shows who says it exists. | 5 |
+| **C1 Discover** | Picks a service from the candidates. Each shows name, kind, owner app, "Not connected · no reading", and the capabilities it is said to offer, each marked "unverified". Authentication need reads "Auth: unknown" (never a silent "none"). | "Looking only. No reference has been used yet. This sends no credential and changes nothing." Candidates are proposals, not facts: each shows who says it exists. | 5 |
 | **C2 Reference (send scope)** | Enters a **credential reference**, not a secret, and ticks which **capabilities** the reference may be sent to (one checkbox per discovered capability, at least one, default all). | The reference is checked for shape when the person leaves the field. Worlds shows the scope sentence *before* any test: "Worlds will send this reference only when reading: {capability list}." plus "This is about what the reference can be used for. It is not what appears on your counter." Next stays disabled until the reference is valid and at least one capability is ticked. | 11 |
 | **C3 Test** | Presses "Run safe test". It cannot run without a valid, scoped reference. | One read, nothing changed on the owning service. The reference is sent only within scope. Static progress ("Testing…", no spinner). Passes first time by default; a labelled mock checkbox "Simulate a failed test (mock)" makes it fail. | 6 (static Dot, awake) |
 | **C4 Preview** | Reads what the service offers, now actually read. | Facts appear with their own states and are never merged: for Notes Sync, "Provider reachable: Unavailable", "Local notes waiting to upload: 3 notes, Live", "Last successful sync: Stale". Capabilities now read "verified". | 5 |
-| **C5 Choose (publish selection)** | Ticks the **facts** to show on the counter. | At least one must stay ticked. Plain sentence: "Shown on your counter and visible to agents: {list}." Anything unticked is kept out and named later as "kept out". | 11 |
-| **C6 Publish** | Presses "Publish". | Shows the summary, then Dot carries the parcel (400ms desktop, 300ms phone), then the **Connected** stamp lands and the slip appears. Offers "Open {service}", "Add one more", and "Manage this reference in Settings". | 7, 8 |
+| **C5 Choose (publish selection)** | Ticks the **facts** to show on the counter. | At least one must stay ticked. Plain sentence: "Shown, and visible to agents: {list}." Anything unticked is kept out and named later as "kept out". | 11 |
+| **C6 Publish** | Presses "Publish". | Shows the summary, then Dot carries the parcel (400ms desktop, 300ms phone), then the **Connected** stamp lands and the slip appears. Offers "Open {service}", "Add one more", and "Manage reference in Settings". | 7, 8 |
 
 **C2 Reference field states** (pristine, dirty, valid, refused, pending):
-- **Pristine:** "Not edited yet. Use the form ref://name."
-- **Dirty:** "Edited. Worlds checks it when you leave the field."
+- **Pristine:** "Use the form ref://name."
+- **Dirty:** "Checked when you leave the field."
 - **Valid:** a check shape and "Looks like a reference."
 - **Refused (looks like a secret):** anything not shaped like a reference is refused. The field is **cleared at once**, the secret is never put into any message, announcement or stored state, and the message says nothing was saved. This answers the contract's "no secret value round-trip into the browser". This state is quiet: no Dot, no flourish.
 - **Refused (Worlds' own secret):** a reference to one of Worlds' own secrets (names beginning `PW_`, `OIDC_` or containing `BOOTSTRAP`) is refused with its own sentence.
-- **Pending:** "Saving reference…" static, field read-only.
+- **Pending:** "Saving…" static, field read-only.
 
 **C3 Test states**: idle, running (static), **passed** (what was read, how long it took, "Nothing on {service} was changed"), **failed** (specific reason from the fixture `lastError`, for example "provider timed out"; the reference stays in the field; "last tried {n}s ago"; "try {n} of 3"; "Try again"; recovery text), and **limit reached** after three tries ("Run safe test" disabled with `aria-disabled` until the reference is edited). The failure never blames the person.
 
-**C4 Preview states**: loading (static Dot, "Dot is fetching the facts…", with a link to the owner fallback if it stalls), facts, and empty ("This service offers no facts yet. Nothing is guessed.").
+**C4 Preview states**: loading (static Dot, "Fetching facts…", with a link to the owner fallback if it stalls), facts, and empty ("No facts yet. Nothing guessed.").
 
 **C6 outcomes.** Optimistic: the new slip is in the counter behind the Connected card the moment Publish is pressed; the parcel and stamp settle it. Afterwards the service's receipt says, in its Worlds station, "Connected {when} · reference held, never the secret." A failed Publish removes the optimistic slip and says why. The first fact published through Connect is also the one that is armed to go Stale then Unknown (§9), so the proof path can be walked on a service the person connected.
 
@@ -211,29 +228,29 @@ Connect follows the contract's verbs in the order the person meets them: **Disco
 
 Inside Home, with Worlds navigation, the MOCKUP label and a back path visible around it. On desktop it is the right-hand detail pane; on phone it is a pushed screen.
 
-Order: **header** (name in `--wv-display-page`, kind, state chip, "Owned by Home app", freshness, `#disconnect`) → **fact list** (compact rows; choose one) → **receipt** (the hero) → **Agent sees** line → **owner retry** (where the fixture offers one, §4.8) → **app frame** (secondary strip) → **kept out** note if the person left facts out in Choose ("1 fact is kept out of Worlds. You chose not to share it.").
+Order: **header** (name in `--wv-display-page`, kind, state chip, "Owned by Home", freshness, `#disconnect`) → **fact list** (compact rows; choose one) → **receipt** (the hero) → **Agent sees** line → **owner retry** (where the fixture offers one, §4.8) → **app frame** (secondary strip) → **kept out** note if the person left facts out in Choose ("1 fact is kept out of Worlds. You chose not to share it.").
 
 **The receipt (daily signature).** Three stations in a row (stacked on phone):
-- **Source:** who produced it ("Home app reported **unlocked**"), source word (local, external or none), state word, "Checked 24s ago".
-- **Worlds:** "Shared as Back door." The fact id, freshness word, and the provenance row ("Connected during first run · reference held, never the secret", or "Connected {when} · …"). Also the reference's **send scope** word: "Scoped to {n} capabilities" or "Unscoped" (see §10).
+- **Source:** who produced it ("Home app said **unlocked**"), source word (local, external or none), state word, "checked 24s ago".
+- **Worlds:** "Shared as Back door." The fact id, freshness word, and the provenance row ("Connected in first run · reference only, never the secret", or "Connected {when} · …"). Also the reference's **send scope** word: "Scoped to {n} capabilities" or "Unscoped" (see §10).
 - **Agent / Human:** two separate labelled lines, **Agent can** and **Human can**, each with its action word in plain terms (see §7), and the fixture reason where there is one. A `none` permission is a **named, focusable, disabled control** carrying its reason (`aria-disabled`, not removed).
 
-When a change lands, the stations re-settle in order Source → Worlds → Agent / Human, 60ms apart, with a tick at each, and "Updated just now" (with Dot's nod) appears for 3s.
+When a change lands, the stations re-settle in order Source → Worlds → Agent / Human, 60ms apart, with a tick at each, and "Updated now" (with Dot's nod) appears for 3s.
 
-**Fact list rows.** Label, value (or Unknown / Unavailable), state word, "observed {time}". For Front Door: Back door (unlocked, Human can act, reason shown), Unlocked for (47 minutes), Guest code last used by (visitor-3, Agent can't see it, reason shown). For a service with no facts (Local Weather, if ever shown): no rows and the fixture `emptyReason`.
+**Fact list rows.** Label, value (or Unknown / Unavailable), state word, "checked {time}". For Front Door: Back door (unlocked, Human can act, reason shown), Unlocked for (47 minutes), Guest code last used by (visitor-3, Agent can't see it, reason shown). For a service with no facts (Local Weather, if ever shown): no rows and the fixture `emptyReason`.
 
 **Phone:** in-page tabs **Facts** (list and receipt), **App** (frame and fallback), **Agent view** (that service's rows as in Memory). Facts is selected on arrival.
 
 ### 4.6 The embedded app frame (S2)
 
-A bordered, labelled frame ("Home app, shown inside Worlds") holds the owning app, below the receipt. The fixture owners and fallbacks are used exactly: "Open Media app" → `app://media`, "Open Home app" → `app://home`, "Open Memory app" → `app://memory`, "Open Provider settings" → `app://settings/providers` (Local Weather). In the prototype an `app://` link cannot navigate; it opens a small note "This would open {app} outside Worlds" so no dead link exists.
+A bordered, labelled frame ("Home app, shown here") holds the owning app, below the receipt. The fixture owners and fallbacks are used exactly: "Open Media app" → `app://media`, "Open Home app" → `app://home`, "Open Memory app" → `app://memory`, "Open Provider settings" → `app://settings/providers` (Local Weather). In the prototype an `app://` link cannot navigate; it opens a small note "This would open {app} outside Worlds" so no dead link exists.
 
 | State | What shows | Controls |
 |---|---|---|
-| **Loading** | Static Dot and "Dot is fetching the app…" in the frame; the fallback link is already present. | Fallback link; Cancel |
-| **Loaded** | The contained app preview. Frame header names the owner app and the state word. Text under it: "This app doesn't receive Worlds' credentials." | Fallback link; Reload |
-| **Refused** (the app can't be shown inside Worlds) | The frame body is replaced by: "This app didn't load inside Worlds." plus the cause if known ("The app doesn't allow being shown inside another page") and "Use the link below, or try again." The slip, receipt, facts and state stay exactly as they were. | "Try again", "Open {app}" |
-| **Timeout** | Same as refused, cause "It took too long to answer." | same |
+| **Loading** | Static Dot and "Fetching the app…" in the frame; the fallback link is already present. | Fallback link; Cancel |
+| **Loaded** | The contained app preview. Frame header names the owner app and the state word. Text under it: "No Worlds credentials in here." | Fallback link; Reload |
+| **Refused** (the app can't be shown inside Worlds) | The frame body is replaced by: "Didn't load here." plus the cause if known ("It won't show inside another page") and "Use the link below, or try again." The slip, receipt, facts and state stay exactly as they were. | "Try again", "Open {app}" |
+| **Timeout** | Same as refused, cause "Too slow." | same |
 
 The frame never receives Worlds credentials, and any consequential action inside the app belongs to that app. Real sandbox rules and browser support are UNKNOWN (Q4). Worlds navigation, back and the status line keep working with the frame in any state.
 
@@ -241,22 +258,22 @@ The frame never receives Worlds credentials, and any consequential action inside
 
 **Needs you is where Worlds is quietest.** No Dot on item cards, no flourish. Dot rests only on the empty state.
 
-**N1 items.** One card per service that needs a person (`needs_attention`). Front Door's card: name; chip "Needs you"; fixture summary ("Back door has been unlocked for longer than the person's usual window."); fixture `attentionReason` ("A decision is required; the local app will not act on its own."); the facts behind it; and **two separate routes**, never merged:
+**N1 items.** One card per service that needs a person (`needs_attention`). Front Door's card: name; chip "Needs you"; fixture summary ("Back door unlocked longer than usual."); fixture `attentionReason` ("A decision is required; the local app will not act on its own."); the facts behind it; and **two separate routes**, never merged:
 1. **"Open Home app"**: the owner link (`app://home`). This is where the person decides. Always available.
 2. **"Ask Project Home to review"**: the approval handoff. It is a link or handoff, never a button that "does" something. In this mock it is **fail-closed**: its state is "Not available yet", shown at all times in text beside it.
 
 Services that are Unavailable and offer an owner retry (Notes Sync, Studio Printer) are listed below as **owner retries** (§4.8), not as approvals.
 
 **N2 the handoff panel (fail-closed, the only state built).** Opening "Ask Project Home to review" shows, in a panel (sheet on phone):
-- Heading: "Approvals aren't connected yet."
-- Body: "Worlds can't send this to Project Home yet, so nothing was sent. You can decide in the Home app instead."
+- Heading: "Approvals aren't connected."
+- Body: "Nothing sent. Decide in the Home app instead."
 - Buttons: "Open Home app" (primary), "Close".
-- A line stating the intended path: "When approvals are connected, this will open Project Home with the proposal. Project Home, not Worlds, makes the decision."
+- A line stating the intended path: "Once connected, this opens Project Home. It decides, not Worlds."
 - Never shown: "Sent", "Pending approval", "Approved", a spinner, or a recorded-handoff receipt.
 
 **Design note for later (not built, not reachable).** A future "Link ready" state would say what will be opened, in which system, and that Worlds records no decision, with a real link. It must be *proven* connected; any other state, including "unknown whether approvals are connected", renders as the fail-closed state above. The prototype has no control, setting or UI path to this state (§10, §11).
 
-**N1 empty:** Dot rests; "Nothing needs you right now."
+**N1 empty:** Dot rests; "Nothing needs you."
 
 ### 4.8 Owner retries and inert proposals
 
@@ -276,10 +293,10 @@ These are **states of the same screens**, not separate pages. Each keeps the las
 | State | Cause (mock) | What the person sees | What they can do |
 |---|---|---|---|
 | **Stale** | Fixture: Nightly Backup. Scripted: a live fact misses a re-check (§9). Real rule is UNKNOWN (Q6). | Chip "Stale" (with "(simulated)" for scripted ones). Fixture summary first; then "Nothing has changed since 2:23 PM that Worlds knows of." Last value labelled "last known". Receipt Source station: "Last checked 3m ago." | "Check now" (restores the fact to live in the mock, only for scripted staleness), "Open {owner app}". |
-| **Unknown** | Fixture: Garden Camera. Scripted: a stale fact left for 60 more seconds becomes Unknown (simulated). | "Worlds has no current reading for this and won't guess." plus fixture `unknownReason`. Value "Unknown" (never blank). Any last known value in its own labelled line. Agent can't assert (fixture reason). | "Open {owner app}". No retry is invented. |
-| **Unavailable, provider silent** | Fixture: Notes Sync. | "That service stopped answering. Its last facts are still here, marked with when Worlds checked." Fixture summary and last error. | "Open Memory app" (owner retry, §4.8). |
-| **Unavailable, job rejected** | Fixture: Studio Printer ("The last job failed; the printer is reachable but rejected the job."). | The fixture's own sentence, then "The printer answered, so Worlds is not treating it as silent." Last error "job rejected: no media loaded". | "Open Studio app" (owner retry, §4.8). |
-| **Reference refused** | The provider stopped accepting the reference (mock trigger in About). | Chip "Unavailable", reason "Notes Sync stopped accepting this reference." Last facts kept and labelled stale. The error is classed, not free text from the provider. | "Replace reference" (opens Connect at Reference, field empty), "Open Memory app". Worlds cannot fix the provider's side. |
+| **Unknown** | Fixture: Garden Camera. Scripted: a stale fact left for 60 more seconds becomes Unknown (simulated). | "No current reading. Not guessing." plus fixture `unknownReason`. Value "Unknown" (never blank). Any last known value in its own labelled line. Agent can't assert (fixture reason). | "Open {owner app}". No retry is invented. |
+| **Unavailable, provider silent** | Fixture: Notes Sync. | "Stopped answering. Last facts kept, with check times." Fixture summary and last error. | "Open Memory app" (owner retry, §4.8). |
+| **Unavailable, job rejected** | Fixture: Studio Printer ("Last job failed. Printer reachable, job rejected."). | The fixture's own sentence, then "Printer answered, so not silent." Last error "job rejected: no media loaded". | "Open Studio app" (owner retry, §4.8). |
+| **Reference refused** | The provider stopped accepting the reference (mock trigger in About). | Chip "Unavailable", reason "Notes Sync refused the reference." Last facts kept and labelled stale. The error is classed, not free text from the provider. | "Replace reference" (opens Connect at Reference, field empty), "Open Memory app". Worlds cannot fix the provider's side. |
 | **Not configured** | Fixture: Local Weather, never set up. | Chip "Not configured"; fixture summary; no facts, no placeholder. | "Open provider settings". |
 
 Rule: Stale and "waiting" are separate. A reassuring state never hides a stale one, and an unknown or unclassified case is shown as Unknown, never as fine. Unavailable text is chosen by cause; one sentence is never reused for a different cause.
@@ -291,7 +308,7 @@ Rule: Stale and "waiting" are separate. A reassuring state never hides a stale o
 | Goes (from Worlds) | Stays |
 |---|---|
 | The slip, its facts, its receipts, its app frame, and the kept-out note. | The owning app, untouched. Nothing is sent to it and nothing in it changes. |
-| What Worlds has remembered of the last-known values. | The credential reference (held, nothing is sent with it), listed in Settings as "Held, not in use". |
+| What Worlds has remembered of the last-known values. | The credential reference (held, nothing is sent with it), listed in Settings as "Held, unused". |
 
 Buttons: **Disconnect** (danger) and **Keep service**. Escape = Keep service. Focus: opens on the heading; Keep service is the first button (a safe default); on close, focus returns to `#disconnect` or, after a successful disconnect, to the next slip (or to `#add-service` when none is left).
 
@@ -299,27 +316,27 @@ Buttons: **Disconnect** (danger) and **Keep service**. Escape = Keep service. Fo
 
 ### 4.11 Revoke (R1)
 
-Revoke is the contract's `revoke`: it deletes the connection's config, **purges the held credential reference**, and reports `external_state_untouched: true`. It is reached from Settings > Credential references > **Remove** (also on a "Held, not in use" row). It is quiet like disconnect.
+Revoke is the contract's `revoke`: it deletes the connection's config, **purges the held credential reference**, and reports `external_state_untouched: true`. It is reached from Settings > Credential references > **Remove** (also on a "Held, unused" row). It is quiet like disconnect.
 
 | Goes (from Worlds) | Stays |
 |---|---|
 | The credential reference and anything Worlds held for it. | The owning app, untouched. |
 | The connection's config. If the service is still on the counter, it is disconnected as well, because it can't publish without its reference: its slip, facts, receipts and frame leave too. | **The provider's own key.** Worlds can't revoke it. The person should rotate or revoke it with {App}, the owning app. |
-| The service becomes a Discover candidate again ("Not connected yet · no reading"). | Anything the owning app holds. |
+| The service becomes a Discover candidate again ("Not connected · no reading"). | Anything the owning app holds. |
 
-Dialog: title "Remove {Name}'s reference?"; the table above in plain sentences; "Worlds can't revoke the key itself. Rotate it with the {App} app." Buttons **Remove reference** (danger) and **Keep reference**; Escape = Keep reference; focus as D1. After: "{Name}'s reference is removed and its connection is gone from Worlds. The key itself is still active with {App}. Rotate it there." plus "Open {App}". If this empties the counter: H0.
+Dialog: title "Remove {Name}'s reference?"; the table above in plain sentences; "Worlds can't revoke the key. Rotate it in {App}." Buttons **Remove reference** (danger) and **Keep reference**; Escape = Keep reference; focus as D1. After: "{Name}'s reference is removed and its connection is gone from Worlds. The key itself is still active with {App}. Rotate it there." plus "Open {App}". If this empties the counter: H0.
 
 ### 4.12 Memory: Agent facts (M1)
 
 Memory is the **Guide** door: a trail, not a flat inventory. One list of every fact from every connected service, using the **same fact-row component** as S1, so one fact reads the same everywhere.
 
 - **Service headings** carry the owner link ("Open Media app") and the service's state word and freshness, so a screen-reader user can jump by heading and a person can follow any fact to its owner.
-- Each **row**: label, value (or Unknown / Unavailable), state word, source (local, external or none), "observed {time}", **Agent can** and **Human can** as two labelled lines, the fixture reason where there is one, and the send-scope word for the service's reference ("Scoped to {n} capabilities" or "Unscoped").
-- **Unknown rows** add: "Worlds can't see it. {fixture unknownReason} What would help: the owning app answering again." with the owner link.
+- Each **row**: label, value (or Unknown / Unavailable), state word, source (local, external or none), "checked {time}", **Agent can** and **Human can** as two labelled lines, the fixture reason where there is one, and the send-scope word for the service's reference ("Scoped to {n} capabilities" or "Unscoped").
+- **Unknown rows** add: "Can't see it. {fixture unknownReason} Needs the owning app to answer." with the owner link.
 - A `none` permission renders as a named, focusable, disabled control with its reason.
 - Filter: "All services" or one service (a select, keyboard reachable).
 - When a change lands, affected rows settle with the same 60ms tick as the receipt (item 10). Dot rests in the page header beside the freshness line.
-- **Empty:** the counter's dashed empty well with Dot asleep: "No agent facts yet. Connect a service to add facts without guessing." with `#add-service`.
+- **Empty:** the counter's dashed empty well with Dot asleep: "No facts yet. Connect a service." with `#add-service`.
 
 **Who sees, who acts** words: a person reads "Agent can: see it" and "Human can: act on it in the Home app". Values and permissions change only by an event the owner caused (§9), never by Worlds on its own.
 
@@ -327,17 +344,17 @@ Memory is the **Guide** door: a trail, not a flat inventory. One list of every f
 
 Desktop and tablet: a section sub-list beside the pane. Phone: one scrolling column of section headings; the page is reached from the header and the header carries a Back path to where the person came from. Dot rests in the page header beside the live line. Sections, in this order:
 
-1. **Connected services:** one row per service: name, state word, freshness, its own `#disconnect-{service-id}` (same confirm as D1). Empty: "Nothing at the counter yet. Connect a service and Worlds will keep its facts, say where each came from, and leave the deciding to you."
-2. **Credential references:** heading line "Worlds stores a credential reference, never the secret." Each row: service, the reference text (wraps, never truncated), **send scope** ("Scoped to {n} capabilities: {list}" or **"Unscoped (older connection): this reference can be used for anything this service offers"**), and Replace, Remove (opens R1) and, for unscoped ones, "Narrow scope". **"Narrow scope" opens Connect at Reference (C2) for that connection with its capabilities pre-filled and ticked**; for an older connection with no stored capability list, Connect first runs the read-only Discover for that service and then lands on C2. The welcome's references (`ref://media-shelf`, `ref://front-door`) are labelled mock handles and are **Scoped**. To show the legacy label (Sol condition 3) a reviewer uses the About mock control "Pretend Media Shelf has an older, unscoped connection". Replace is an inline field with the same checks and secret refusal. A kept reference from a disconnected service appears as "Held, not in use". Empty: "No references stored. Connecting a service will add one."
+1. **Connected services:** one row per service: name, state word, freshness, its own `#disconnect-{service-id}` (same confirm as D1). Empty: "Quiet here. Connect something?"
+2. **Credential references:** heading line "References only, never secrets." Each row: service, the reference text (wraps, never truncated), **send scope** ("Scoped to {n} capabilities: {list}" or **"Unscoped (older connection): this reference can be used for anything this service offers"**), and Replace, Remove (opens R1) and, for unscoped ones, "Narrow scope". **"Narrow scope" opens Connect at Reference (C2) for that connection with its capabilities pre-filled and ticked**; for an older connection with no stored capability list, Connect first runs the read-only Discover for that service and then lands on C2. The welcome's references (`ref://media-shelf`, `ref://front-door`) are labelled mock handles and are **Scoped**. To show the legacy label (Sol condition 3) a reviewer uses the About mock control "Pretend Media Shelf has an older, unscoped connection". Replace is an inline field with the same checks and secret refusal. A kept reference from a disconnected service appears as "Held, unused". Empty: "No references stored. Connecting a service will add one."
 3. **Providers:** Local Weather, Not configured. Fixture summary and `emptyReason` shown; no facts; "Open provider settings" → `app://settings/providers`.
 4. **Live feed:** `#settings-live` switch (the same state as `#live-toggle`; the two always agree); check cadence 5s (default), 10s, 30s; **Motion:** Follow system (default) / Reduce always; **Theme:** Dark (default), Light, High contrast, Low stimulation, Follow system; **Text size** note ("Worlds follows your browser's text size; zoom to 200% reflows"). Line: "Reduced motion removes animation, not data."
 5. **About:** MOCKUP, "Synthetic data only", how Worlds fits the Field Guide (one sentence and link), the UNKNOWNs (§12), "Replay the welcome", "How one fact travels", a disabled named "Keep history after disconnect" with reason "Not decided yet; this mockup keeps nothing", and **Mock controls** for reviewers, all of which only produce *failure or edge* conditions: "Make Media Shelf stale now", "Pretend Notes Sync refused its reference", "Pretend Media Shelf has an older, unscoped connection". **There is no control here, or anywhere in the UI, that makes approvals look connected** (§10).
 
-States per section: loading (static Dot, "Dot is fetching your settings…"), empty (as above), error ("Couldn't save that. Nothing was changed. Try again."), long references wrap.
+States per section: loading (static Dot, "Fetching settings…"), empty (as above), error ("Couldn't save that. Nothing was changed. Try again."), long references wrap.
 
 ### 4.14 Offline, error, loading (X1)
 
-- **Offline** (the browser has no connection): a strip under the top bar, "You're offline. Worlds is showing what it last knew, marked with when." The live feed pauses (`#live-toggle` reads "Paused · offline"), ages stop growing (they would be false), and states are shown as Stale-with-time. Returns automatically: "Back online. Checking now."
+- **Offline** (the browser has no connection): a strip under the top bar, "Offline. Showing what was last known, with times." The live feed pauses (`#live-toggle` reads "Paused · offline"), ages stop growing (they would be false), and states are shown as Stale-with-time. Returns automatically: "Back online. Checking now."
 - **Couldn't load a screen:** "Worlds couldn't load this. Your services and references weren't changed." "Try again" and "Go to Home". Dot rests; no blame.
 - **Save failed:** "Couldn't save that. Nothing was changed. Try again."
 - **Loading:** always static (a still Dot and a sentence). No spinners, no shimmer.
@@ -433,52 +450,53 @@ Tokens are the house names in `docs/vnext/house/tokens.css`. **No colour, gap, r
 
 ## 7. Copy
 
-Rule: machine truth, then plain words, then (sometimes) a warm line. Warmth never creates a state, a deadline or certainty. Short sentences; say what happened, what it means, and what to do. Avoid "provider", "capability", "endpoint" and "scope" in headings; gloss them when they must appear.
+Rule: **terse warmth** (see "Voice: terse warmth" after §1). Machine truth, then plain words, then (sometimes) a warm line. Warmth never creates a state, a deadline or certainty. As few words as possible, every honest fact kept. Avoid "provider", "capability", "endpoint" and "scope" in headings; gloss them when they must appear. State words stay exactly as `LANGUAGE.md` has them. These strings match `prototype/index.html`.
 
 ### 7.1 Status words and short labels
-Healthy · Needs you · Stale · Unavailable · Unknown · Not configured · Working · Done · Failed. Freshness: "Checked 24s ago", "3m ago", "2h ago", "Never checked". Source: "From this device", "From the service's provider", "No source answered". Permissions: **Agent can:** see it · act on it · edit the local copy · not at all. **Human can:** see it · act on it in the {app} · edit the local copy · not at all.
+Healthy · Needs you · Stale · Unavailable · Unknown · Not configured · Working · Done · Failed. Live is shown only with a real checked time; a fact never checked reads Unknown. Freshness: "checked 24s ago", "checked 3m ago", "checked 2h ago", "never checked". Source: "From this device", "From its provider", "No source answered". Permissions: **Agent:** sees it · acts on it · no access. **Human:** sees it · edits the local copy · acts in {app} · no access.
 
 ### 7.2 Strings by screen
 
 | Where | String |
 |---|---|
-| Top bar | "MOCKUP" · "Live · checked 24s ago" · "Paused · frozen at 24s" · "Paused · offline" · "Simulate change" (full name for assistive tech: "Simulate the Home app reporting the back door locked") · "Add service" · "Disconnect Front Door" · disabled: "Disconnect" with "Connect a service before disconnecting" |
-| W1 | "Hello, I'm Dot." / "Worlds is a small counter. Your services leave their facts here, and Worlds keeps them honest." / "Connect a service" / "Skip welcome" |
-| W2 | "First, Media Shelf." / "Worlds will send this reference only when reading: {list}." / "Passed. Nothing on Media Shelf was changed." / "Connect Media Shelf" / "Skip welcome" |
-| W3 | "And one more: Front Door." / "Connect Front Door" / "Skip welcome" |
-| First-receipt note | "Here's one fact on its way." / "Media Shelf says it holds 1,284 items. Worlds shows where that came from and who can see it or act on it." / "Every fact says where it came from and who can act on it." |
-| H0 | "The counter is quiet." / "Nothing at the counter yet. Connect a service and Worlds will keep its facts, say where each came from, and leave the deciding to you." / "No services are connected yet." |
-| H1 status | "1 needs you · checked 24s ago" · "Nothing needs you right now." · "That was the last one. Nothing needs you right now." |
-| Receipt | "Source" · "Worlds" · "Agent / Human" · "Shared as {label}." · "Connected during first run · reference held, never the secret." · "Connected {time} · reference held, never the secret." · "Scoped to {n} capabilities" · "Unscoped" · "Updated just now" |
-| Kept out | "{n} fact is kept out of Worlds. You chose not to share it." |
-| Stale | fixture summary, then "Nothing has changed since {time} that Worlds knows of." · button "Check now" |
-| Unknown | "Worlds has no current reading for this and won't guess." |
-| Unavailable (provider silent) | "That service stopped answering. Its last facts are still here, marked with when Worlds checked." |
-| Unavailable (job rejected) | "The printer answered, so Worlds is not treating it as silent." |
-| Reference refused | "{Name} stopped accepting this reference. Its last facts are still here, marked with when Worlds checked. Worlds can't fix this on {Name}'s side." · "Replace reference" |
-| Not configured | "{Name} isn't set up. Open its settings." |
-| Frame | "This app didn't load inside Worlds." · "Use the link below, or try again." · "Try again" · "Open Home app" · "This app doesn't receive Worlds' credentials." |
-| Needs you | "Needs you" · "A decision is required; the local app will not act on its own." · "Open Home app" · "Ask Project Home to review" · "Not available yet" · "Nothing needs you right now." |
-| Owner retry | "{Label}, tried {n} time(s). Last error: {lastError}." / "This happens in {App}, by you. Worlds can't retry it." |
-| Handoff | "Approvals aren't connected yet." · "Worlds can't send this to Project Home yet, so nothing was sent. You can decide in the Home app instead." · "When approvals are connected, this will open Project Home with the proposal. Project Home, not Worlds, makes the decision." |
-| Proposal sample | "Sample. The fixture has no proposals." · "Proposed. Not active." · "Worlds can't run this. It can only show it." · "Decided by: not known yet." · "Agent can't do this." |
-| Simulate | "The Home app reported the back door locked. Worlds locked nothing." |
-| C1 | "Find a service" / "Looking only. No reference has been used yet. This sends no credential and changes nothing." / "Not connected yet · no reading" / "not verified yet" / "Auth: unknown" / "Already at the counter" / "No other services to connect right now." |
-| C2 | "Credential reference" / "A reference is a name that points to a secret kept somewhere safe. Worlds stores the name, never the secret." / "Worlds will send this reference only when reading: {list}." / "This is about what the reference can be used for. It is not what appears on your counter." / pristine "Not edited yet. Use the form ref://name." / dirty "Edited. Worlds checks it when you leave the field." / valid "Looks like a reference." |
-| C2 refused | "That looks like a secret, not a reference. Nothing was saved and the field was cleared. Worlds stores a credential reference, never the secret. Use something like ref://notes-sync." |
-| C2 own secret | "That reference points at one of Worlds' own secrets, so it can't be used for a service." |
-| C3 | "Run safe test" / "Testing…" / "Passed. Worlds read {n} facts in {ms}ms. Nothing on {Name} was changed." / failed "That didn't go through, and the reference is still here. Try again whenever you like." / cause "{lastError}" / "last tried {n}s ago" / "try {n} of 3" / limit "That's three tries. Check the reference with the owning app, then edit it to start again." / mock "Simulate a failed test (mock)" |
-| C4 | loading "Dot is fetching the facts…" / empty "This service offers no facts yet. Nothing is guessed." / "These are separate facts and stay separate." |
-| C5 | "Choose what to show" / "Shown on your counter and visible to agents: {list}." / "At least one fact must stay shared." |
-| C6 | "Publish" / "Dot is carrying the parcel to the counter…" / "Connected" / "{Name} is at the counter." / "Open {Name}" / "Add one more" / "Manage this reference in Settings" |
-| D1 | title "Disconnect {Name}?" / "{Name}'s {n} facts and its app frame will be removed from Worlds. The {App} app is untouched." / "Its reference stays in Settings, held and unused." / "Disconnect" / "Keep service" / after: "{Name}'s {n} facts and its app frame are removed from Worlds. The {App} app is untouched. Its reference is kept." · "Reconnect" |
-| R1 | title "Remove {Name}'s reference?" / "Worlds will delete the reference and everything it held for it. {Name} is disconnected too if it is still at the counter. {App} is untouched." / "Worlds can't revoke the key itself. Rotate it with the {App} app." / "Remove reference" / "Keep reference" / after: "{Name}'s reference is removed and its connection is gone from Worlds. The key itself is still active with {App}. Rotate it there." · "Open {App}" |
-| Settings | "Worlds stores a credential reference, never the secret." / "No references stored. Connecting a service will add one." / "Unscoped (older connection): this reference can be used for anything this service offers." / "Narrow scope" / "Reduced motion removes animation, not data." / "Not decided yet; this mockup keeps nothing." / "Couldn't save that. Nothing was changed. Try again." |
-| Memory | "No agent facts yet. Connect a service to add facts without guessing." / "Worlds can't see it. {unknownReason} What would help: the owning app answering again." |
-| Offline | "You're offline. Worlds is showing what it last knew, marked with when." / "Back online. Checking now." / "Worlds couldn't load this. Your services and references weren't changed." |
+| Top bar | "MOCKUP" · "Live · checked 24s ago" · "Paused · frozen at 24s" · "Paused · offline" · "Not checked yet" · "Simulate change" (assistive name: "Simulate change: back door locked") · "Add service" · "Disconnect Front Door" · disabled: "Disconnect" with "Connect something first" |
+| W1 | "Hello, I'm Dot." / "A small counter for your services' facts." / "Connect the first one? Nothing here touches a network." / "Connect a service" / "Skip welcome" / "Dot's asleep." |
+| W2 | "First, Media Shelf." / "Reference used only to read: {list}." / "Passed. Nothing changed." / "Connect Media Shelf" / "Next: Front Door" / "Skip welcome" |
+| W3 | "Then Front Door." / "Connect Front Door" / "See the counter" / "Skip welcome" |
+| First-receipt note | "One fact, traced." / "Media Shelf holds 1,284 items. Where from, who sees it, who acts." / "Every fact shows this." |
+| H0 | "Quiet here." / "Connect something?" / "Nothing connected." |
+| H1 status | "1 needs you · checked 24s ago" · "Nothing needs you · checked 24s ago" · "Last one done. Nothing needs you." |
+| Receipt | "Where it came from" · "Source" · "Worlds" · "Agent / Human" · "Shared as {label}." · "Connected in first run · reference only, never the secret." · "Connected {time} · reference only, never the secret." · "Scoped to {n} capabilities" · "Unscoped" · "Updated now" |
+| Fact row | "{label}" · "checked 12s ago" (ticks with the live feed) · value · state word |
+| Kept out | "{n} fact kept out. Your choice." |
+| Stale | fixture summary, then "No change seen since {time}." · button "Check now" |
+| Unknown | "No current reading. Not guessing." |
+| Unavailable (provider silent) | "Stopped answering. Last facts kept, with check times." |
+| Unavailable (job rejected) | "Printer answered, so not silent." |
+| Reference refused | "{Name} refused the reference. Last facts kept, with check times. Fix it in {Name}." · "Replace reference" |
+| Not configured | "Not set up. Open settings." |
+| Frame | "Didn't load here." · "Too slow." / "Cancelled." / "It won't show inside another page." · "Use the link, or try again." · "Try again" · "Open Home app" · "No Worlds credentials in here." |
+| Needs you | "Needs you" · "Your call. Nothing acts on its own." · "Open Home app" · "Ask Project Home to review" · "Not available yet" · "Nothing needs you." / "It'll show here." |
+| Owner retry | "Not approvals. You retry these in the owning app." · "{Label}: tried {n} time(s). Last error: {lastError}." / "You retry in {App}. Worlds can't." |
+| Handoff | "Approvals aren't connected." · "Nothing sent. Decide in the Home app instead." · "Once connected, this opens Project Home. It decides, not Worlds." |
+| Proposal sample | "Sample. No real proposals." · "Proposed. Not active." · "Worlds can't run this, only show it. Decider: unknown. Agent can't." |
+| Simulate | "Home says the back door's locked. Worlds locked nothing." |
+| C1 | "Find a service" / "Looking only. No credential sent. Nothing changed." / "Available" / "Not connected · no reading" / "unverified" / "Auth: unknown" / "Already connected" / "Nothing else to connect." |
+| C2 | "Credential reference" / "A name pointing to a secret kept elsewhere. Worlds stores the name only." / "May be used for" / "Used only to read: {list}." / "Scope only. What shows on the counter comes later." / pristine "Use the form ref://name." / dirty "Checked when you leave the field." / valid "Looks like a reference." / pending "Saving…" |
+| C2 refused | "That looks like a secret. Cleared, not saved. Use a reference, like ref://notes-sync." |
+| C2 own secret | "That points at one of Worlds' own secrets. Can't use it here." |
+| C3 | "Run safe test" / "Testing…" / "Passed. {n} facts read. Nothing changed." / failed "Didn't go through. Reference kept. Try again." / cause "{lastError}" / "tried 12s ago" / "try {n} of 3" / limit "Three tries. Check the reference in the owning app, then edit it." / mock "Simulate a failed test (mock)" |
+| C4 | loading "Fetching facts…" / "Stalled?" + owner link / empty "No facts yet. Nothing guessed." / "Separate facts. Capabilities verified." |
+| C5 | "Choose what to show" / "Shown, and visible to agents: {list}." / "Keep at least one fact." |
+| C6 | "Publish" / "Adds {Name} and its chosen facts to the counter." / "Carrying it over…" / "Connected" / "{Name} is here." / "Open {Name}" / "Add one more" / "Manage reference in Settings" |
+| D1 | title "Disconnect {Name}?" / "{Name}'s {n} facts and app frame leave Worlds. The {App} app is untouched." / "Reference kept in Settings, unused." / "Disconnect" / "Keep service" / after: "{Name}'s gone from here. The app's fine. Reference kept." · "Reconnect" |
+| R1 | title "Remove {Name}'s reference?" / "Deletes the reference and what Worlds held for it. {Name} disconnects too, if connected. {App} is untouched." / "Worlds can't revoke the key. Rotate it in {App}." / "Remove reference" / "Keep reference" / after: "{Name}'s reference and connection removed. Key still active in {App}. Rotate it there." · "Open {App}" |
+| Settings | "References only, never secrets." / "No references. Connecting adds one." / "Unscoped (older connection). Can be used for anything it offers." / "Held, unused" / "Narrow scope" / "Less motion. Same data." / "Undecided. This mockup keeps nothing." / "Couldn't save that. Nothing changed. Try again." |
+| Memory | "No facts yet." / "Connect a service." / "Can't see it. {unknownReason} Needs the owning app to answer." |
+| Offline | "Offline. Showing what was last known, with times." / "Back online. Checking." / "Couldn't load this." / "Nothing was changed." |
 
 ### 7.3 Announcements (one polite live region)
-Routine ticks are **not** announced. Batched, polite messages only for: published ("Connected Notes Sync. Its slip and facts are now at the counter."), disconnected (the D1 sentence), reference removed (the R1 sentence), a state change ("Media Shelf is now Stale."), a failed test (once, assertive: "Test didn't pass."), live feed paused or resumed, and "Updated across Home, Front Door and Agent facts."
+Routine ticks are **not** announced. Batched, polite messages only for: published ("Notes Sync connected."), disconnected (the D1 sentence), reference removed (the R1 sentence), a state change ("Media Shelf is now Stale."), a failed test (once, assertive: "Test failed."), live feed paused or resumed ("Paused. Freshness frozen." / "Live feed on."), and "Updated everywhere. Home reported the back door locked. Worlds locked nothing."
 
 ## 8. Motion and accessibility
 
@@ -490,7 +508,7 @@ One curve, `--wv-ease`. Motion confirms a change that has already happened.
 |---|---|---|---|
 | State word on a slip, chip and receipt | confirm a change | cross-fade 150ms (120ms phone) | instant swap, opacity only |
 | Receipt stations and Memory rows | show the journey settling | tick at Source, Worlds, Agent / Human, 60ms apart | all ticked at once, no stagger |
-| Dot nod | "I noticed" beside "Updated just now" | 200ms, once | no nod; "Updated just now" stays 3s |
+| Dot nod | "I noticed" beside "Updated now" | 200ms, once | no nod; "Updated now" stays 3s |
 | Dot's parcel | publishing, welcome connections | travels 400ms desktop, 300ms phone | parcel appears at the counter, no travel |
 | Connected stamp | the proud moment | scales in and lands tilted, 200ms | appears in place |
 | Slip hover and select | affordance | lifts about 2px; scale only on buttons, 1.03, off on touch | no transform |
@@ -562,7 +580,7 @@ Sol's six conditions are pre-prototype gates (Project Home decision 145: "Approv
 |---|---|---|---|
 | 1 | **Project Home approval is fail-closed.** Never shown as working; an approval is a link or handoff that can say "not available yet". | §4.7 N1 and N2: "Ask Project Home to review" is labelled "Not available yet"; the panel says "Approvals aren't connected yet" and "nothing was sent". No "sent", "pending", "approved", spinner or recorded-handoff receipt anywhere, and no pending-approval line in any dialog (none can exist). Unknown connectivity renders as not available. **There is no Settings row, mock control or other UI path to a "connected" state.** A reviewer-only flag, if ever needed, is a build-time constant in the prototype file, off in the shipped mock and unreachable from the UI. | Click the handoff in the default build and confirm nothing reads as done; search Settings and About for any control touching approvals (there must be none). |
 | 2 | **Proposed actions are inert.** Shown as proposals; never executable from Worlds. | §4.8: the one sample proposal reads "Proposed. Not active." with "Agent can't do this." There is no Run, Do it or Approve control on a proposal, and the fixture-true owner retries are links to the owning app, not buttons. `#simulate-change` models an *owner-originated* change, not execution. | Search every screen for a control that executes a proposal or a retry; there must be none. |
-| 3 | **Scoped auth before any network call; legacy unscoped labelled "unscoped".** | §4.4 C2: the **send-scope** list (capabilities) and its sentence "Worlds will send this reference only when reading: {list}" must be satisfied before Test can run; Discover says no reference has been used. C5's publish selection is a separate, differently named list. Settings > Credential references and the receipt's Worlds station show "Scoped to {n} capabilities" or "Unscoped" with "Narrow scope" (which opens Connect at Reference) for unscoped ones. The welcome's connections are scoped. | Test cannot run with no scope; the C2 and C5 lists are visibly different; Unscoped is visible in Settings, Memory and the receipt after the About mock control. |
+| 3 | **Scoped auth before any network call; legacy unscoped labelled "unscoped".** | §4.4 C2: the **send-scope** list (capabilities) and its sentence "Used only to read: {list}" must be satisfied before Test can run; Discover says no reference has been used. C5's publish selection is a separate, differently named list. Settings > Credential references and the receipt's Worlds station show "Scoped to {n} capabilities" or "Unscoped" with "Narrow scope" (which opens Connect at Reference) for unscoped ones. The welcome's connections are scoped. | Test cannot run with no scope; the C2 and C5 lists are visibly different; Unscoped is visible in Settings, Memory and the receipt after the About mock control. |
 | 4-5 | **Contract fixes** (completed in the Connect contract, draft PR #329). | Not a UI element. The UI follows the contract as it stands: six verbs, `disconnect` keeps the reference (`credentials_retained`) and `revoke` is the only path that deletes it (R1), `external_state_untouched` is said plainly. | The spec and prototype cite only fields the contract has. |
 | 6 | **The read-only path is proven first: keyboard, mobile, stale and unknown.** | Everything in this design before Needs you is read-only. The acceptance path (below) is run first, on a service the person actually connected. | See "Read-only path acceptance". |
 
@@ -612,10 +630,10 @@ The prototype implements this spec as one self-contained HTML file with no netwo
 | Gap | Fix | Where |
 |---|---|---|
 | **1. Type rule flattened the display voice** | Accepted. Change #6 now says what is true: the house leaves headings past `h1` to the product, composed from its tokens; V2's *source* was loose, its design asked for a composed handle. Added `--wv-display-page` (2.5rem) and `--wv-display-section` (1.85rem) as named local handles; page, service and welcome titles use them. No `clamp()`. | §1 item 4, §2 change 6, §6 |
-| **2. Welcome did not earn the counter; unearned provenance** | Took the "earn the two services" route. W1 is V2's single broad card with a sleeping Dot and one button; W2 and W3 connect Media Shelf and Front Door with the parcel and stamp each time; skip connects none and the counter is then empty. "Connected during first run" is now true of something shown. The fact-journey became a dismissible note after the first connection. Q2 is removed. | §2 change 9, §4.1, §4.3 |
+| **2. Welcome did not earn the counter; unearned provenance** | Took the "earn the two services" route. W1 is V2's single broad card with a sleeping Dot and one button; W2 and W3 connect Media Shelf and Front Door with the parcel and stamp each time; skip connects none and the counter is then empty. "Connected in first run" is now true of something shown. The fact-journey became a dismissible note after the first connection. Q2 is removed. | §2 change 9, §4.1, §4.3 |
 | **3. Feeling specified for one screen, audited for none; phone tabs; Memory; tablet labels** | Added a per-screen Carries table (§4.0) and gave Memory, Settings and Connect a named gesture (Dot resting in the header, the 60ms settle on Memory rows, the dashed empty well). Phone bar is four doors; Settings is a header button. Memory is a trail with owner links and "what would help" on Unknown rows. Tablet rail labels are always visible, with a keyboard tooltip. | §3, §4.0, §4.12, §5.2, §5.3 |
 | **4. Inert proposals built on invented fixture data** | Removed the fixture-labelled proposals. `probe-provider` and `retry-last-job` are shown as what they are (owner retries by a person, link only). `lock-back-door` appears only in its applied form. One proposal sample is drawn from the contract's `ActionProposal` shape, marked "Sample. The fixture has no proposals.", with "Decided by: not known yet" bound to `authority` (UNKNOWN). | §4.7, §4.8, §10 |
-| **5. Proof path could not be walked** | Re-checks are a per-fact rule, not a table of constants. Each session arms a scripted missed re-check on Media Shelf's first live fact and on the first live fact published through Connect, with the 60s escalation to Unknown and "Check now". Discover now shows "Not connected yet · no reading", unverified capabilities and "Auth: unknown", never a state word. Acceptance step 2 runs on the published service. Because Notes Sync starts Unavailable, the fact (not the service word) carries Stale and Unknown, consistent with "facts are never merged". | §4.4, §9, §10 |
+| **5. Proof path could not be walked** | Re-checks are a per-fact rule, not a table of constants. Each session arms a scripted missed re-check on Media Shelf's first live fact and on the first live fact published through Connect, with the 60s escalation to Unknown and "Check now". Discover now shows "Not connected · no reading", unverified capabilities and "Auth: unknown", never a state word. Acceptance step 2 runs on the published service. Because Notes Sync starts Unavailable, the fact (not the service word) carries Stale and Unknown, consistent with "facts are never merged". | §4.4, §9, §10 |
 | **6. Scope screen was the publish selector** | Named two fields once: C2 is the credential's **send scope** over capabilities (contract `CredentialReference.scope`); C5 is the **publish selection** over facts. Different sentences, different words. Settings and the receipt say "capabilities". "Narrow scope" opens Connect at Reference, pre-filled (Discover first for an older connection with no stored list). | §4.4, §4.13, §10 |
 | **7. A toggle could switch fail-closed approvals to connected** | Removed the Settings mock control. "Link ready" is a design note only; no UI path reaches it; any reviewer flag is a build-time constant, off and unreachable. The remaining mock controls only produce failure or edge states. | §4.7, §4.13, §10, §11 |
 | **8a. Studio Printer wrong cause** | One Unavailable line per cause; Studio Printer uses the fixture's own sentence ("reachable but rejected the job"). | §4.9 |

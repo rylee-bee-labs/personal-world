@@ -307,12 +307,12 @@ dialog::backdrop{background:color-mix(in oklch,var(--surface-sunken) 82%,transpa
   <div class="brand"><span class="mockup">MOCKUP</span><p class="wordmark">Worlds</p></div>
   <div class="controls" id="controls">
     <button class="btn" id="live-toggle" data-act="live" aria-pressed="true" type="button">Live · checked 24s ago</button>
-    <button class="btn" id="simulate-change" data-act="simulate" type="button" aria-label="Simulate change: the Home app reports the back door locked">Simulate change</button>
+    <button class="btn" id="simulate-change" data-act="simulate" type="button" aria-label="Simulate change: back door locked">Simulate change</button>
     <button class="btn" id="add-service" data-act="add" type="button">Add service</button>
     <button class="btn danger" id="disconnect" data-act="disconnect" type="button">Disconnect</button>
   </div>
   <a class="btn" id="hdr-settings" href="#/settings/services" data-act="hdr-settings"></a>
-  <span id="disc-reason-sr" class="sr-only">Connect a service before disconnecting</span>
+  <span id="disc-reason-sr" class="sr-only">Connect something first</span>
 </header>
 <div class="strip" id="strip" hidden></div>
 <div class="app">
@@ -341,19 +341,19 @@ let uid=0;
 /* ---------- fixture (synthetic; mirrors fixture.json) ---------- */
 const F=(id,label,value,unit,state,obs,src,agent,human,x)=>Object.assign({id,label,value,unit,state,obs:ms(obs),src,agent,human},x||{});
 const DEFS={
-'media-shelf':{name:'Media Shelf',kind:'media library',state:'healthy',summary:'Library reachable and indexing is current.',owner:{app:'Media',route:'app://media',label:'Open Media app'},checked:'2026-10-13T14:23:58Z',src:'local',
+'media-shelf':{name:'Media Shelf',kind:'media library',state:'healthy',summary:'Reachable. Index current.',owner:{app:'Media',route:'app://media',label:'Open Media app'},checked:'2026-10-13T14:23:58Z',src:'local',
  facts:()=>[F('media.items','Items in library',1284,'items','live','2026-10-13T14:23:58Z','local','read','read'),F('media.indexing','Indexing backlog',0,'items','live','2026-10-13T14:23:58Z','local','read','read'),F('media.played-recently','Played in the last 7 days',12,'items','live','2026-10-13T14:23:58Z','local','read','read')]},
-'front-door':{name:'Front Door',kind:'home access',state:'needs_attention',summary:"Back door has been unlocked for longer than the person's usual window.",reason:'A decision is required; the local app will not act on its own.',owner:{app:'Home',route:'app://home',label:'Open Home app'},checked:'2026-10-13T14:24:02Z',src:'local',
- facts:()=>[F('frontdoor.back-door','Back door','unlocked',null,'live','2026-10-13T14:24:02Z','local','read','act',{hReason:"Locking the door changes the external system and is the person's decision."}),F('frontdoor.unlocked-for','Unlocked for',47,'minutes','live','2026-10-13T14:24:02Z','local','read','read'),F('frontdoor.guest-code-used','Guest code last used by','visitor-3',null,'live','2026-10-13T14:20:11Z','local','none','read',{aReason:'Identifying a person is human-only in this fixture; the agent sees that a guest code was used, not who.'})]},
-'nightly-backup':{name:'Nightly Backup',kind:'backup',state:'stale',summary:'Last successful run is older than the configured daily window.',owner:{app:'Settings',route:'app://settings/backups',label:'Open Backup settings'},checked:'2026-10-13T06:00:00Z',src:'local',
+'front-door':{name:'Front Door',kind:'home access',state:'needs_attention',summary:'Back door unlocked longer than usual.',reason:'Your call. Nothing acts on its own.',owner:{app:'Home',route:'app://home',label:'Open Home app'},checked:'2026-10-13T14:24:02Z',src:'local',
+ facts:()=>[F('frontdoor.back-door','Back door','unlocked',null,'live','2026-10-13T14:24:02Z','local','read','act',{hReason:'Locking changes the real door. Yours to decide.'}),F('frontdoor.unlocked-for','Unlocked for',47,'minutes','live','2026-10-13T14:24:02Z','local','read','read'),F('frontdoor.guest-code-used','Guest code last used by','visitor-3',null,'live','2026-10-13T14:20:11Z','local','none','read',{aReason:'Who it was is human-only. Agent sees a code was used.'})]},
+'nightly-backup':{name:'Nightly Backup',kind:'backup',state:'stale',summary:'Last good backup is past its daily window.',owner:{app:'Settings',route:'app://settings/backups',label:'Open Backup settings'},checked:'2026-10-13T06:00:00Z',src:'local',
  facts:()=>[F('backup.last-success','Last successful backup','2026-10-09T06:00:00Z',null,'stale','2026-10-09T06:00:00Z','local','read','read'),F('backup.last-attempt','Last attempt','failed: destination unreachable',null,'stale','2026-10-13T06:00:00Z','local','read','read'),F('backup.size','Last backup size',4.2,'GB','stale','2026-10-09T06:00:00Z','local','read','read')]},
-'garden-camera':{name:'Garden Camera',kind:'camera',state:'unknown',summary:'Disconnected since a restart; the local app has no current observation and will not invent one.',unknownReason:"The device stopped answering at the fixture's baseline; no source has answered since.",owner:{app:'Home',route:'app://home/cameras',label:'Open Home cameras'},checked:'2026-10-13T11:02:00Z',src:'none',
- facts:()=>[F('camera.last-frame','Last frame',null,null,'unknown',null,'none','read','read'),F('camera.reachability','Reachable',null,null,'unknown',null,'none','read','read'),F('camera.human-detected-today','Human detected today',null,null,'unknown',null,'none','none','read',{aReason:'The agent may not assert a detection while the source is unknown.'})]},
-'studio-printer':{name:'Studio Printer',kind:'printer',state:'unavailable',summary:'The last job failed; the printer is reachable but rejected the job. Retry is offered.',owner:{app:'Studio',route:'app://studio/printers',label:'Open Studio app'},checked:'2026-10-13T14:22:40Z',src:'local',retry:{label:'Retry last job',attempts:1,lastError:'job rejected: no media loaded'},
+'garden-camera':{name:'Garden Camera',kind:'camera',state:'unknown',summary:'No reading since a restart. Nothing invented.',unknownReason:'Stopped answering. Nothing since.',owner:{app:'Home',route:'app://home/cameras',label:'Open Home cameras'},checked:'2026-10-13T11:02:00Z',src:'none',
+ facts:()=>[F('camera.last-frame','Last frame',null,null,'unknown',null,'none','read','read'),F('camera.reachability','Reachable',null,null,'unknown',null,'none','read','read'),F('camera.human-detected-today','Human detected today',null,null,'unknown',null,'none','none','read',{aReason:"Agent can't claim a detection while the source is unknown."})]},
+'studio-printer':{name:'Studio Printer',kind:'printer',state:'unavailable',summary:'Last job failed. Printer reachable, job rejected.',owner:{app:'Studio',route:'app://studio/printers',label:'Open Studio app'},checked:'2026-10-13T14:22:40Z',src:'local',retry:{label:'Retry last job',attempts:1,lastError:'job rejected: no media loaded'},
  facts:()=>[F('printer.status','Printer status','error',null,'unavailable','2026-10-13T14:22:40Z','local','read','read'),F('printer.queue','Jobs queued',1,'jobs','live','2026-10-13T14:22:40Z','local','read','read'),F('printer.last-error-code','Last error code','E-MEDIA-02',null,'live','2026-10-13T14:22:40Z','local','read','read')]},
-'notes-sync':{name:'Notes Sync',kind:'sync',state:'unavailable',summary:'The sync provider did not answer its last two checks. Local notes still work; retry is offered.',owner:{app:'Memory',route:'app://memory',label:'Open Memory app'},checked:'2026-10-13T14:20:00Z',src:'none',retry:{label:'Check provider now',attempts:2,lastError:'provider timed out'},
+'notes-sync':{name:'Notes Sync',kind:'sync',state:'unavailable',summary:'Provider missed two checks. Local notes still work.',owner:{app:'Memory',route:'app://memory',label:'Open Memory app'},checked:'2026-10-13T14:20:00Z',src:'none',retry:{label:'Check provider now',attempts:2,lastError:'provider timed out'},
  facts:()=>[F('sync.provider-reachable','Provider reachable',null,null,'unavailable','2026-10-13T14:20:00Z','external','read','read'),F('sync.local-pending','Local notes waiting to upload',3,'notes','live','2026-10-13T14:23:30Z','local','read','read'),F('sync.last-synced','Last successful sync','2026-10-13T13:58:00Z',null,'stale','2026-10-13T13:58:00Z','local','read','read')]},
-'local-weather':{name:'Local Weather',kind:'weather',state:'not_configured',summary:'No weather provider has ever been set up. The tile holds zero data until the person chooses one; nothing is guessed.',emptyReason:'No provider configured, so there are no facts to show. Nothing is guessed.',owner:{app:'Settings',route:'app://settings/providers',label:'Open provider settings'},checked:null,src:'none',facts:()=>[]}
+'local-weather':{name:'Local Weather',kind:'weather',state:'not_configured',summary:'No provider set up. No data, no guessing.',emptyReason:'No provider yet. Nothing to show.',owner:{app:'Settings',route:'app://settings/providers',label:'Open provider settings'},checked:null,src:'none',facts:()=>[]}
 };
 const ORDER=Object.keys(DEFS),CANDS=['notes-sync','nightly-backup','garden-camera','studio-printer','media-shelf','front-door'];
 const mkBase=id=>{const d=DEFS[id];return{id,name:d.name,kind:d.kind,state:d.state,summary:d.summary,reason:d.reason||null,unknownReason:d.unknownReason||null,emptyReason:d.emptyReason||null,owner:d.owner,checkedAt:ms(d.checked),src:d.src,retry:d.retry||null,facts:d.facts(),refused:false}};
@@ -364,13 +364,14 @@ const st={now:T0,live:true,cadence:5,sec:0,offline:false,welcomeDone:false,repla
 
 /* ---------- formatting ---------- */
 const shortAge=n=>n<60?n+'s':n<3600?Math.floor(n/60)+'m':Math.floor(n/3600)+'h';
-const ageTxt=t=>t==null?'Never checked':shortAge(Math.max(0,Math.round((st.now-t)/1000)))+' ago';
+const ageTxt=(t,v)=>t==null?'never '+v:v+' '+shortAge(Math.max(0,Math.round((st.now-t)/1000)))+' ago';
+const fs=f=>f.state==='live'&&f.obs==null?'unknown':f.state;
 const fmtVal=(v,u)=>(typeof v==='string'&&/^\d{4}-\d\d-\d\dT/.test(v)?fmtDT(Date.parse(v)):typeof v==='number'?v.toLocaleString('en-US'):v)+(u?' '+u:'');
-const fv=f=>f.value==null?(f.state==='unknown'?'Unknown':'Unavailable'):fmtVal(f.value,f.unit);
+const fv=f=>f.value==null?(fs(f)==='unknown'?'Unknown':'Unavailable'):fmtVal(f.value,f.unit);
 const freshest=()=>{const ts=st.connected.map(id=>svcs[id].checkedAt).filter(x=>x!=null);return ts.length?Math.max(...ts):null};
 const tsOf=k=>{if(k==='top')return freshest();const[t,a,b]=k.split('|');if(t==='s')return svcs[a]&&svcs[a].checkedAt;if(t==='f'){const f=svcs[a]&&svcs[a].facts.find(x=>x.id===b);return f&&f.obs}if(t==='t')return st.cx.test.at;return null};
-const ageSpan=k=>`<span data-ak="${esc(k)}">${ageTxt(tsOf(k))}</span>`;
-function refreshAges(){$$('[data-ak]').forEach(el=>{el.textContent=ageTxt(tsOf(el.dataset.ak))})}
+const ageSpan=(k,v='checked')=>`<span data-ak="${esc(k)}" data-v="${v}">${ageTxt(tsOf(k),v)}</span>`;
+function refreshAges(){$$('[data-ak]').forEach(el=>{el.textContent=ageTxt(tsOf(el.dataset.ak),el.dataset.v||'checked')})}
 
 /* ---------- glyphs ---------- */
 const GL={check:'<path d="M3.5 8.5l3 3 6-7"/>',alert:'<path d="M8 2.5l6 10.5H2z"/><path d="M8 6.5v3M8 11.2v.1"/>',clock:'<circle cx="8" cy="8" r="6"/><path d="M8 4.5V8l2.5 1.5"/>',x:'<circle cx="8" cy="8" r="6"/><path d="M5.8 5.8l4.4 4.4M10.2 5.8l-4.4 4.4"/>',q:'<circle cx="8" cy="8" r="6"/><path d="M6.2 6.3a1.9 1.9 0 013.6.7c0 1.2-1.8 1.4-1.8 2.6M8 11.6v.1"/>',dash:'<circle cx="8" cy="8" r="6"/><path d="M5.5 8h5"/>'};
@@ -392,134 +393,135 @@ function svcState(s){if(s.refused)return['unavailable',false];if(s.state==='heal
 function simAt(s){const f=s.facts.find(x=>x.sim);return f?(f.staleAt||st.now):st.now}
 function lines(s,full){
  const[k,sim]=svcState(s),o=[];
- if(s.refused){o.push(`${s.name} stopped accepting this reference. Its last facts are still here, marked with when Worlds checked. Worlds can't fix this on ${s.name}'s side.`);return o}
- if(sim){o.push(k==='stale'?`Nothing has changed since ${fmtT(simAt(s))} that Worlds knows of.`:"Worlds has no current reading for this and won't guess.");return o}
+ if(s.refused){o.push(`${s.name} refused the reference. Last facts kept, with check times. Fix it in ${s.name}.`);return o}
+ if(sim){o.push(k==='stale'?`No change seen since ${fmtT(simAt(s))}.`:'No current reading. Not guessing.');return o}
  if(k==='needs_attention'&&s.reason)o.push(s.reason);
  o.push(s.summary);
- if(k==='stale')o.push(`Nothing has changed since ${fmtT(s.checkedAt)} that Worlds knows of.`);
- if(k==='unknown'){if(full&&s.unknownReason)o.push(s.unknownReason);o.push("Worlds has no current reading for this and won't guess.")}
- if(full&&k==='unavailable')o.push(s.id==='studio-printer'?'The printer answered, so Worlds is not treating it as silent.':"That service stopped answering. Its last facts are still here, marked with when Worlds checked.");
- if(k==='not_configured')o.push(`${s.name} isn't set up. Open its settings.`);
+ if(k==='stale')o.push(`No change seen since ${fmtT(s.checkedAt)}.`);
+ if(k==='unknown'){if(full&&s.unknownReason)o.push(s.unknownReason);o.push('No current reading. Not guessing.')}
+ if(full&&k==='unavailable')o.push(s.id==='studio-printer'?'Printer answered, so not silent.':'Stopped answering. Last facts kept, with check times.');
+ if(k==='not_configured')o.push('Not set up. Open settings.');
  return o;
 }
 const attn=()=>st.connected.filter(id=>svcs[id].state==='needs_attention').length;
 const selSvc=()=>st.selected&&svcs[st.selected]&&svcs[st.selected].connected?svcs[st.selected]:null;
 const selFact=s=>s.facts.find(f=>f.id===st.fact[s.id])||s.facts[0];
 function statusHTML(){
- if(!st.connected.length)return 'No services are connected yet.';
- const n=attn(),a=` · checked ${ageSpan('top')}`;
+ if(!st.connected.length)return 'Nothing connected.';
+ const n=attn(),a=` · ${ageSpan('top')}`;
  if(n)return `<span class="status-word">${n} needs you</span>${a}`;
- return (st.lastOne?'That was the last one. ':'')+'Nothing needs you right now'+(st.lastOne?'.':'')+a;
+ return (st.lastOne?'Last one done. ':'')+'Nothing needs you'+(st.lastOne?'.':'')+a;
 }
 const nod=()=>performance.now()<st.nodUntil,upd=()=>performance.now()<st.updUntil;
-const freshLine=()=>`<p class="fresh">${dot('rest',nod()?'nod':'')}<span>${statusHTML()}</span>${upd()?'<strong class="upd">Updated just now</strong>':''}</p>`;
+const freshLine=()=>`<p class="fresh">${dot('rest',nod()?'nod':'')}<span>${statusHTML()}</span>${upd()?'<strong class="upd">Updated now</strong>':''}</p>`;
 const noteTop=()=>(route()[0]||'home');
 function noteHTML(){const n=st.note;if(!n||n.view!==noteTop())return '';return `<div class="note" data-od-id="last-change"><p>${esc(n.text)}</p><div class="actions">${n.reconnect?`<button class="btn" type="button" data-act="reconnect" data-id="${n.reconnect}">Reconnect</button>`:''}${n.owner?ownerLink(svcs[n.owner]):''}<button class="btn text" type="button" data-act="dismiss-note">Dismiss</button></div></div>`}
 const pageHead=title=>`<header class="page-head" data-od-id="page-head"><div><h1 tabindex="-1">${title}</h1>${freshLine()}</div><div class="status-slot"></div></header>${noteHTML()}`;
 const ownerLink=(s,cls='')=>`<a class="btn ${cls}" href="${esc(s.owner.route)}" data-act="owner" data-fk="owner-${s.id}" data-app="${esc(s.owner.app)}">${esc(s.owner.label)}</a>`;
-const permText=(s,f)=>({a:{read:'see it',act:'act on it',none:'not at all'}[f.agent],h:{read:'see it',write:'edit the local copy',act:`act on it in the ${s.owner.app} app`,none:'not at all'}[f.human]});
-function permHTML(s,f){const t=permText(s,f);const row=(who,p,txt,reason)=>{if(p==='none'){const id='pr'+(++uid);return `<div class="perm"><button type="button" class="btn perm-none" aria-disabled="true" aria-describedby="${id}">${who} can: ${txt}</button><span class="perm-line muted" id="${id}">${esc(reason||'')}</span></div>`}return `<p class="perm-line"><strong>${who} can:</strong> ${txt}.${reason?` <span class="muted">${esc(reason)}</span>`:''}</p>`};return row('Agent',f.agent,t.a,f.aReason)+row('Human',f.human,t.h,f.hReason)}
+const permText=(s,f)=>({a:{read:'sees it',act:'acts on it',none:'no access'}[f.agent],h:{read:'sees it',write:'edits the local copy',act:`acts in ${s.owner.app}`,none:'no access'}[f.human]});
+function permHTML(s,f){const t=permText(s,f);const row=(who,p,txt,reason)=>{if(p==='none'){const id='pr'+(++uid);return `<div class="perm"><button type="button" class="btn perm-none" aria-disabled="true" aria-describedby="${id}">${who}: ${txt}</button><span class="perm-line muted" id="${id}">${esc(reason||'')}</span></div>`}return `<p class="perm-line"><strong>${who}:</strong> ${txt}.${reason?` <span class="muted">${esc(reason)}</span>`:''}</p>`};return row('Agent',f.agent,t.a,f.aReason)+row('Human',f.human,t.h,f.hReason)}
 const scopeWord=s=>s.scope?`Scoped to ${capN(s.scope.length)}`:'Unscoped';
-const provenance=s=>`${s.during==='first run'?'Connected during first run':'Connected '+fmtT(s.connectedAt)} · reference held, never the secret.`;
-function factInner(f){const lk=f.state==='stale'?'<span class="micro muted">last known</span>':'';return `<span class="fact-main"><span class="fact-label">${esc(f.label)}</span><span class="micro muted">observed ${f.obs?ageSpan('x'):'never'}</span></span><span class="fact-val"><strong>${esc(fv(f))}</strong>${lk}${chip(f.state,f.sim?' (simulated)':'')}</span>`}
-function factBtn(s,f){return `<li><button type="button" class="fact" data-act="fact" data-s="${s.id}" data-f="${esc(f.id)}" data-fk="fact-${s.id}-${esc(f.id)}" aria-pressed="${selFact(s)===f}">${factInner(f).replace('data-ak="x"',`data-ak="f|${s.id}|${esc(f.id)}"`)}</button></li>`}
+const provenance=s=>`${s.during==='first run'?'Connected in first run':'Connected '+fmtT(s.connectedAt)} · reference only, never the secret.`;
+function factInner(s,f){const lk=f.state==='stale'?'<span class="micro muted">last known</span>':'';return `<span class="fact-main"><span class="fact-label">${esc(f.label)}</span><span class="micro muted">${ageSpan('f|'+s.id+'|'+f.id)}</span></span><span class="fact-val"><strong>${esc(fv(f))}</strong>${lk}${chip(fs(f),f.sim?' (simulated)':'')}</span>`}
+function factBtn(s,f){return `<li><button type="button" class="fact" data-act="fact" data-s="${s.id}" data-f="${esc(f.id)}" data-fk="fact-${s.id}-${esc(f.id)}" aria-pressed="${selFact(s)===f}">${factInner(s,f)}</button></li>`}
 
 /* ---------- receipt ---------- */
 function receiptHTML(s,f){
- if(!f)return `<section class="receipt" data-od-id="fact-receipt"><h3>No facts</h3><p>${esc(s.emptyReason||'This service has no facts at the counter.')}</p></section>`;
+ if(!f)return `<section class="receipt" data-od-id="fact-receipt"><h3>No facts</h3><p>${esc(s.emptyReason||'Nothing here yet.')}</p></section>`;
  const settle=performance.now()<st.settleUntil&&st.settleSvc===s.id;
- const srcW=f.src==='local'?'From this device':f.src==='external'?"From the service's provider":'No source answered';
+ const srcW=f.src==='local'?'From this device':f.src==='external'?"From its provider":'No source answered';
  let lead;
- if(f.state==='unknown')lead=`No current reading. <strong>Unknown</strong>.${f.lastVal!==undefined?` Last known: ${esc(fmtVal(f.lastVal,f.unit))} at ${fmtT(f.lastAt)}.`:''}`;
- else if(f.state==='stale')lead=`${esc(s.owner.app)} last reported <strong>${esc(fv(f))}</strong> (last known).`;
- else if(f.state==='unavailable')lead=f.value==null?`Nothing came back. <strong>Unavailable</strong>.`:`${esc(s.owner.app)} reported <strong>${esc(fv(f))}</strong> but marked it unavailable.`;
- else lead=`${esc(s.owner.app)} reported <strong>${esc(fv(f))}</strong>.`;
+ const fst=fs(f);
+ if(fst==='unknown')lead=`No current reading. <strong>Unknown</strong>.${f.lastVal!==undefined?` Last known: ${esc(fmtVal(f.lastVal,f.unit))} at ${fmtT(f.lastAt)}.`:''}`;
+ else if(fst==='stale')lead=`Last known from ${esc(s.owner.app)}: <strong>${esc(fv(f))}</strong>.`;
+ else if(fst==='unavailable')lead=f.value==null?`Nothing came back. <strong>Unavailable</strong>.`:`${esc(s.owner.app)} said <strong>${esc(fv(f))}</strong>, marked Unavailable.`;
+ else lead=`${esc(s.owner.app)} said <strong>${esc(fv(f))}</strong>.`;
  const tk=svg(GL.check);
- return `<section class="receipt ${settle?'settle':''}" data-od-id="fact-receipt" aria-label="Receipt for ${esc(f.label)}"><div class="receipt-head"><p class="micro muted">Where this fact came from</p><h3>${esc(f.label)}</h3><p class="val">${esc(fv(f))}</p></div>
+ return `<section class="receipt ${settle?'settle':''}" data-od-id="fact-receipt" aria-label="Receipt for ${esc(f.label)}"><div class="receipt-head"><p class="micro muted">Where it came from</p><h3>${esc(f.label)}</h3><p class="val">${esc(fv(f))}</p></div>
  <div class="stations">
-  <div class="station" style="--i:0"><h3>Source<span class="tk">${tk}</span></h3><p>${lead}</p><span class="st-line">${srcW}</span><span class="st-line">State: ${chip(f.state,f.sim?' (simulated)':'')}</span><span class="st-line">Checked ${f.obs?ageSpan('f|'+s.id+'|'+f.id):'never'}</span>${f.sim?`<div class="actions"><button type="button" class="btn" data-act="check" data-s="${s.id}" data-f="${esc(f.id)}">Check now</button></div>`:''}</div>
+  <div class="station" style="--i:0"><h3>Source<span class="tk">${tk}</span></h3><p>${lead}</p><span class="st-line">${srcW}</span><span class="st-line">State: ${chip(fs(f),f.sim?' (simulated)':'')}</span><span class="st-line">${ageSpan('f|'+s.id+'|'+f.id)}</span>${f.sim?`<div class="actions"><button type="button" class="btn" data-act="check" data-s="${s.id}" data-f="${esc(f.id)}">Check now</button></div>`:''}</div>
   <div class="station" style="--i:1"><h3>Worlds<span class="tk">${tk}</span></h3><p>Shared as <strong>${esc(f.label)}</strong>.</p><span class="st-line">Fact id: <code>${esc(f.id)}</code></span><span class="st-line">${esc(provenance(s))}</span><span class="st-line">${scopeWord(s)}</span></div>
   <div class="station" style="--i:2"><h3>Agent / Human<span class="tk">${tk}</span></h3>${permHTML(s,f)}</div>
  </div></section>`;
 }
 function seesHTML(s){const a=s.facts.filter(f=>f.agent!=='none'),h=s.facts.filter(f=>f.agent==='none');if(!s.facts.length)return '';return `<p class="sees"><strong>Agent sees:</strong> ${esc(list(a.map(f=>f.label))||'nothing')}.${h.length?` <span class="muted">Agent can't see: ${esc(list(h.map(f=>f.label)))}.</span>`:''}</p>`}
-function retryHTML(s){if(!s.retry)return '';return `<div class="retry" data-od-id="owner-retry-${s.id}"><p><strong>${esc(s.retry.label)}</strong>, tried ${pl(s.retry.attempts,'time')}. Last error: ${esc(s.retry.lastError)}.</p><p class="muted">This happens in ${esc(s.owner.app)}, by you. Worlds can't retry it.</p>${ownerLink(s)}</div>`}
+function retryHTML(s){if(!s.retry)return '';return `<div class="retry" data-od-id="owner-retry-${s.id}"><p><strong>${esc(s.retry.label)}</strong>: tried ${pl(s.retry.attempts,'time')}. Last error: ${esc(s.retry.lastError)}.</p><p class="muted">You retry in ${esc(s.owner.app)}. Worlds can't.</p>${ownerLink(s)}</div>`}
 
 /* ---------- app frame ---------- */
 const PLAN={'front-door':'refused','notes-sync':'timeout'};
 function ensureFrame(id){if(st.frames[id])return;st.frames[id]={state:'loading',tries:0};loadFrame(id)}
 function loadFrame(id){const fr=st.frames[id];fr.state='loading';fr.tries++;paintFrame(id);clearTimeout(fr.t);fr.t=setTimeout(()=>{if(fr.state!=='loading')return;fr.state=fr.tries===1&&PLAN[id]?PLAN[id]:'loaded';paintFrame(id)},fr.tries===1?900:500)}
 function frameInner(s){const fr=st.frames[s.id]||{state:'loading'};const w={loading:'Loading',loaded:'Loaded',refused:'Not shown',timeout:'Not shown',cancelled:'Not shown'}[fr.state];let body='',ctl='';
- if(fr.state==='loading'){body=`<div class="frame-body" style="display:flex;gap:1rem;align-items:center">${dot('rest')}<p>Dot is fetching the app…</p></div>`;ctl=`<button type="button" class="btn" data-act="frame-cancel" data-id="${s.id}">Cancel</button>`}
- else if(fr.state==='loaded'){body=`<div class="frame-body"><div class="mini-app" role="group" aria-label="Contained preview of the ${esc(s.owner.app)} app"><p class="micro muted">${esc(s.owner.app)} · contained preview</p><p><strong>${esc(s.name)}</strong></p><p class="muted">${esc(s.summary)}</p><ul style="list-style:none">${s.facts.map(f=>`<li>${esc(f.label)}: <strong>${esc(fv(f))}</strong></li>`).join('')}</ul></div></div><p class="frame-foot muted">This app doesn't receive Worlds' credentials.</p>`;ctl=`<button type="button" class="btn" data-act="frame-retry" data-id="${s.id}">Reload</button>`}
- else{const cause=fr.state==='timeout'?'It took too long to answer.':fr.state==='cancelled'?'Loading was cancelled.':"The app doesn't allow being shown inside another page.";body=`<div class="frame-body"><p><strong>This app didn't load inside Worlds.</strong></p><p class="muted">${cause} Use the link below, or try again.</p></div>`;ctl=`<button type="button" class="btn" data-act="frame-retry" data-id="${s.id}">Try again</button>`}
- return `<div class="frame-bar"><strong>${esc(s.owner.app)} app, shown inside Worlds</strong><span class="micro muted">${w}</span></div>${body}<div class="frame-foot actions" style="margin-top:0">${ownerLink(s)}${ctl}</div>`}
+ if(fr.state==='loading'){body=`<div class="frame-body" style="display:flex;gap:1rem;align-items:center">${dot('rest')}<p>Fetching the app…</p></div>`;ctl=`<button type="button" class="btn" data-act="frame-cancel" data-id="${s.id}">Cancel</button>`}
+ else if(fr.state==='loaded'){body=`<div class="frame-body"><div class="mini-app" role="group" aria-label="${esc(s.owner.app)} app preview, contained"><p class="micro muted">${esc(s.owner.app)} · preview</p><p><strong>${esc(s.name)}</strong></p><p class="muted">${esc(s.summary)}</p><ul style="list-style:none">${s.facts.map(f=>`<li>${esc(f.label)}: <strong>${esc(fv(f))}</strong></li>`).join('')}</ul></div></div><p class="frame-foot muted">No Worlds credentials in here.</p>`;ctl=`<button type="button" class="btn" data-act="frame-retry" data-id="${s.id}">Reload</button>`}
+ else{const cause=fr.state==='timeout'?'Too slow.':fr.state==='cancelled'?'Cancelled.':"It won't show inside another page.";body=`<div class="frame-body"><p><strong>Didn't load here.</strong></p><p class="muted">${cause} Use the link, or try again.</p></div>`;ctl=`<button type="button" class="btn" data-act="frame-retry" data-id="${s.id}">Try again</button>`}
+ return `<div class="frame-bar"><strong>${esc(s.owner.app)} app, shown here</strong><span class="micro muted">${w}</span></div>${body}<div class="frame-foot actions" style="margin-top:0">${ownerLink(s)}${ctl}</div>`}
 function paintFrame(id){const el=document.getElementById('frame-'+id);if(el&&svcs[id].connected)keepFocus(()=>{el.innerHTML=frameInner(svcs[id])})}
 
 /* ---------- views ---------- */
 function slipHTML(s){const[k,sim]=svcState(s),f=s.facts[0],sel=s.id===st.selected;const peek=f?`<span>${esc(f.label)}</span><strong>${esc(fv(f))}${f.state==='stale'?' (last known)':''}</strong>`:'<span>No facts</span><strong>None</strong>';
- return `<li><button type="button" class="slip" data-act="slip" data-id="${s.id}" data-fk="slip-${s.id}" aria-pressed="${sel}"><span class="slip-top"><span><span class="slip-name">${esc(s.name)}</span><span class="slip-kind">${esc(s.kind)}</span></span>${chip(k,sim?' (simulated)':'')}</span><span class="slip-reason">${lines(s,false).map(esc).join(' ')}</span><span class="slip-peek">${peek}</span><span class="slip-foot"><span>Checked ${s.checkedAt==null?'never':ageSpan('s|'+s.id)}</span>${sel?`<span class="sel-word">${svg(GL.check)}Selected</span>`:''}</span></button></li>`}
-function journeyHTML(){if(st.journeySeen)return '';return `<aside class="journey" data-od-id="fact-journey"><h3>Here's one fact on its way.</h3><p>Media Shelf says it holds 1,284 items. Worlds shows where that came from and who can see it or act on it.</p><div class="mini-stations" aria-hidden="true"><span>Source · Media Shelf, local</span><span>Worlds · Items in library</span><span>Agent / Human</span></div><p class="muted">Every fact says where it came from and who can act on it.</p><button type="button" class="btn" data-act="dismiss-journey">Got it</button></aside>`}
+ return `<li><button type="button" class="slip" data-act="slip" data-id="${s.id}" data-fk="slip-${s.id}" aria-pressed="${sel}"><span class="slip-top"><span><span class="slip-name">${esc(s.name)}</span><span class="slip-kind">${esc(s.kind)}</span></span>${chip(k,sim?' (simulated)':'')}</span><span class="slip-reason">${lines(s,false).map(esc).join(' ')}</span><span class="slip-peek">${peek}</span><span class="slip-foot"><span>${ageSpan('s|'+s.id)}</span>${sel?`<span class="sel-word">${svg(GL.check)}Selected</span>`:''}</span></button></li>`}
+function journeyHTML(){if(st.journeySeen)return '';return `<aside class="journey" data-od-id="fact-journey"><h3>One fact, traced.</h3><p>Media Shelf holds 1,284 items. Where from, who sees it, who acts.</p><div class="mini-stations" aria-hidden="true"><span>Source · Media Shelf, local</span><span>Worlds · Items in library</span><span>Agent / Human</span></div><p class="muted">Every fact shows this.</p><button type="button" class="btn" data-act="dismiss-journey">Got it</button></aside>`}
 function detailHTML(s,h1){
  ensureFrame(s.id);const[k,sim]=svcState(s),f=selFact(s);const pushed=h1;
  const title=h1?`<h1 class="svc-title" tabindex="-1">${esc(s.name)}</h1>`:`<h2 class="svc-title" tabindex="-1">${esc(s.name)}</h2>`;
  const dis=h1?'<div class="disc-slot"></div>':'';
- const ev=s.id==='front-door'&&st.doorLocked?`<div class="event"><p><strong>The Home app reported the back door locked. Worlds locked nothing.</strong></p>${ownerLink(s)}</div>`:'';
- const kept=s.keptOut.length?`<p class="muted">${pl(s.keptOut.length,'fact')} ${s.keptOut.length===1?'is':'are'} kept out of Worlds. You chose not to share ${s.keptOut.length===1?'it':'them'}.</p>`:'';
- return `<div class="detail" data-od-id="service-detail"><div class="svc-head"><div>${title}<div class="meta">${chip(k,sim?' (simulated)':'')}<span>Owned by the ${esc(s.owner.app)} app</span><span>Checked ${s.checkedAt==null?'never':ageSpan('s|'+s.id)}</span></div></div>${dis}</div>
+ const ev=s.id==='front-door'&&st.doorLocked?`<div class="event"><p><strong>Home says the back door's locked. Worlds locked nothing.</strong></p>${ownerLink(s)}</div>`:'';
+ const kept=s.keptOut.length?`<p class="muted">${pl(s.keptOut.length,'fact')} kept out. Your choice.</p>`:'';
+ return `<div class="detail" data-od-id="service-detail"><div class="svc-head"><div>${title}<div class="meta">${chip(k,sim?' (simulated)':'')}<span>Owned by ${esc(s.owner.app)}</span><span>${ageSpan('s|'+s.id)}</span></div></div>${dis}</div>
  <div class="lines">${lines(s,true).map(l=>`<p class="muted">${esc(l)}</p>`).join('')}</div>
  <div class="svc" data-tab="${st.tab}"><div class="tabs" role="tablist" aria-label="${esc(s.name)} views">${['facts:Facts','app:App','agent:Agent view'].map(x=>{const[a,b]=x.split(':');return `<button type="button" role="tab" class="btn" data-act="tab" data-t="${a}" data-fk="tab-${a}" aria-selected="${st.tab===a}">${b}</button>`}).join('')}</div>
  <section class="pane pane-facts" aria-label="Facts">${s.facts.length?`<ul class="facts-list">${s.facts.map(x=>factBtn(s,x)).join('')}</ul>`:''}${journeyHTML()}${receiptHTML(s,f)}${seesHTML(s)}${ev}${retryHTML(s)}${kept}</section>
  <section class="pane pane-app" aria-label="App">${s.owner.app==='x'?'':`<div class="frame" id="frame-${s.id}" data-od-id="app-frame">${frameInner(s)}</div>`}</section>
  <section class="pane pane-agent" aria-label="Agent view">${s.facts.map(x=>factCard(s,x)).join('')||`<p class="muted">${esc(s.emptyReason||'No facts.')}</p>`}</section></div></div>`;
 }
-function selCard(s){if(!s)return `<div class="sel-strip"><p>No service selected.</p><div class="disc-slot"></div><p class="muted" id="disc-reason">Connect a service before disconnecting</p></div>`;const[k,sim]=svcState(s);return `<div class="sel-card" data-od-id="selected-card"><p class="micro muted">Selected service</p><h2 style="font-size:var(--type-h1)">${esc(s.name)}</h2><p>${chip(k,sim?' (simulated)':'')}</p><p class="muted">${esc(lines(s,false)[0])}</p><div class="actions"><button type="button" class="btn" data-act="open-svc" data-id="${s.id}">Open ${esc(s.name)}</button><div class="disc-slot"></div></div></div>`}
+function selCard(s){if(!s)return `<div class="sel-strip"><p>Nothing selected.</p><div class="disc-slot"></div><p class="muted" id="disc-reason">Connect something first</p></div>`;const[k,sim]=svcState(s);return `<div class="sel-card" data-od-id="selected-card"><p class="micro muted">Selected</p><h2 style="font-size:var(--type-h1)">${esc(s.name)}</h2><p>${chip(k,sim?' (simulated)':'')}</p><p class="muted">${esc(lines(s,false)[0])}</p><div class="actions"><button type="button" class="btn" data-act="open-svc" data-id="${s.id}">Open ${esc(s.name)}</button><div class="disc-slot"></div></div></div>`}
 function viewHome(r){
  const sid=r[1];
  if(sid&&(!svcs[sid]||!svcs[sid].connected)){history.replaceState(null,'','#/home');r=['home']}
  else if(sid)st.selected=sid;
  const s=selSvc();
- if(!st.connected.length)return `${pageHead('Your counter')}<div class="sel-strip"><p>No service selected.</p><div class="disc-slot"></div><p class="muted" id="disc-reason">Connect a service before disconnecting</p></div><section class="empty" data-od-id="empty-counter">${dot('asleep','lg')}<div><h2>The counter is quiet.</h2><p class="measure">Nothing at the counter yet. Connect a service and Worlds will keep its facts, say where each came from, and leave the deciding to you.</p><div class="actions"><button type="button" class="btn primary" data-act="add">Connect a service</button></div></div></section>`;
- if(isPhone()&&r[1]&&s)return `<div data-od-id="pushed-service"><button type="button" class="btn text" data-act="back-home" data-fk="back-home">${ico('back')}Back to your counter</button><header class="page-head" style="margin-top:var(--space-md)"><div class="status-slot"></div></header>${noteHTML()}${detailHTML(s,true)}</div>`;
- return `${pageHead('Your counter')}${selCard(s)}<div class="home-grid"><section aria-labelledby="slips-h" data-od-id="slips"><h2 id="slips-h" class="sr-only">Services at your counter</h2><ul class="slips">${st.connected.map(id=>slipHTML(svcs[id])).join('')}</ul></section>${s?detailHTML(s,false):''}</div>`;
+ if(!st.connected.length)return `${pageHead('Your counter')}<div class="sel-strip"><p>Nothing selected.</p><div class="disc-slot"></div><p class="muted" id="disc-reason">Connect something first</p></div><section class="empty" data-od-id="empty-counter">${dot('asleep','lg')}<div><h2>Quiet here.</h2><p class="measure">Connect something?</p><div class="actions"><button type="button" class="btn primary" data-act="add">Connect a service</button></div></div></section>`;
+ if(isPhone()&&r[1]&&s)return `<div data-od-id="pushed-service"><button type="button" class="btn text" data-act="back-home" data-fk="back-home">${ico('back')}Back to counter</button><header class="page-head" style="margin-top:var(--space-md)"><div class="status-slot"></div></header>${noteHTML()}${detailHTML(s,true)}</div>`;
+ return `${pageHead('Your counter')}${selCard(s)}<div class="home-grid"><section aria-labelledby="slips-h" data-od-id="slips"><h2 id="slips-h" class="sr-only">Services</h2><ul class="slips">${st.connected.map(id=>slipHTML(svcs[id])).join('')}</ul></section>${s?detailHTML(s,false):''}</div>`;
 }
-function factCard(s,f){const settle=performance.now()<st.settleUntil&&st.settleSvc===s.id;const unk=f.state==='unknown';
- return `<article class="fact-card ${settle?'settle':''}"><div><h3>${esc(f.label)}</h3><p class="big">${esc(fv(f))}${f.state==='stale'?' <span class="micro muted">(last known)</span>':''}</p>${chip(f.state,f.sim?' (simulated)':'')}<p class="micro muted">${f.src==='local'?'From this device':f.src==='external'?"From the service's provider":'No source answered'} · observed ${f.obs?ageSpan('f|'+s.id+'|'+f.id):'never'} · ${scopeWord(s)}</p>${f.lastVal!==undefined?`<p class="micro muted">Last known: ${esc(fmtVal(f.lastVal,f.unit))} at ${fmtT(f.lastAt)}.</p>`:''}${unk?`<p class="micro">Worlds can't see it. ${esc(s.unknownReason||'')} What would help: the owning app answering again.</p>`:''}${f.sim?`<button type="button" class="btn" data-act="check" data-s="${s.id}" data-f="${esc(f.id)}">Check now</button>`:''}</div><div>${permHTML(s,f)}</div></article>`}
+function factCard(s,f){const settle=performance.now()<st.settleUntil&&st.settleSvc===s.id;const unk=fs(f)==='unknown';
+ return `<article class="fact-card ${settle?'settle':''}"><div><h3>${esc(f.label)}</h3><p class="big">${esc(fv(f))}${f.state==='stale'?' <span class="micro muted">(last known)</span>':''}</p>${chip(fs(f),f.sim?' (simulated)':'')}<p class="micro muted">${f.src==='local'?'From this device':f.src==='external'?"From its provider":'No source answered'} · ${ageSpan('f|'+s.id+'|'+f.id)} · ${scopeWord(s)}</p>${f.lastVal!==undefined?`<p class="micro muted">Last known: ${esc(fmtVal(f.lastVal,f.unit))} at ${fmtT(f.lastAt)}.</p>`:''}${unk?`<p class="micro">Can't see it. ${esc(s.unknownReason||'')} Needs the owning app to answer.</p>`:''}${f.sim?`<button type="button" class="btn" data-act="check" data-s="${s.id}" data-f="${esc(f.id)}">Check now</button>`:''}</div><div>${permHTML(s,f)}</div></article>`}
 function viewMemory(){
  const ids=st.memFilter==='all'||!st.connected.includes(st.memFilter)?st.connected:[st.memFilter];
  const head=pageHead('Agent facts');
- if(!st.connected.length)return `${head}<section class="empty" data-od-id="memory-empty">${dot('asleep','lg')}<div><h2>No agent facts yet.</h2><p class="measure">No agent facts yet. Connect a service to add facts without guessing.</p><div class="actions"><button type="button" class="btn primary" data-act="add">Connect a service</button></div></div></section>`;
- return `${head}<div class="narrow"><div class="field" style="margin-bottom:var(--space-lg)"><label for="mem-filter"><strong>Show</strong></label><select id="mem-filter" data-chg="mem-filter"><option value="all">All services</option>${st.connected.map(id=>`<option value="${id}" ${st.memFilter===id?'selected':''}>${esc(svcs[id].name)}</option>`).join('')}</select></div>${ids.map(id=>{const s=svcs[id],[k,sim]=svcState(s);return `<section class="mem-group" aria-labelledby="mh-${id}"><div class="mem-head"><div><h2 id="mh-${id}" style="font-size:var(--type-h1)">${esc(s.name)}</h2><p class="muted">${chip(k,sim?' (simulated)':'')} · checked ${s.checkedAt==null?'never':ageSpan('s|'+id)}</p></div>${ownerLink(s)}</div>${s.facts.map(f=>factCard(s,f)).join('')}</section>`}).join('')}</div>`;
+ if(!st.connected.length)return `${head}<section class="empty" data-od-id="memory-empty">${dot('asleep','lg')}<div><h2>No facts yet.</h2><p class="measure">Connect a service.</p><div class="actions"><button type="button" class="btn primary" data-act="add">Connect a service</button></div></div></section>`;
+ return `${head}<div class="narrow"><div class="field" style="margin-bottom:var(--space-lg)"><label for="mem-filter"><strong>Show</strong></label><select id="mem-filter" data-chg="mem-filter"><option value="all">All services</option>${st.connected.map(id=>`<option value="${id}" ${st.memFilter===id?'selected':''}>${esc(svcs[id].name)}</option>`).join('')}</select></div>${ids.map(id=>{const s=svcs[id],[k,sim]=svcState(s);return `<section class="mem-group" aria-labelledby="mh-${id}"><div class="mem-head"><div><h2 id="mh-${id}" style="font-size:var(--type-h1)">${esc(s.name)}</h2><p class="muted">${chip(k,sim?' (simulated)':'')} · ${ageSpan('s|'+id)}</p></div>${ownerLink(s)}</div>${s.facts.map(f=>factCard(s,f)).join('')}</section>`}).join('')}</div>`;
 }
 function viewNeeds(){
  const nl=st.connected.filter(id=>svcs[id].state==='needs_attention').map(id=>svcs[id]),rt=st.connected.map(id=>svcs[id]).filter(s=>s.retry);
  let h=pageHead('Needs you');
  h+=`<div class="narrow">`;
- if(!nl.length)h+=`<section class="empty" data-od-id="needs-empty">${dot('asleep','lg')}<div><h2>Nothing needs you right now.</h2><p class="measure">Worlds will say so here the moment something does.</p></div></section>`;
+ if(!nl.length)h+=`<section class="empty" data-od-id="needs-empty">${dot('asleep','lg')}<div><h2>Nothing needs you.</h2><p class="measure">It'll show here.</p></div></section>`;
  nl.forEach(s=>{h+=`<article class="card" data-od-id="needs-card-${s.id}"><h2 style="font-size:var(--type-h1)">${esc(s.name)}</h2><p>${chip('needs_attention')}</p><p>${esc(s.summary)}</p><p class="muted">${esc(s.reason)}</p><p class="micro"><strong>Facts behind it:</strong> ${esc(s.facts.map(f=>f.label+' '+fv(f)).join(' · '))}</p><div class="actions">${ownerLink(s,'primary')}<button type="button" class="btn" data-act="handoff" data-fk="handoff-${s.id}">Ask Project Home to review</button><span class="muted">Not available yet</span></div></article>`});
- if(rt.length){h+=`<h2 class="sec-title" style="font-size:var(--type-h1)">Owner retries</h2><p class="muted measure">These are not approvals. A person retries them in the owning app.</p>`;rt.forEach(s=>{h+=`<div class="card">${chip(svcState(s)[0])} <strong>${esc(s.name)}</strong>${retryHTML(s).replace('class="retry"','class="retry" style="margin-top:.5rem"')}</div>`})}
- h+=`<h2 class="sec-title" style="font-size:var(--type-h1)">Proposals</h2><div class="proposal" data-od-id="proposal-sample"><p class="micro"><strong>Sample. The fixture has no proposals.</strong></p><p><strong>Sample action</strong> · Changes something outside Worlds</p><p>Proposed. Not active.</p><p class="muted">Worlds can't run this. It can only show it. Decided by: not known yet. Agent can't do this.</p></div></div>`;
+ if(rt.length){h+=`<h2 class="sec-title" style="font-size:var(--type-h1)">Owner retries</h2><p class="muted measure">Not approvals. You retry these in the owning app.</p>`;rt.forEach(s=>{h+=`<div class="card">${chip(svcState(s)[0])} <strong>${esc(s.name)}</strong>${retryHTML(s).replace('class="retry"','class="retry" style="margin-top:.5rem"')}</div>`})}
+ h+=`<h2 class="sec-title" style="font-size:var(--type-h1)">Proposals</h2><div class="proposal" data-od-id="proposal-sample"><p class="micro"><strong>Sample. No real proposals.</strong></p><p><strong>Sample action</strong> · Changes something outside Worlds</p><p>Proposed. Not active.</p><p class="muted">Worlds can't run this, only show it. Decider: unknown. Agent can't.</p></div></div>`;
  return h;
 }
 
 /* ---------- welcome ---------- */
 function viewWelcome(n){
  st.beat=n;const head='';
- if(n===1)return `<section class="welcome" data-od-id="welcome-1"><div class="welcome-copy"><h1 tabindex="-1">Hello, I'm Dot.</h1><p>Worlds is a small counter. Your services leave their facts here, and Worlds keeps them honest.</p><p class="muted">Shall we connect the first one together? Nothing here calls a real network.</p><div class="actions"><button type="button" class="btn primary" data-act="w-next" data-fk="w-next">Connect a service</button><button type="button" class="btn" id="skip-welcome" data-act="skip-welcome">Skip welcome</button></div></div><div class="welcome-dot">${dot('asleep','lg')}<p class="muted">Dot is asleep until you are ready.</p></div></section>`;
+ if(n===1)return `<section class="welcome" data-od-id="welcome-1"><div class="welcome-copy"><h1 tabindex="-1">Hello, I'm Dot.</h1><p>A small counter for your services' facts.</p><p class="muted">Connect the first one? Nothing here touches a network.</p><div class="actions"><button type="button" class="btn primary" data-act="w-next" data-fk="w-next">Connect a service</button><button type="button" class="btn" id="skip-welcome" data-act="skip-welcome">Skip welcome</button></div></div><div class="welcome-dot">${dot('asleep','lg')}<p class="muted">Dot's asleep.</p></div></section>`;
  const id=n===2?'media-shelf':'front-door',s=svcs[id],w=st.wstate[id]||'idle',sc=st.wscope[id];
  const capsHTML=caps(id).map((c,i)=>`<label class="check"><input type="checkbox" data-chg="w-cap" data-id="${id}" data-c="${esc(c)}" ${sc.has(c)?'checked':''} ${w!=='idle'?'disabled':''}><span>${esc(c)}</span></label>`).join('');
- const heading=n===2?'First, Media Shelf.':'And one more: Front Door.';
+ const heading=n===2?'First, Media Shelf.':'Then Front Door.';
  let side,act;
- if(w==='idle'){side=`<div class="welcome-dot">${dot('rest','lg')}<p class="muted">Dot is awake.</p></div>`;act=`<button type="button" class="btn primary" data-act="w-connect" data-id="${id}" data-fk="w-connect">Connect ${esc(s.name)}</button>`}
- else if(w==='delivering'){side=`<div class="welcome-dot"><div class="lane" style="width:100%">${dot('parcel')}<span class="lane-end">Counter</span></div><p>Dot is carrying the parcel to the counter…</p></div>`;act=''}
- else{side=`<div class="welcome-dot"><span class="stamp">${svg(GL.check)}Connected</span>${dot('rest','lg')}<p><strong>${esc(s.name)} is at the counter.</strong></p></div>`;act=`<button type="button" class="btn primary" data-act="w-continue" data-fk="w-continue" id="w-continue">${n===2?'Next: Front Door':'See your counter'}</button>`}
- return `<section class="welcome" data-od-id="welcome-${n}"><div class="welcome-copy"><h1 tabindex="-1">${heading}</h1><p class="muted">${esc(s.kind)} · owned by the ${esc(s.owner.app)} app</p><fieldset class="checks" ${w!=='idle'?'disabled':''}><legend>Worlds will send this reference only when reading: ${esc(list([...sc]))}.</legend>${capsHTML}</fieldset><p>${chip('done')} Passed. Nothing on ${esc(s.name)} was changed.</p><p class="micro muted">The reference is <code>ref://${id}</code>, a mock handle. No real network is called.</p><div class="actions">${act}${w==='idle'&&n===3?'<button type="button" class="btn" data-act="w-back">Back</button>':''}${w==='idle'&&n===2?'<button type="button" class="btn" data-act="w-back">Back</button>':''}<button type="button" class="btn text" id="skip-welcome" data-act="skip-welcome">Skip welcome</button></div></div>${side}</section>`;
+ if(w==='idle'){side=`<div class="welcome-dot">${dot('rest','lg')}<p class="muted">Dot's awake.</p></div>`;act=`<button type="button" class="btn primary" data-act="w-connect" data-id="${id}" data-fk="w-connect">Connect ${esc(s.name)}</button>`}
+ else if(w==='delivering'){side=`<div class="welcome-dot"><div class="lane" style="width:100%">${dot('parcel')}<span class="lane-end">Counter</span></div><p>Carrying it over…</p></div>`;act=''}
+ else{side=`<div class="welcome-dot"><span class="stamp">${svg(GL.check)}Connected</span>${dot('rest','lg')}<p><strong>${esc(s.name)} is here.</strong></p></div>`;act=`<button type="button" class="btn primary" data-act="w-continue" data-fk="w-continue" id="w-continue">${n===2?'Next: Front Door':'See the counter'}</button>`}
+ return `<section class="welcome" data-od-id="welcome-${n}"><div class="welcome-copy"><h1 tabindex="-1">${heading}</h1><p class="muted">${esc(s.kind)} · ${esc(s.owner.app)} app</p><fieldset class="checks" ${w!=='idle'?'disabled':''}><legend>Reference used only to read: ${esc(list([...sc]))}.</legend>${capsHTML}</fieldset><p>${chip('done')} Passed. Nothing changed.</p><p class="micro muted"><code>ref://${id}</code> · mock handle · no network.</p><div class="actions">${act}${w==='idle'&&n===3?'<button type="button" class="btn" data-act="w-back">Back</button>':''}${w==='idle'&&n===2?'<button type="button" class="btn" data-act="w-back">Back</button>':''}<button type="button" class="btn text" id="skip-welcome" data-act="skip-welcome">Skip welcome</button></div></div>${side}</section>`;
 }
 
 /* ---------- connect ---------- */
 const STEPS=['discover','reference','test','preview','choose','publish'],SN=['Discover','Reference','Test','Preview','Choose','Publish'];
 const refCheck=v=>{v=(v||'').trim();if(!v)return'empty';const m=/^ref:\/\/([A-Za-z0-9][A-Za-z0-9_-]{0,48})$/.exec(v);if(!m)return'secret';if(/^(PW_|OIDC_)/i.test(m[1])||/BOOTSTRAP/i.test(m[1]))return'own';return'valid'};
-const REFMSG={pristine:['','Not edited yet. Use the form ref://name.'],dirty:['','Edited. Worlds checks it when you leave the field.'],valid:['done','Looks like a reference.'],secret:['failed',"That looks like a secret, not a reference. Nothing was saved and the field was cleared. Worlds stores a credential reference, never the secret. Use something like ref://notes-sync."],own:['failed',"That reference points at one of Worlds' own secrets, so it can't be used for a service."],pending:['','Saving reference…']};
+const REFMSG={pristine:['','Use the form ref://name.'],dirty:['','Checked when you leave the field.'],valid:['done','Looks like a reference.'],secret:['failed','That looks like a secret. Cleared, not saved. Use a reference, like ref://notes-sync.'],own:['failed',"That points at one of Worlds' own secrets. Can't use it here."],pending:['','Saving…']};
 const msgHTML=k=>{const[c,t]=REFMSG[k];return `${c==='done'?svg(GL.check,'c-done'):c==='failed'?svg(GL.x,'c-failed'):''}<span class="${c?'c-'+c:''}">${t}</span>`};
 function cxGuard(step){const c=st.cx,i=STEPS.indexOf(step);if(i<0)return'discover';if(i>=1&&!c.sid)return'discover';if(i>=2&&!(c.refState==='valid'&&c.scope.size))return'reference';if(i>=3&&c.test.state!=='passed')return'test';if(i>=5&&!c.chosen.size)return'choose';return step}
 function pick(id){const c=st.cx,keep=c.mode;Object.assign(c,newCx(),{mode:keep==='narrow'?'narrow':'new',sid:id,scope:new Set(caps(id)),chosen:new Set(DEFS[id].facts().map(f=>f.id))})}
@@ -535,32 +537,32 @@ function viewConnect(step){
  if(step==='discover'){
   const cands=c.mode==='narrow'?[c.sid]:CANDS.filter(id=>!svcs[id].connected),here=st.connected;
   if(!c.sid&&cands.length)pick(cands[0]);
-  body=`<h1 tabindex="-1">Find a service</h1><p class="says">Looking only. No reference has been used yet. This sends no credential and changes nothing.</p>${cands.length?`<fieldset class="checks" style="border:0;padding:0"><legend>Services Worlds could connect</legend>${cands.map(id=>{const d=svcs[id];return `<label class="cand"><input type="radio" name="cand" value="${id}" data-chg="cx-pick" ${c.sid===id?'checked':''}><span><strong class="slip-name">${esc(d.name)}</strong><br><span class="micro muted">${esc(d.kind)} · reported by the ${esc(d.owner.app)} app</span><br><span class="micro">Not connected yet · no reading</span> · <span class="micro">Auth: unknown</span><ul>${caps(id).map(x=>`<li>${esc(x)} · not verified yet</li>`).join('')}</ul></span></label>`}).join('')}</fieldset>`:'<p class="empty">No other services to connect right now.</p>'}${here.length&&c.mode!=='narrow'?`<h2 class="sec-title" style="font-size:var(--type-h1)">Already at the counter</h2><p class="muted">${esc(list(here.map(id=>svcs[id].name)))}</p>`:''}`;
+  body=`<h1 tabindex="-1">Find a service</h1><p class="says">Looking only. No credential sent. Nothing changed.</p>${cands.length?`<fieldset class="checks" style="border:0;padding:0"><legend>Available</legend>${cands.map(id=>{const d=svcs[id];return `<label class="cand"><input type="radio" name="cand" value="${id}" data-chg="cx-pick" ${c.sid===id?'checked':''}><span><strong class="slip-name">${esc(d.name)}</strong><br><span class="micro muted">${esc(d.kind)} · ${esc(d.owner.app)} app</span><br><span class="micro">Not connected · no reading</span> · <span class="micro">Auth: unknown</span><ul>${caps(id).map(x=>`<li>${esc(x)} · unverified</li>`).join('')}</ul></span></label>`}).join('')}</fieldset>`:'<p class="empty">Nothing else to connect.</p>'}${here.length&&c.mode!=='narrow'?`<h2 class="sec-title" style="font-size:var(--type-h1)">Already connected</h2><p class="muted">${esc(list(here.map(id=>svcs[id].name)))}</p>`:''}`;
  }else if(step==='reference'){
   const pend=c.refState==='pending';
-  body=`<h1 tabindex="-1">Credential reference</h1><p class="says">A reference is a name that points to a secret kept somewhere safe. Worlds stores the name, never the secret.</p><div class="field"><label for="cx-ref"><strong>Reference for ${esc(s.name)}</strong></label><input type="text" id="cx-ref" data-fk="cx-ref" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="ref://${esc(s.id)}" value="${esc(c.ref)}" aria-describedby="ref-msg" ${c.refState==='secret'||c.refState==='own'?'aria-invalid="true"':''} ${pend?'readonly':''}><p class="msg" id="ref-msg" aria-live="polite">${msgHTML(c.refState)}</p></div>
-  <fieldset class="checks"><legend>What this reference may be used for</legend>${caps(s.id).map(x=>`<label class="check"><input type="checkbox" data-chg="cx-cap" data-c="${esc(x)}" ${c.scope.has(x)?'checked':''}><span>${esc(x)}</span></label>`).join('')}</fieldset>
-  <p id="scope-sentence"><strong>${c.scope.size?`Worlds will send this reference only when reading: ${esc(list([...c.scope]))}.`:'Tick at least one thing this reference may be used for.'}</strong></p><p class="muted">This is about what the reference can be used for. It is not what appears on your counter.</p>`;
+  body=`<h1 tabindex="-1">Credential reference</h1><p class="says">A name pointing to a secret kept elsewhere. Worlds stores the name only.</p><div class="field"><label for="cx-ref"><strong>Reference for ${esc(s.name)}</strong></label><input type="text" id="cx-ref" data-fk="cx-ref" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="ref://${esc(s.id)}" value="${esc(c.ref)}" aria-describedby="ref-msg" ${c.refState==='secret'||c.refState==='own'?'aria-invalid="true"':''} ${pend?'readonly':''}><p class="msg" id="ref-msg" aria-live="polite">${msgHTML(c.refState)}</p></div>
+  <fieldset class="checks"><legend>May be used for</legend>${caps(s.id).map(x=>`<label class="check"><input type="checkbox" data-chg="cx-cap" data-c="${esc(x)}" ${c.scope.has(x)?'checked':''}><span>${esc(x)}</span></label>`).join('')}</fieldset>
+  <p id="scope-sentence"><strong>${c.scope.size?`Used only to read: ${esc(list([...c.scope]))}.`:'Tick at least one.'}</strong></p><p class="muted">Scope only. What shows on the counter comes later.</p>`;
  }else if(step==='test'){
   const t=c.test;let res='';
   if(t.state==='running')res=`<div class="panel" style="display:flex;gap:1rem;align-items:center">${dot('rest')}<p>Testing…</p></div>`;
-  else if(t.state==='passed')res=`<div class="panel"><p>${chip('done')} <strong>Passed. Worlds read ${DEFS[s.id].facts().length} facts in ${180+s.name.length*7}ms (simulated). Nothing on ${esc(s.name)} was changed.</strong></p></div>`;
-  else if(t.state==='failed'||t.state==='limit')res=`<div class="panel"><p>${chip('failed')} <strong>That didn't go through, and the reference is still here. Try again whenever you like.</strong></p><p class="muted">Cause: provider timed out · last tried ${ageSpan('t|')} · try ${t.n} of 3</p>${t.state==='limit'?"<p>That's three tries. Check the reference with the owning app, then edit it to start again.</p>":''}</div>`;
+  else if(t.state==='passed')res=`<div class="panel"><p>${chip('done')} <strong>Passed. ${DEFS[s.id].facts().length} facts read. Nothing changed.</strong></p></div>`;
+  else if(t.state==='failed'||t.state==='limit')res=`<div class="panel"><p>${chip('failed')} <strong>Didn't go through. Reference kept. Try again.</strong></p><p class="muted">Provider timed out · ${ageSpan('t|','tried')} · try ${t.n} of 3</p>${t.state==='limit'?'<p>Three tries. Check the reference in the owning app, then edit it.</p>':''}</div>`;
   const dis=t.state==='running'||t.state==='limit';
-  body=`<h1 tabindex="-1">Run a safe test</h1><p class="says">One read. Nothing on ${esc(s.name)} changes. The reference is sent only within the scope you set: ${esc(list([...c.scope]))}.</p><label class="check"><input type="checkbox" data-chg="cx-sim" ${c.simFail?'checked':''}><span>Simulate a failed test (mock)</span></label><div class="actions"><button type="button" class="btn ${t.state==='passed'?'':'primary'}" id="cx-run" data-act="cx-run" ${dis?'aria-disabled="true"':''}>${t.state==='failed'?'Try again':'Run safe test'}</button></div><div aria-live="polite">${res}</div>`;
+  body=`<h1 tabindex="-1">Run a safe test</h1><p class="says">One read. Nothing changes. Scope: ${esc(list([...c.scope]))}.</p><label class="check"><input type="checkbox" data-chg="cx-sim" ${c.simFail?'checked':''}><span>Simulate a failed test (mock)</span></label><div class="actions"><button type="button" class="btn ${t.state==='passed'?'':'primary'}" id="cx-run" data-act="cx-run" ${dis?'aria-disabled="true"':''}>${t.state==='failed'?'Try again':'Run safe test'}</button></div><div aria-live="polite">${res}</div>`;
  }else if(step==='preview'){
-  body=`<h1 tabindex="-1">What ${esc(s.name)} offers</h1>`+(c.ready?`<p class="says">These are separate facts and stay separate. Capabilities now read verified.</p>${DEFS[s.id].facts().length?DEFS[s.id].facts().map(f=>`<div class="pre-fact"><span><strong>${esc(f.label)}</strong><br><span class="micro muted">${esc(caps(s.id).includes(f.label)?'verified':'')}</span></span><span style="text-align:right"><strong>${esc(fv(f))}</strong><br>${chip(f.state)}</span></div>`).join(''):'<p class="empty">This service offers no facts yet. Nothing is guessed.</p>'}`:`<div class="panel" style="display:flex;gap:1rem;align-items:center">${dot('rest')}<div><p>Dot is fetching the facts…</p><p class="micro muted">If this stalls, ${ownerLink(s,'text')}</p></div></div>`);
+  body=`<h1 tabindex="-1">What ${esc(s.name)} offers</h1>`+(c.ready?`<p class="says">Separate facts. Capabilities verified.</p>${DEFS[s.id].facts().length?DEFS[s.id].facts().map(f=>`<div class="pre-fact"><span><strong>${esc(f.label)}</strong><br><span class="micro muted">${esc(caps(s.id).includes(f.label)?'verified':'')}</span></span><span style="text-align:right"><strong>${esc(fv(f))}</strong><br>${chip(fs(f))}</span></div>`).join(''):'<p class="empty">No facts yet. Nothing guessed.</p>'}`:`<div class="panel" style="display:flex;gap:1rem;align-items:center">${dot('rest')}<div><p>Fetching facts…</p><p class="micro muted">Stalled? ${ownerLink(s,'text')}</p></div></div>`);
  }else if(step==='choose'){
   const fl=DEFS[s.id].facts(),last=c.chosen.size===1;
-  body=`<h1 tabindex="-1">Choose what to show</h1><p class="says">Shown on your counter and visible to agents: ${esc(list(fl.filter(f=>c.chosen.has(f.id)).map(f=>f.label))||'nothing')}.</p><fieldset class="checks"><legend>Facts to publish</legend>${fl.map(f=>{const lock=last&&c.chosen.has(f.id);return `<label class="check" ${lock?'aria-disabled="true"':''}><input type="checkbox" data-chg="cx-fact" data-f="${esc(f.id)}" ${c.chosen.has(f.id)?'checked':''} ${lock?'aria-disabled="true"':''}><span><strong>${esc(f.label)}</strong><br><span class="micro muted">${esc(fv(f))} · ${SW[f.state][1]}${lock?' · At least one fact must stay shared.':''}</span></span></label>`}).join('')}</fieldset><p class="muted">At least one fact must stay shared.</p>`;
+  body=`<h1 tabindex="-1">Choose what to show</h1><p class="says">Shown, and visible to agents: ${esc(list(fl.filter(f=>c.chosen.has(f.id)).map(f=>f.label))||'nothing')}.</p><fieldset class="checks"><legend>Facts to publish</legend>${fl.map(f=>{const lock=last&&c.chosen.has(f.id);return `<label class="check" ${lock?'aria-disabled="true"':''}><input type="checkbox" data-chg="cx-fact" data-f="${esc(f.id)}" ${c.chosen.has(f.id)?'checked':''} ${lock?'aria-disabled="true"':''}><span><strong>${esc(f.label)}</strong><br><span class="micro muted">${esc(fv(f))} · ${SW[fs(f)][1]}${lock?' · Keep at least one.':''}</span></span></label>`}).join('')}</fieldset><p class="muted">Keep at least one fact.</p>`;
  }else{
   const fl=DEFS[s.id].facts(),shown=fl.filter(f=>c.chosen.has(f.id)),out=fl.filter(f=>!c.chosen.has(f.id));
   let tail='';
-  if(c.phase==='delivering')tail=`<div class="lane">${dot('parcel')}<span class="lane-end">Counter</span></div><p>Dot is carrying the parcel to the counter…</p>`;
-  else if(c.phase==='done')tail=`<div class="panel" style="display:grid;gap:1rem;justify-items:start"><span class="stamp">${svg(GL.check)}Connected</span><div style="display:flex;gap:1rem;align-items:center">${dot('rest','lg')}<p><strong>${esc(s.name)} is at the counter.</strong></p></div><div class="actions" style="margin:0"><button type="button" class="btn primary" id="cx-open" data-act="cx-open">Open ${esc(s.name)}</button><button type="button" class="btn" data-act="cx-more">Add one more</button><a class="btn text" href="#/settings/references">Manage this reference in Settings</a></div></div>`;
-  body=`<h1 tabindex="-1">${c.phase==='done'?'Connected':'Publish '+esc(s.name)}</h1><p class="says">Publishing adds ${esc(s.name)} and its chosen facts to the counter.</p><ul style="list-style:none;display:grid;gap:.5rem"><li><strong>Reference:</strong> <code>${esc(c.ref)}</code>, ${capN(c.scope.size)}</li><li><strong>Shown:</strong> ${esc(list(shown.map(f=>f.label)))}</li>${out.length?`<li><strong>Kept out:</strong> ${esc(list(out.map(f=>f.label)))}</li>`:''}</ul>${tail}`;
+  if(c.phase==='delivering')tail=`<div class="lane">${dot('parcel')}<span class="lane-end">Counter</span></div><p>Carrying it over…</p>`;
+  else if(c.phase==='done')tail=`<div class="panel" style="display:grid;gap:1rem;justify-items:start"><span class="stamp">${svg(GL.check)}Connected</span><div style="display:flex;gap:1rem;align-items:center">${dot('rest','lg')}<p><strong>${esc(s.name)} is here.</strong></p></div><div class="actions" style="margin:0"><button type="button" class="btn primary" id="cx-open" data-act="cx-open">Open ${esc(s.name)}</button><button type="button" class="btn" data-act="cx-more">Add one more</button><a class="btn text" href="#/settings/references">Manage reference in Settings</a></div></div>`;
+  body=`<h1 tabindex="-1">${c.phase==='done'?'Connected':'Publish '+esc(s.name)}</h1><p class="says">Adds ${esc(s.name)} and its chosen facts to the counter.</p><ul style="list-style:none;display:grid;gap:.5rem"><li><strong>Reference:</strong> <code>${esc(c.ref)}</code>, ${capN(c.scope.size)}</li><li><strong>Shown:</strong> ${esc(list(shown.map(f=>f.label)))}</li>${out.length?`<li><strong>Kept out:</strong> ${esc(list(out.map(f=>f.label)))}</li>`:''}</ul>${tail}`;
  }
- const aside=`<aside class="cx-aside" aria-label="What will happen"><h2>What will happen</h2><ul><li>Service: ${s?esc(s.name):'not chosen yet'}</li><li>Reference: ${c.refState==='valid'?'looks like a reference':'not set'}</li><li>Reference may be used for: ${c.scope.size?capN(c.scope.size):'not set'}</li><li>Test: ${c.test.state==='passed'?'passed':'not run'}</li><li>Facts to show: ${c.chosen.size||'not chosen'}</li></ul><p>Nothing is saved until Publish. No real network is called in this mockup.</p></aside>`;
+ const aside=`<aside class="cx-aside" aria-label="What will happen"><h2>What will happen</h2><ul><li>Service: ${s?esc(s.name):'not chosen'}</li><li>Reference: ${c.refState==='valid'?'valid':'not set'}</li><li>Scope: ${c.scope.size?capN(c.scope.size):'not set'}</li><li>Test: ${c.test.state==='passed'?'passed':'not run'}</li><li>Facts to show: ${c.chosen.size||'not chosen'}</li></ul><p>Nothing saved until Publish. No network in this mockup.</p></aside>`;
  const steps=`<ol class="steps" aria-label="Connect steps">${SN.map((n,k)=>`<li class="${k<i?'done':''}" ${k===i?'aria-current="step"':''}><span class="num">${k<i?svg(GL.check):k+1}</span><span>${n}${k<i?'<span class="sr-only"> (done)</span>':''}</span></li>`).join('')}</ol>`;
  return `<div class="cx" data-od-id="connect">${steps}<section class="cx-body" aria-label="${SN[i]}">${refreshStep}${body}${cxBar(step)}</section>${aside}</div>`;
 }
@@ -569,27 +571,27 @@ function viewConnect(step){
 function viewSettings(r){
  const refs=ORDER.map(id=>svcs[id]).filter(s=>s.ref),sec=r[1]||'services';
  const nav=[['services','Connected services'],['references','Credential references'],['providers','Providers'],['live','Live feed'],['about','About']];
- const rows=st.connected.map(id=>{const s=svcs[id],[k,sim]=svcState(s);return `<div class="row"><div><strong>${esc(s.name)}</strong><p class="muted">${chip(k,sim?' (simulated)':'')} · checked ${s.checkedAt==null?'never':ageSpan('s|'+id)}</p></div><button type="button" class="btn danger" id="disconnect-${id}" data-act="disc-row" data-id="${id}">Disconnect ${esc(s.name)}</button></div>`}).join('')||'<p class="empty">Nothing at the counter yet. Connect a service and Worlds will keep its facts, say where each came from, and leave the deciding to you.</p>';
- const refRows=refs.map(s=>{const rep=st.replacing===s.id;return `<div class="row"><div><strong>${esc(s.name)}</strong><p><code>${esc(s.ref)}</code></p><p class="muted">${s.connected?(s.scope?`Scoped to ${capN(s.scope.length)}: ${esc(list(s.scope))}`:'Unscoped (older connection): this reference can be used for anything this service offers.'):'Held, not in use'}</p>${rep?`<div class="field"><label for="rep-ref"><strong>New reference</strong></label><input type="text" id="rep-ref" autocomplete="off" spellcheck="false" placeholder="ref://${esc(s.id)}" aria-describedby="rep-msg"><p class="msg" id="rep-msg" aria-live="polite">${msgHTML('pristine')}</p><div class="actions" style="margin-top:0"><button type="button" class="btn primary" data-act="ref-save" data-id="${s.id}">Save reference</button><button type="button" class="btn" data-act="ref-cancel">Cancel</button></div></div>`:''}</div><div class="actions" style="margin:0"><button type="button" class="btn" data-act="ref-replace" data-id="${s.id}" data-fk="rep-${s.id}">Replace</button><button type="button" class="btn danger" data-act="ref-remove" data-id="${s.id}" data-fk="rem-${s.id}">Remove</button>${s.connected&&!s.scope?`<button type="button" class="btn" data-act="ref-narrow" data-id="${s.id}">Narrow scope</button>`:''}</div></div>`}).join('')||'<p class="muted">No references stored. Connecting a service will add one.</p>';
+ const rows=st.connected.map(id=>{const s=svcs[id],[k,sim]=svcState(s);return `<div class="row"><div><strong>${esc(s.name)}</strong><p class="muted">${chip(k,sim?' (simulated)':'')} · ${ageSpan('s|'+id)}</p></div><button type="button" class="btn danger" id="disconnect-${id}" data-act="disc-row" data-id="${id}">Disconnect ${esc(s.name)}</button></div>`}).join('')||'<p class="empty">Quiet here. Connect something?</p>';
+ const refRows=refs.map(s=>{const rep=st.replacing===s.id;return `<div class="row"><div><strong>${esc(s.name)}</strong><p><code>${esc(s.ref)}</code></p><p class="muted">${s.connected?(s.scope?`Scoped to ${capN(s.scope.length)}: ${esc(list(s.scope))}`:'Unscoped (older connection). Can be used for anything it offers.'):'Held, unused'}</p>${rep?`<div class="field"><label for="rep-ref"><strong>New reference</strong></label><input type="text" id="rep-ref" autocomplete="off" spellcheck="false" placeholder="ref://${esc(s.id)}" aria-describedby="rep-msg"><p class="msg" id="rep-msg" aria-live="polite">${msgHTML('pristine')}</p><div class="actions" style="margin-top:0"><button type="button" class="btn primary" data-act="ref-save" data-id="${s.id}">Save reference</button><button type="button" class="btn" data-act="ref-cancel">Cancel</button></div></div>`:''}</div><div class="actions" style="margin:0"><button type="button" class="btn" data-act="ref-replace" data-id="${s.id}" data-fk="rep-${s.id}">Replace</button><button type="button" class="btn danger" data-act="ref-remove" data-id="${s.id}" data-fk="rem-${s.id}">Remove</button>${s.connected&&!s.scope?`<button type="button" class="btn" data-act="ref-narrow" data-id="${s.id}">Narrow scope</button>`:''}</div></div>`}).join('')||'<p class="muted">No references. Connecting adds one.</p>';
  const w=svcs['local-weather'];
  const th=[['dark','Dark'],['light','Light'],['high-contrast','High contrast'],['low-stimulation','Low stimulation'],['system','Follow system']];
  return `${pageHead('Settings')}<div class="set-grid"><nav class="set-nav" aria-label="Settings sections">${nav.map(([k,l])=>`<a href="#/settings/${k}" ${sec===k?'aria-current="true"':''}>${l}</a>`).join('')}</nav><div>
  <section class="set-sec" aria-labelledby="sec-services"><h2 id="sec-services" tabindex="-1">Connected services</h2>${rows}</section>
- <section class="set-sec" aria-labelledby="sec-references"><h2 id="sec-references" tabindex="-1">Credential references</h2><p class="muted">Worlds stores a credential reference, never the secret.</p>${refRows}</section>
+ <section class="set-sec" aria-labelledby="sec-references"><h2 id="sec-references" tabindex="-1">Credential references</h2><p class="muted">References only, never secrets.</p>${refRows}</section>
  <section class="set-sec" aria-labelledby="sec-providers"><h2 id="sec-providers" tabindex="-1">Providers</h2><div class="row"><div><strong>Local Weather</strong><p>${chip('not_configured')}</p><p>${esc(w.summary)}</p><p class="muted">${esc(w.emptyReason)}</p></div>${ownerLink(w)}</div></section>
  <section class="set-sec" aria-labelledby="sec-live"><h2 id="sec-live" tabindex="-1">Live feed</h2>
   <div class="row"><div><strong>Updates</strong><p class="muted">Pausing freezes freshness. Actions still work.</p></div><button type="button" class="btn" id="settings-live" data-act="live" aria-pressed="${st.live}">Live feed: ${st.live?'On':'Off'}</button></div>
   <div class="row"><div><label for="cadence"><strong>Check cadence</strong></label></div><select id="cadence" data-chg="cadence">${[5,10,30].map(n=>`<option value="${n}" ${st.cadence===n?'selected':''}>${n} seconds${n===5?' (default)':''}</option>`).join('')}</select></div>
-  <div class="row"><fieldset class="radios"><legend><strong>Motion</strong></legend>${[['follow','Follow system'],['reduce','Reduce always']].map(([v,l])=>`<label><input type="radio" name="motion" value="${v}" data-chg="motion" ${st.motion===v?'checked':''}>${l}</label>`).join('')}</fieldset><p class="muted">Reduced motion removes animation, not data.</p></div>
+  <div class="row"><fieldset class="radios"><legend><strong>Motion</strong></legend>${[['follow','Follow system'],['reduce','Reduce always']].map(([v,l])=>`<label><input type="radio" name="motion" value="${v}" data-chg="motion" ${st.motion===v?'checked':''}>${l}</label>`).join('')}</fieldset><p class="muted">Less motion. Same data.</p></div>
   <div class="row"><fieldset class="radios"><legend><strong>Theme</strong></legend>${th.map(([v,l])=>`<label><input type="radio" name="theme" value="${v}" data-chg="theme" ${st.theme===v?'checked':''}>${l}</label>`).join('')}</fieldset></div>
-  <div class="row"><div><strong>Text size</strong><p class="muted">Worlds follows your browser's text size; zoom to 200% reflows.</p></div></div></section>
- <section class="set-sec" aria-labelledby="sec-about"><h2 id="sec-about" tabindex="-1">About</h2><p><span class="mockup">MOCKUP</span> Synthetic data only. Times are shown in UTC.</p><p class="measure">Worlds is the Experience layer over the World Tree Field Guide's four doors: Home, Explore, Needs You and Guide.</p>
-  <p class="muted measure">UNKNOWN: the production Connect API and reference grammar, who governs each service, Project Home approval verification, what makes a service Stale in production, the live feed transport, real sandbox rules for embedded apps, and whether any history is kept after disconnect.</p>
-  <div class="actions"><button type="button" class="btn" data-act="replay">Replay the welcome</button><button type="button" class="btn" data-act="journey">How one fact travels</button><button type="button" class="btn" aria-disabled="true" aria-describedby="hist-why">Keep history after disconnect</button></div><p class="muted" id="hist-why">Not decided yet; this mockup keeps nothing.</p>
-  <h3 style="margin-top:var(--space-lg)">Mock controls for reviewers</h3><p class="muted">These only produce failure or edge conditions.</p><div class="actions"><button type="button" class="btn" data-act="mock-stale">Make Media Shelf stale now</button><button type="button" class="btn" data-act="mock-refuse">Pretend Notes Sync refused its reference</button><button type="button" class="btn" data-act="mock-unscoped">Pretend Media Shelf has an older, unscoped connection</button></div></section>
+  <div class="row"><div><strong>Text size</strong><p class="muted">Follows browser text size. Reflows to 200%.</p></div></div></section>
+ <section class="set-sec" aria-labelledby="sec-about"><h2 id="sec-about" tabindex="-1">About</h2><p><span class="mockup">MOCKUP</span> Synthetic data. Times in UTC.</p><p class="measure">Experience layer over the Field Guide's four doors: Home, Explore, Needs You, Guide.</p>
+  <p class="muted measure">UNKNOWN: production Connect API and reference grammar, who governs each service, Project Home approval check, what makes Stale in production, live feed transport, embed sandbox rules, history after disconnect.</p>
+  <div class="actions"><button type="button" class="btn" data-act="replay">Replay welcome</button><button type="button" class="btn" data-act="journey">How one fact travels</button><button type="button" class="btn" aria-disabled="true" aria-describedby="hist-why">Keep history after disconnect</button></div><p class="muted" id="hist-why">Undecided. This mockup keeps nothing.</p>
+  <h3 style="margin-top:var(--space-lg)">Reviewer controls</h3><p class="muted">Failure and edge cases only.</p><div class="actions"><button type="button" class="btn" data-act="mock-stale">Make Media Shelf Stale</button><button type="button" class="btn" data-act="mock-refuse">Notes Sync refuses its reference</button><button type="button" class="btn" data-act="mock-unscoped">Media Shelf: unscoped connection</button></div></section>
  </div></div>`;
 }
-function viewError(){return `<section class="empty" data-od-id="load-error">${dot('rest','lg')}<div><h1 tabindex="-1">Worlds couldn't load this.</h1><p class="measure">Worlds couldn't load this. Your services and references weren't changed.</p><div class="actions"><button type="button" class="btn" data-act="reload-view">Try again</button><a class="btn primary" href="#/home">Go to Home</a></div></div></section>`}
+function viewError(){return `<section class="empty" data-od-id="load-error">${dot('rest','lg')}<div><h1 tabindex="-1">Couldn't load this.</h1><p class="measure">Nothing was changed.</p><div class="actions"><button type="button" class="btn" data-act="reload-view">Try again</button><a class="btn primary" href="#/home">Go to Home</a></div></div></section>`}
 
 /* ---------- chrome ---------- */
 const NAV=[['home','Home','#/home','home'],['connect','Connect','#/connect/discover','plug'],['needs-you','Needs you','#/needs-you','alert'],['memory','Memory','#/memory','book'],['settings','Settings','#/settings/services','gear']];
@@ -597,7 +599,7 @@ function route(){return location.hash.replace(/^#\/?/,'').split('/').filter(Bool
 const routeKey=()=>route().join('/')||'home';
 function navItem(n,top,n1){const cur=top===n[0],c=attn(),b=n[0]==='needs-you'&&c?`<span class="badge"><span class="sr-only">, </span>${c}</span>`:'';return `<a class="nav-item" href="${n[2]}" data-fk="nav-${n[0]}" data-tip="${n[1]}${b?', '+c:''}" ${cur?'aria-current="page"':''}>${ico(n[3])}<span>${n[1]}</span>${b}</a>`}
 function renderNav(){const top=route()[0]||'home';const t=top==='welcome'?'home':top;keepFocus(()=>{$('#rail').innerHTML=`<div class="rail-in">${NAV.slice(0,4).map(n=>navItem(n,t)).join('')}<span class="spacer"></span>${navItem(NAV[4],t)}</div>`;$('#tabbar').innerHTML=NAV.slice(0,4).map(n=>navItem(n,t)).join('')})}
-function liveLabel(){if(st.offline)return'Paused · offline';const t=freshest(),a=t==null?null:Math.max(0,Math.round((st.now-t)/1000));return st.live?`Live · checked ${a==null?'nothing yet':shortAge(a)+' ago'}`:`Paused · frozen at ${a==null?'0s':shortAge(a)}`}
+function liveLabel(){if(st.offline)return'Paused · offline';const t=freshest(),a=t==null?null:Math.max(0,Math.round((st.now-t)/1000));return t==null?'Not checked yet':st.live?`Live · checked ${shortAge(a)} ago`:`Paused · frozen at ${shortAge(a)}`}
 function updateTop(){
  const lt=$('#live-toggle');lt.textContent=liveLabel();lt.setAttribute('aria-pressed',st.live&&!st.offline);
  const sl=$('#settings-live');if(sl){sl.setAttribute('aria-pressed',st.live);sl.textContent='Live feed: '+(st.live?'On':'Off')}
@@ -606,7 +608,7 @@ function updateTop(){
  else{d.textContent='Disconnect';d.setAttribute('aria-disabled','true');d.setAttribute('aria-describedby',$('#disc-reason')?'disc-reason':'disc-reason-sr')}
  const top=route()[0]||'home',hs=$('#hdr-settings');
  if(top==='settings'){hs.innerHTML=ico('back')+'Back';hs.setAttribute('href',st.backTo);hs.dataset.act='hdr-back'}else{hs.innerHTML=ico('gear')+'Settings';hs.setAttribute('href','#/settings/services');hs.dataset.act='hdr-settings'}
- const strip=$('#strip');strip.hidden=!st.offline&&!st.backOnline;strip.textContent=st.offline?"You're offline. Worlds is showing what it last knew, marked with when.":st.backOnline?'Back online. Checking now.':'';
+ const strip=$('#strip');strip.hidden=!st.offline&&!st.backOnline;strip.textContent=st.offline?'Offline. Showing what was last known, with times.':st.backOnline?'Back online. Checking.':'';
  const pushed=isPhone()&&top==='home'&&route()[1]&&selSvc();
  document.body.classList.toggle('no-fab',top==='connect'||top==='welcome'||!!pushed);
  document.body.classList.toggle('no-tabs',top==='connect'||!!pushed);
@@ -666,7 +668,7 @@ function say(msg,o={}){const t=$('#toast');t.textContent=msg;t.classList.add('sh
 
 /* ---------- connection logic ---------- */
 function resetSvc(id){Object.assign(svcs[id],mkBase(id))}
-function applyLock(s){const b=s.facts.find(f=>f.id==='frontdoor.back-door'),u=s.facts.find(f=>f.id==='frontdoor.unlocked-for');if(b){b.value='locked';b.obs=st.now}if(u){u.value=0;u.obs=st.now;u.sim='sim'}s.state='healthy';s.reason=null;s.summary='Back door is locked. The Home app remains the owner.';s.checkedAt=st.now}
+function applyLock(s){const b=s.facts.find(f=>f.id==='frontdoor.back-door'),u=s.facts.find(f=>f.id==='frontdoor.unlocked-for');if(b){b.value='locked';b.obs=st.now}if(u){u.value=0;u.obs=st.now;u.sim='sim'}s.state='healthy';s.reason=null;s.summary='Back door locked. Home still owns it.';s.checkedAt=st.now}
 function connectSvc(id,o){
  resetSvc(id);const s=svcs[id];
  s.connected=true;s.ref=o.ref;s.heldRef=false;s.scope=o.scope?[...o.scope]:null;s.during=o.during;s.connectedAt=st.now;s.keptOut=o.omit||[];
@@ -698,14 +700,14 @@ function tick(){
  else if(st.sec%st.cadence===0){refreshAges();updateTop()}
 }
 setInterval(tick,1000);
-function toggleLive(){st.live=!st.live;updateTop();say(st.live?'Live feed resumed.':'Live feed paused. Freshness is frozen.',{keep:!st.live})}
+function toggleLive(){st.live=!st.live;updateTop();say(st.live?'Live feed on.':'Paused. Freshness frozen.',{keep:!st.live})}
 function simulate(){
  const s=svcs['front-door'];
- if(!s.connected){say("Front Door isn't at the counter, so there is nothing for the Home app to update.");return}
- if(st.doorLocked){say('The Home app already reported the back door locked.');return}
+ if(!s.connected){say("Front Door isn't connected. Nothing to update.");return}
+ if(st.doorLocked){say('Already reported locked.');return}
  st.doorLocked=true;applyLock(s);st.lastOne=attn()===0;
  st.nodUntil=performance.now()+1000;st.updUntil=performance.now()+3000;st.settleUntil=performance.now()+1500;st.settleSvc='front-door';
- say('Updated across Home, Front Door and Agent facts. The Home app reported the back door locked. Worlds locked nothing.');
+ say('Updated everywhere. Home reported the back door locked. Worlds locked nothing.');
  refreshAll();clearTimeout(simulate.t);simulate.t=setTimeout(()=>{if(!$('#dlg').open&&route()[0]!=='connect'&&route()[0]!=='welcome')refreshAll()},3100);
 }
 
@@ -713,22 +715,22 @@ function simulate(){
 function openDlg(html,inv){const d=$('#dlg');$('#dlg-card').innerHTML=html;st.dlgInv=inv||st.dlgInv||fk(document.activeElement);if(!d.open)d.showModal();const h=$('#dlg-card [data-dh]');if(h)h.focus()}
 $('#dlg').addEventListener('close',()=>{const el=findFk(st.dlgInv);(el||$('#main h1')||$('#main')).focus();st.dlgInv=null});
 function openDisconnect(id){const s=svcs[id];if(!s||!s.connected)return;st.dlgInv=fk(document.activeElement);const n=s.facts.length;
- openDlg(`<h2 id="dlg-h" data-dh tabindex="-1">Disconnect ${esc(s.name)}?</h2><p>${esc(s.name)}'s ${pl(n,'fact')} and its app frame will be removed from Worlds. The ${esc(s.owner.app)} app is untouched.</p><p>Its reference stays in Settings, held and unused.</p><div class="goes"><div><h3>Goes from Worlds</h3><ul><li>The slip, its facts and receipts</li><li>Its app frame and kept-out note</li><li>Last-known values Worlds remembered</li></ul></div><div><h3>Stays</h3><ul><li>The ${esc(s.owner.app)} app, untouched</li><li>The credential reference (held, nothing is sent with it)</li></ul></div></div><div class="actions"><button type="button" class="btn" data-act="dlg-close">Keep service</button><button type="button" class="btn danger" id="confirm-disconnect" data-act="dlg-disc" data-id="${id}">Disconnect</button></div>`,st.dlgInv)}
+ openDlg(`<h2 id="dlg-h" data-dh tabindex="-1">Disconnect ${esc(s.name)}?</h2><p>${esc(s.name)}'s ${pl(n,'fact')} and app frame leave Worlds. The ${esc(s.owner.app)} app is untouched.</p><p>Reference kept in Settings, unused.</p><div class="goes"><div><h3>Goes</h3><ul><li>Slip, facts, receipts</li><li>App frame, kept-out note</li><li>Last-known values</li></ul></div><div><h3>Stays</h3><ul><li>${esc(s.owner.app)} app, untouched</li><li>Credential reference (held, unused)</li></ul></div></div><div class="actions"><button type="button" class="btn" data-act="dlg-close">Keep service</button><button type="button" class="btn danger" id="confirm-disconnect" data-act="dlg-disc" data-id="${id}">Disconnect</button></div>`,st.dlgInv)}
 function dropSvc(id){const s=svcs[id],n=s.facts.length;st.connected=st.connected.filter(x=>x!==id);s.connected=false;s.facts=[];delete st.frames[id];if(st.selected===id)st.selected=st.connected[0]||null;return n}
 function doDisconnect(id){const s=svcs[id],app=s.owner.app,n=dropSvc(id);s.heldRef=!!s.ref;
- const text=`${s.name}'s ${pl(n,'fact')} and its app frame are removed from Worlds. The ${app} app is untouched. Its reference is kept.`;
+ const text=`${s.name}'s gone from here. The app's fine. Reference kept.`;
  st.note={text,view:route()[0]||'home',reconnect:id};say(text);
  st.dlgInv=st.selected?'slip-'+st.selected:'add-service';
  if(route()[0]==='home'&&route()[1])history.replaceState(null,'','#/home');
  $('#dlg').close();refreshAll();const el=findFk(st.dlgInv);if(el)el.focus()}
 function openRevoke(id){const s=svcs[id];st.dlgInv=fk(document.activeElement);
- openDlg(`<h2 id="dlg-h" data-dh tabindex="-1">Remove ${esc(s.name)}'s reference?</h2><p>Worlds will delete the reference and everything it held for it. ${esc(s.name)} is disconnected too if it is still at the counter. ${esc(s.owner.app)} is untouched.</p><div class="goes"><div><h3>Goes from Worlds</h3><ul><li>The credential reference and what Worlds held for it</li><li>The connection's config</li>${s.connected?'<li>The slip, facts, receipts and frame, because it can\'t publish without its reference</li>':''}</ul></div><div><h3>Stays</h3><ul><li>The provider's own key, still active with ${esc(s.owner.app)}</li><li>Anything the ${esc(s.owner.app)} app holds</li></ul></div></div><p><strong>Worlds can't revoke the key itself. Rotate it with the ${esc(s.owner.app)} app.</strong></p><div class="actions"><button type="button" class="btn" data-act="dlg-close">Keep reference</button><button type="button" class="btn danger" data-act="dlg-revoke" data-id="${id}">Remove reference</button></div>`,st.dlgInv)}
+ openDlg(`<h2 id="dlg-h" data-dh tabindex="-1">Remove ${esc(s.name)}'s reference?</h2><p>Deletes the reference and what Worlds held for it. ${esc(s.name)} disconnects too, if connected. ${esc(s.owner.app)} is untouched.</p><div class="goes"><div><h3>Goes</h3><ul><li>Reference and what it held</li><li>Connection config</li>${s.connected?'<li>Slip, facts, receipts, frame. It can\'t publish without it.</li>':''}</ul></div><div><h3>Stays</h3><ul><li>Provider's key, still active with ${esc(s.owner.app)}</li><li>Whatever ${esc(s.owner.app)} holds</li></ul></div></div><p><strong>Worlds can't revoke the key. Rotate it in ${esc(s.owner.app)}.</strong></p><div class="actions"><button type="button" class="btn" data-act="dlg-close">Keep reference</button><button type="button" class="btn danger" data-act="dlg-revoke" data-id="${id}">Remove reference</button></div>`,st.dlgInv)}
 function doRevoke(id){const s=svcs[id],app=s.owner.app;if(s.connected)dropSvc(id);s.ref=null;s.scope=null;s.heldRef=false;
- const text=`${s.name}'s reference is removed and its connection is gone from Worlds. The key itself is still active with ${app}. Rotate it there.`;
+ const text=`${s.name}'s reference and connection removed. Key still active in ${app}. Rotate it there.`;
  const empty=!st.connected.length;st.note={text,view:empty?'home':'settings',owner:id};say(text);st.dlgInv=null;$('#dlg').close();
  if(empty&&route()[0]!=='home')go('#/home');else refreshAll()}
-function ownerNote(a){openDlg(`<h2 id="dlg-h" data-dh tabindex="-1">This would open the ${esc(a)} app outside Worlds.</h2><p class="muted">In this mockup the link goes nowhere, so nothing was opened and nothing changed.</p><div class="actions"><button type="button" class="btn" data-act="dlg-close">Close</button></div>`)}
-function handoff(){st.dlgInv=fk(document.activeElement);openDlg(`<h2 id="dlg-h" data-dh tabindex="-1">Approvals aren't connected yet.</h2><p>Worlds can't send this to Project Home yet, so nothing was sent. You can decide in the Home app instead.</p><p class="muted">When approvals are connected, this will open Project Home with the proposal. Project Home, not Worlds, makes the decision.</p><div class="actions"><a class="btn primary" href="app://home" data-act="owner" data-app="Home">Open Home app</a><button type="button" class="btn" data-act="dlg-close">Close</button></div>`,st.dlgInv)}
+function ownerNote(a){openDlg(`<h2 id="dlg-h" data-dh tabindex="-1">Would open ${esc(a)} outside Worlds.</h2><p class="muted">Mockup: the link goes nowhere. Nothing opened.</p><div class="actions"><button type="button" class="btn" data-act="dlg-close">Close</button></div>`)}
+function handoff(){st.dlgInv=fk(document.activeElement);openDlg(`<h2 id="dlg-h" data-dh tabindex="-1">Approvals aren't connected.</h2><p>Nothing sent. Decide in the Home app instead.</p><p class="muted">Once connected, this opens Project Home. It decides, not Worlds.</p><div class="actions"><a class="btn primary" href="app://home" data-act="owner" data-app="Home">Open Home app</a><button type="button" class="btn" data-act="dlg-close">Close</button></div>`,st.dlgInv)}
 
 /* ---------- connect actions ---------- */
 function startPreview(){const c=st.cx;clearTimeout(startPreview.t);startPreview.t=setTimeout(()=>{c.ready=true;if(routeKey()==='connect/preview')keepFocus(()=>renderView({}))},800)}
@@ -738,18 +740,18 @@ function cxValidate(){const c=st.cx,k=refCheck(c.ref);if(k==='empty'){c.refState
 function cxNext(){
  const step=route()[1],c=st.cx,i=STEPS.indexOf(step);
  if(step==='reference'){if(!cxValidate()||!c.scope.size){const f=$('#cx-ref');f&&f.focus();return}
-  if(c.mode==='narrow'||c.mode==='replace'){const s=svcs[c.sid];s.ref=c.ref;s.scope=[...c.scope];if(c.mode==='replace'){s.refused=false;s.facts.forEach(f=>{if(f.sim==='stale'&&f.script)return;if(f.refStale){f.state='live';f.sim=null;delete f.refStale}});}const to=c.returnTo;say(c.mode==='narrow'?`${s.name}'s reference is now scoped to ${capN(c.scope.size)}.`:`${s.name}'s reference was replaced. Worlds will check it now.`);st.cx=newCx();go(to);return}
+  if(c.mode==='narrow'||c.mode==='replace'){const s=svcs[c.sid];s.ref=c.ref;s.scope=[...c.scope];if(c.mode==='replace'){s.refused=false;s.facts.forEach(f=>{if(f.sim==='stale'&&f.script)return;if(f.refStale){f.state='live';f.sim=null;delete f.refStale}});}const to=c.returnTo;say(c.mode==='narrow'?`${s.name}: scope now ${capN(c.scope.size)}.`:`${s.name}'s reference replaced. Checking now.`);st.cx=newCx();go(to);return}
   c.refState='pending';updateRefUI();const inp=$('#cx-ref');inp&&inp.setAttribute('readonly','');setTimeout(()=>{c.refState='valid';go('#/connect/test')},600);return}
  if(step==='publish'){publish();return}
  go('#/connect/'+STEPS[i+1]);
 }
 function runTest(){const c=st.cx,t=c.test;if(t.state==='running'||t.state==='limit'||refCheck(c.ref)!=='valid'||!c.scope.size)return;t.state='running';keepFocus(()=>renderView({}));
- setTimeout(()=>{t.at=st.now;if(c.simFail){t.n++;t.state=t.n>=3?'limit':'failed';say("Test didn't pass.",{loud:true})}else{t.state='passed';t.n=0}if(routeKey()==='connect/test'){renderView({});const el=t.state==='passed'?$('#cx-next'):$('#cx-run');el&&el.focus()}},900)}
+ setTimeout(()=>{t.at=st.now;if(c.simFail){t.n++;t.state=t.n>=3?'limit':'failed';say('Test failed.',{loud:true})}else{t.state='passed';t.n=0}if(routeKey()==='connect/test'){renderView({});const el=t.state==='passed'?$('#cx-next'):$('#cx-run');el&&el.focus()}},900)}
 function publish(){const c=st.cx,s=svcs[c.sid];if(c.phase!=='confirm')return;
  const omit=DEFS[c.sid].facts().filter(f=>!c.chosen.has(f.id)).map(f=>f.id);
  connectSvc(c.sid,{ref:c.ref,scope:c.scope,during:'connect',omit,via:'connect'});c.phase='delivering';renderNav();renderView({focus:true});updateTop();
  const dur=matchMedia('(prefers-reduced-motion:reduce)').matches||st.motion==='reduce'?0:isPhone()?300:400;
- setTimeout(()=>{c.phase='done';if(routeKey()==='connect/publish'){renderView({focus:true});const o=$('#cx-open');o&&o.focus()}say(`Connected ${s.name}. Its slip and facts are now at the counter.`)},dur+60)}
+ setTimeout(()=>{c.phase='done';if(routeKey()==='connect/publish'){renderView({focus:true});const o=$('#cx-open');o&&o.focus()}say(`${s.name} connected.`)},dur+60)}
 
 /* ---------- actions ---------- */
 function startConnectWith(id,mode,ref,to){st.cx=newCx();const c=st.cx,s=svcs[id];Object.assign(c,{mode,sid:id,ref:ref||'',refState:ref?'valid':'pristine',scope:new Set(s.scope||caps(id)),chosen:new Set(DEFS[id].facts().map(f=>f.id)),returnTo:to||'#/home'});}
@@ -766,7 +768,7 @@ const ACT={
  owner(t){ownerNote(t.dataset.app)},
  'frame-retry'(t){loadFrame(t.dataset.id)},
  'frame-cancel'(t){const fr=st.frames[t.dataset.id];clearTimeout(fr.t);fr.state='cancelled';paintFrame(t.dataset.id)},
- check(t){const s=svcs[t.dataset.s],f=s.facts.find(x=>x.id===t.dataset.f);if(!f)return;if(f.lastVal!==undefined){f.value=f.lastVal;delete f.lastVal;delete f.lastAt}f.state='live';f.sim=null;f.obs=st.now;f.nextChk=st.now+30000;f.script=null;st.settleUntil=performance.now()+1500;st.settleSvc=s.id;say(`${f.label} was checked and is Live again.`);refreshAll()},
+ check(t){const s=svcs[t.dataset.s],f=s.facts.find(x=>x.id===t.dataset.f);if(!f)return;if(f.lastVal!==undefined){f.value=f.lastVal;delete f.lastVal;delete f.lastAt}f.state='live';f.sim=null;f.obs=st.now;f.nextChk=st.now+30000;f.script=null;st.settleUntil=performance.now()+1500;st.settleSvc=s.id;say(`${f.label} checked. Live again.`);refreshAll()},
  handoff,
  'dlg-close'(){$('#dlg').close()},
  'dlg-disc'(t){doDisconnect(t.dataset.id)},
@@ -788,23 +790,23 @@ const ACT={
  'ref-replace'(t){st.replacing=t.dataset.id;renderView({});const i=$('#rep-ref');i&&i.focus()},
  'ref-cancel'(){const id=st.replacing;st.replacing=null;renderView({});const b=findFk('rep-'+id);b&&b.focus()},
  'ref-save'(t){const s=svcs[t.dataset.id],i=$('#rep-ref'),m=$('#rep-msg'),k=refCheck(i.value);
-   if(k==='valid'){s.ref=i.value.trim();st.replacing=null;say(`${s.name}'s reference was replaced.`);renderView({})}
+   if(k==='valid'){s.ref=i.value.trim();st.replacing=null;say(`${s.name}'s reference replaced.`);renderView({})}
    else if(k==='empty'){m.innerHTML=msgHTML('pristine');i.focus()}
    else{if(k==='secret')i.value='';m.innerHTML=msgHTML(k);i.setAttribute('aria-invalid','true');i.focus()}},
  'ref-remove'(t){openRevoke(t.dataset.id)},
  'ref-narrow'(t){const id=t.dataset.id;startConnectWith(id,'narrow',svcs[id].ref,'#/settings/references');go('#/connect/discover')},
  replay(){st.welcomeDone=false;st.replay=true;st.beat=1;st.wstate={};go('#/welcome/1')},
  journey(){st.journeySeen=false;go('#/home')},
- 'mock-stale'(){const s=svcs['media-shelf'];const f=s.connected&&s.facts.find(x=>x.id==='media.items');if(!f){say('Connect Media Shelf first.');return}if(f.state!=='live'){say('That fact is already not live.');return}f.script={since:st.now};st.scripted.add(f.id);toStale(f,s);st.settleUntil=performance.now()+1500;st.settleSvc=s.id;say('Media Shelf is now Stale (simulated).');refreshAll()},
- 'mock-refuse'(){const s=svcs['notes-sync'];if(!s.connected){say('Connect Notes Sync first, then try this again.');return}s.refused=true;s.facts.forEach(f=>{if(f.state==='live'){f.state='stale';f.sim='stale';f.staleAt=st.now;f.refStale=true}});say('Notes Sync stopped accepting this reference.');refreshAll()},
- 'mock-unscoped'(){const s=svcs['media-shelf'];if(!s.connected){say('Connect Media Shelf first.');return}s.scope=null;say('Media Shelf now has an older, unscoped connection.');refreshAll()},
+ 'mock-stale'(){const s=svcs['media-shelf'];const f=s.connected&&s.facts.find(x=>x.id==='media.items');if(!f){say('Connect Media Shelf first.');return}if(f.state!=='live'){say('Already not Live.');return}f.script={since:st.now};st.scripted.add(f.id);toStale(f,s);st.settleUntil=performance.now()+1500;st.settleSvc=s.id;say('Media Shelf is now Stale (simulated).');refreshAll()},
+ 'mock-refuse'(){const s=svcs['notes-sync'];if(!s.connected){say('Connect Notes Sync first.');return}s.refused=true;s.facts.forEach(f=>{if(f.state==='live'){f.state='stale';f.sim='stale';f.staleAt=st.now;f.refStale=true}});say('Notes Sync refused the reference.');refreshAll()},
+ 'mock-unscoped'(){const s=svcs['media-shelf'];if(!s.connected){say('Connect Media Shelf first.');return}s.scope=null;say('Media Shelf: unscoped connection.');refreshAll()},
  'hdr-back'(e){},'hdr-settings'(){},
  'reload-view'(){renderView({focus:true})}
 };
 document.addEventListener('click',e=>{
  const t=e.target.closest('[data-act]');if(!t)return;
  const a=t.dataset.act;
- if(t.getAttribute('aria-disabled')==='true'){e.preventDefault();if(a==='cx-next'||a==='cx-run'){const n={reference:'Add a valid reference and tick at least one thing it may be used for.',test:'Run the safe test and let it pass first.',discover:'Choose a service first.',preview:'Dot is still fetching the facts.'}[route()[1]];if(n&&a==='cx-next')say(n)}return}
+ if(t.getAttribute('aria-disabled')==='true'){e.preventDefault();if(a==='cx-next'||a==='cx-run'){const n={reference:'Add a valid reference and tick one scope.',test:'Pass the safe test first.',discover:'Pick a service.',preview:'Still fetching.'}[route()[1]];if(n&&a==='cx-next')say(n)}return}
  if(t.tagName==='A'&&(a==='owner'||a==='hdr-settings'||a==='hdr-back'))e.preventDefault();
  if(a==='hdr-back'){go(st.backTo||'#/home');return}
  if(a==='hdr-settings'){go('#/settings/services');return}
@@ -813,12 +815,12 @@ document.addEventListener('click',e=>{
 const CHG={
  'mem-filter'(t){st.memFilter=t.value;renderView({})},
  'cx-pick'(t){if(st.cx.mode==='narrow')return;pick(t.value);updateTop();const n=$('#cx-next');n&&n.removeAttribute('aria-disabled')},
- 'cx-cap'(t){const c=st.cx;t.checked?c.scope.add(t.dataset.c):c.scope.delete(t.dataset.c);c.test={n:0,state:'idle',at:null};const m=$('#scope-sentence');if(m)m.innerHTML=`<strong>${c.scope.size?`Worlds will send this reference only when reading: ${esc(list([...c.scope]))}.`:'Tick at least one thing this reference may be used for.'}</strong>`;updateRefUI()},
- 'cx-fact'(t){const c=st.cx;if(!t.checked&&c.chosen.size<=1){t.checked=true;say('At least one fact must stay shared.');return}t.checked?c.chosen.add(t.dataset.f):c.chosen.delete(t.dataset.f);keepFocus(()=>renderView({}))},
+ 'cx-cap'(t){const c=st.cx;t.checked?c.scope.add(t.dataset.c):c.scope.delete(t.dataset.c);c.test={n:0,state:'idle',at:null};const m=$('#scope-sentence');if(m)m.innerHTML=`<strong>${c.scope.size?`Used only to read: ${esc(list([...c.scope]))}.`:'Tick at least one.'}</strong>`;updateRefUI()},
+ 'cx-fact'(t){const c=st.cx;if(!t.checked&&c.chosen.size<=1){t.checked=true;say('Keep at least one fact.');return}t.checked?c.chosen.add(t.dataset.f):c.chosen.delete(t.dataset.f);keepFocus(()=>renderView({}))},
  'cx-sim'(t){st.cx.simFail=t.checked},
  'w-cap'(t){const s=st.wscope[t.dataset.id];if(!t.checked&&s.size<=1){t.checked=true;return}t.checked?s.add(t.dataset.c):s.delete(t.dataset.c);keepFocus(()=>renderView({}))},
- cadence(t){st.cadence=Number(t.value);say(`Live feed now checks every ${st.cadence} seconds.`)},
- motion(t){st.motion=t.value;applyMotion();say(t.value==='reduce'?'Motion is reduced. Data keeps updating.':'Motion now follows your system.')},
+ cadence(t){st.cadence=Number(t.value);say(`Checking every ${st.cadence} seconds.`)},
+ motion(t){st.motion=t.value;applyMotion();say(t.value==='reduce'?'Motion reduced. Data still updates.':'Motion follows system.')},
  theme(t){st.theme=t.value;applyTheme()}
 };
 document.addEventListener('change',e=>{const t=e.target,c=t.dataset&&t.dataset.chg;if(c&&CHG[c])CHG[c](t,e)});
@@ -832,8 +834,8 @@ document.addEventListener('keydown',e=>{
 function applyTheme(){const h=document.documentElement;if(st.theme==='system')h.removeAttribute('data-theme');else h.setAttribute('data-theme',st.theme)}
 function applyMotion(){const h=document.documentElement;if(st.motion==='reduce')h.setAttribute('data-motion','reduce');else h.removeAttribute('data-motion')}
 window.addEventListener('hashchange',onRoute);
-window.addEventListener('offline',()=>{st.offline=true;st.backOnline=false;updateTop();say("You're offline. Worlds is showing what it last knew, marked with when.")});
-window.addEventListener('online',()=>{st.offline=false;st.backOnline=true;updateTop();say('Back online. Checking now.');setTimeout(()=>{st.backOnline=false;updateTop()},3000)});
+window.addEventListener('offline',()=>{st.offline=true;st.backOnline=false;updateTop();say('Offline. Showing what was last known, with times.')});
+window.addEventListener('online',()=>{st.offline=false;st.backOnline=true;updateTop();say('Back online. Checking.');setTimeout(()=>{st.backOnline=false;updateTop()},3000)});
 matchMedia('(max-width:47.99rem)').addEventListener('change',()=>{renderView({});updateTop()});
 if(!navigator.onLine){st.offline=true}
 if(!location.hash||location.hash==='#')history.replaceState(null,'','#/welcome/1');
