@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef, type MouseEvent, type ReactNode } from "react";
 import { LANDMARKS, hashFor, type Landmark } from "./route";
+import { LANDMARK_ICON, PaintedIcon } from "./PaintedIcon";
 import "./fd.css";
 
 export interface ShellProps {
@@ -54,6 +55,7 @@ export function Shell({ current, onNavigate, boards, headerExtra, children }: Sh
                 aria-current={landmark.id === current ? "page" : undefined}
                 onClick={handleLandmarkClick(landmark.id)}
               >
+                <PaintedIcon name={LANDMARK_ICON[landmark.id]} size={24} className="fd-nav-painted" />
                 {landmark.label}
               </a>
             </li>

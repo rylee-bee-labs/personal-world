@@ -2,6 +2,8 @@ import type { ReactNode } from "react";
 import { STATE_SHAPE, type BoardItem, type CardEnvelope, type Density, type Words } from "./types";
 import { Meter } from "./Meter";
 import { formatClock } from "./time";
+import { PaintedIcon, ROW_ICON } from "./PaintedIcon";
+import { usePrefs } from "./prefs-core";
 import "./fd.css";
 
 export interface RowProps {
@@ -88,6 +90,8 @@ function evidenceRows(card: CardEnvelope): { label: string; value: string | numb
  */
 export function Row({ item, card, words, density, timeZone, expanded, onToggle, tier = 2, controls }: RowProps) {
   const { text: valueText, present, unit } = readPrimary(item, card);
+  const { prefs } = usePrefs();
+  const painted = prefs.pack === "station" ? ROW_ICON[item.icon] : undefined;
   // An existing empty list is not a number: say so in plain words in the meaning line, not as a big "none".
   const rawEntry = item.fields[0] ? card.values[item.fields[0].key] : undefined;
   const rawValue: unknown = rawEntry?.raw;
@@ -123,7 +127,7 @@ export function Row({ item, card, words, density, timeZone, expanded, onToggle, 
   return (
     <li className={cls} id={`fd-row-${item.card}`}>
       <span className="fd-row-icon" aria-hidden="true">
-        {glyph(item.icon)}
+        {painted ? <PaintedIcon name={painted} size={28} /> : glyph(item.icon)}
       </span>
       <button type="button" className="fd-row-name" aria-expanded={expanded} onClick={onToggle}>
         <span className="fd-row-title">{item.title}</span>

@@ -32,6 +32,10 @@ project; downstream forks may keep the artwork or replace it with
 their own. The `artifacts/` directory is treated as curated
 material, not as third-party-license-debt.
 
+`ui/public/assets/painted/` holds the owner's own painted icons, copied from
+the design-system icon set (source and version in its README). They are not
+third-party material.
+
 ## Fonts and icons
 
 Bundled fonts and icons retain their original licenses. Each
