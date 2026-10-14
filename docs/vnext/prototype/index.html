@@ -459,7 +459,12 @@ dialog::backdrop{background:color-mix(in oklch,var(--surface-sunken) 82%,transpa
 <script>
 (()=>{'use strict';
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
-const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+/* every interpolated value that lands in HTML goes through escapeHtml (short name esc). Nothing else reaches innerHTML unescaped. */
+const escapeHtml=v=>String(v==null?'':v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const esc=escapeHtml;
+/* whitelist lookup: a name that is not an own key of the map does nothing. No map key is ever taken from the URL, a dataset or storage without passing through here. */
+const ownFn=(map,k)=>Object.prototype.hasOwnProperty.call(map,k)&&typeof map[k]==='function'?map[k]:null;
+const callOn=(map,k,...args)=>{const f=ownFn(map,k);if(f)f(...args);return !!f};
 const BLANK='data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
 const T0=Date.parse('2026-10-13T14:24:26Z'),ms=s=>s?Date.parse(s):null;
 const pl=(n,w)=>n+' '+w+(n===1?'':'s');
@@ -1030,7 +1035,7 @@ function memResHTML(){
   total+=i.facts.length;shown+=fl.length;
   if(!fl.length&&(q||st.mem.chip!=='all'))return'';
   const dk='mg-'+id,open=st.open[dk]!==undefined?st.open[dk]:(st.connected.length<=6||filt);
-  return`<details class="mem-group" data-dk="${dk}" ${open?'open':''} data-svc="${esc(id)}"><summary><span class="card-head"><h2 class="h-card" id="mh-${esc(id)}">${nm(i)}</h2>${chipS(i)}<span class="muted micro">${ageSpan('s|'+id)}</span></span>${ownerLink(i,'','mem')}</summary><div class="mem-body">${fl.length?fl.map(f=>LiveFactRow(i,f,'card')).join(''):`<p class="muted">No facts. ${esc(i.emptyReason||'')}</p>`}</div></details>`;
+  return`<details class="mem-group" data-dk="${esc(dk)}" ${open?'open':''} data-svc="${esc(id)}"><summary><span class="card-head"><h2 class="h-card" id="mh-${esc(id)}">${nm(i)}</h2>${chipS(i)}<span class="muted micro">${ageSpan('s|'+id)}</span></span>${ownerLink(i,'','mem')}</summary><div class="mem-body">${fl.length?fl.map(f=>LiveFactRow(i,f,'card')).join(''):`<p class="muted">No facts. ${esc(i.emptyReason||'')}</p>`}</div></details>`;
  }).join('');
  if(!groups)return`<div class="empty compact" data-od-id="no-matches">${DotMood('peek')}<p><strong>No matches.</strong></p><button type="button" class="btn" data-act="mem-clear">Clear filter</button></div>`;
  return groups;
@@ -1233,12 +1238,16 @@ function secReviewers(){
  </div></details>`;
 }
 const SECFN={services:secServices,references:secReferences,providers:secProviders,live:secLive,activity:secActivity,help:secHelp,about:secAbout,reviewers:secReviewers};
+/* the whitelist: only a name in SECS that is also an own key of SECFN may be rendered or called. Anything else in the URL does nothing. */
+const SECKEYS=new Set(SECS.map(s=>s[0]));
+const secFn=k=>SECKEYS.has(k)?ownFn(SECFN,k):null;
 function viewSettings(r){
- const phone=isPhone(),sec=r[1]&&SECFN[r[1]]?r[1]:null;
+ const phone=isPhone(),fn=r[1]?secFn(r[1]):null,sec=fn?r[1]:null;
  if(!sec&&!phone){history.replaceState(null,'','#/settings/services');return viewSettings(['settings','services'])}
- if(!sec)return`${pageHead('Settings')}<nav class="set-list" aria-label="Settings sections">${SECS.map(([k,l])=>`<a href="#/settings/${k}">${l}<span aria-hidden="true">›</span></a>`).join('')}</nav>`;
- if(phone)return`${pageHead(secTitle(sec))}<section class="set-sec" aria-label="${secTitle(sec)}" id="sec-${sec}">${SECFN[sec]()}</section>`;
- return`${pageHead('Settings')}<div class="set-grid"><nav class="set-nav" aria-label="Settings sections">${SECS.map(([k,l])=>`<a href="#/settings/${k}" ${sec===k?'aria-current="page"':''}>${l}</a>`).join('')}</nav><div><section class="set-sec" aria-labelledby="sec-${sec}"><h2 id="sec-${sec}" tabindex="-1">${secTitle(sec)}</h2>${SECFN[sec]()}</section></div></div>`;
+ if(!sec)return`${pageHead('Settings')}<nav class="set-list" aria-label="Settings sections">${SECS.map(([k,l])=>`<a href="#/settings/${esc(k)}">${esc(l)}<span aria-hidden="true">›</span></a>`).join('')}</nav>`;
+ const body=fn();
+ if(phone)return`${pageHead(secTitle(sec))}<section class="set-sec" aria-label="${esc(secTitle(sec))}" id="sec-${esc(sec)}">${body}</section>`;
+ return`${pageHead('Settings')}<div class="set-grid"><nav class="set-nav" aria-label="Settings sections">${SECS.map(([k,l])=>`<a href="#/settings/${esc(k)}" ${sec===k?'aria-current="page"':''}>${esc(l)}</a>`).join('')}</nav><div><section class="set-sec" aria-labelledby="sec-${esc(sec)}"><h2 id="sec-${esc(sec)}" tabindex="-1">${esc(secTitle(sec))}</h2>${body}</section></div></div>`;
 }
 
 /* ---------- focus and keys: every action carries a stable key; a repaint never takes the person's focus ---------- */
@@ -1799,7 +1808,7 @@ function startFrameIfVisible(){const i=selInst();if(!i)return;if(isPhone()&&st.t
 function focusHeading(){
  const r=route(),k=routeKey();window.scrollTo(0,0);
  const inv=st.inv[k];if(inv){delete st.inv[k];const el=findFk(inv);if(el){focusSeen(el);return}}
- let h=null;if(r[0]==='settings'&&r[1]&&!isPhone())h=$('#sec-'+r[1]);
+ let h=null;if(r[0]==='settings'&&secFn(r[1]||'')&&!isPhone())h=$('#sec-'+r[1]);
  h=h||$('#main h1')||$('#main h2')||$('#main');focusSeen(h);
 }
 let firstRoute=true;
@@ -1952,7 +1961,7 @@ document.addEventListener('click',e=>{
  if(t.tagName==='A'&&(a==='hdr-settings'||a==='hdr-back'||a==='owner')&&!(e.ctrlKey||e.metaKey||e.shiftKey))e.preventDefault();
  if(a==='hdr-back'){go(t.getAttribute('href')||'#/home');return}
  if(a==='hdr-settings'){go('#/settings');return}
- if(ACT[a])ACT[a](t,e);
+ callOn(ACT,a,t,e);
 });
 const CHG={
  'mem-filter'(t){st.mem.svc=t.value;save();render({force:true})},
@@ -1971,7 +1980,7 @@ const CHG={
  'rev-step'(t){st.fail.step=t.value},
  'rev-frame'(t){st.frameMode=t.value}
 };
-document.addEventListener('change',e=>{const t=e.target,c=t.dataset&&t.dataset.chg;if(c&&CHG[c])CHG[c](t,e);if(st.pending&&!textFocus())setTimeout(()=>render({force:true}),0)});
+document.addEventListener('change',e=>{const t=e.target,c=t.dataset&&t.dataset.chg;if(c)callOn(CHG,c,t,e);if(st.pending&&!textFocus())setTimeout(()=>render({force:true}),0)});
 document.addEventListener('input',e=>{
  const t=e.target,id=t.id;
  if(id==='cx-ref')cxSetRef(t.value);
