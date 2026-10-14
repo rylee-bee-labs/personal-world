@@ -1,0 +1,74 @@
+{
+ "c365": {
+  "engine": "sonnet",
+  "od_skill": "high-end-visual-design",
+  "od_design_system": "user:rylee-bee-studio",
+  "route": "OpenDesign run (lab design od run, agent claude/sonnet)"
+ },
+ "c151": {
+  "engine": "sonnet",
+  "od_skill": "field-notes-editorial-template",
+  "od_design_system": "kami",
+  "route": "OpenDesign run (lab design od run, agent claude/sonnet)"
+ },
+ "c975": {
+  "engine": "sonnet",
+  "od_skill": "hand-drawn-diagrams",
+  "od_design_system": "doodle",
+  "route": "OpenDesign run (lab design od run, agent claude/sonnet)"
+ },
+ "c616": {
+  "engine": "codex",
+  "od_skill": "industrial-brutalist-ui",
+  "od_design_system": "trading-terminal",
+  "route": "OpenDesign run (lab design od run, agent codex)"
+ },
+ "c258": {
+  "engine": "codex",
+  "od_skill": "swiss-creative-mode-template",
+  "od_design_system": "perspective",
+  "route": "OpenDesign run (lab design od run, agent codex)"
+ },
+ "c407": {
+  "engine": "codex",
+  "od_skill": "design-taste-frontend",
+  "od_design_system": "skeumorphism",
+  "route": "OpenDesign run (lab design od run, agent codex)"
+ },
+ "c589": {
+  "engine": "minimax",
+  "od_skill": "frontend-design",
+  "od_design_system": "hud",
+  "route": "offload agent with the same OpenDesign skill, design-system and craft files"
+ },
+ "c399": {
+  "engine": "minimax",
+  "od_skill": "after-hours-editorial-template",
+  "od_design_system": "warm-editorial",
+  "route": "offload agent with the same OpenDesign skill, design-system and craft files"
+ },
+ "c736": {
+  "engine": "minimax",
+  "od_skill": "algorithmic-art",
+  "od_design_system": "dithered",
+  "route": "offload agent with the same OpenDesign skill, design-system and craft files"
+ },
+ "c572": {
+  "engine": "ollama",
+  "od_skill": "stitch-design-taste",
+  "od_design_system": "atelier-zero",
+  "route": "offload agent with the same OpenDesign skill, design-system and craft files"
+ },
+ "c498": {
+  "engine": "ollama",
+  "od_skill": "gpt-taste",
+  "od_design_system": "totality-festival",
+  "route": "offload agent with the same OpenDesign skill, design-system and craft files"
+ },
+ "c842": {
+  "engine": "ollama",
+  "od_skill": "minimalist-ui",
+  "od_design_system": "paper",
+  "route": "offload agent with the same OpenDesign skill, design-system and craft files"
+ }
+}

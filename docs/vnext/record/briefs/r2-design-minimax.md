@@ -1,0 +1,18 @@
+# Worlds vNext round 2, step 1: write three DESIGN.md files (no code yet)
+
+## Decisions in force
+- 2026-10-13 Rylee: "maybe have them develop a mini design.md for each build? I don't hate them they're just not quite.... ready for a bigger test"
+- 2026-10-13 Rylee: "take into account prompt guidance and the opendesign options to make unique things of course"
+
+## Read first
+`docs/vnext/concept-brief-v2.md` (the brief: integration requirements, floors, guidance, anti-repeat list, DESIGN.md headings), `docs/vnext/fixture/fixture.json` (the only data you may use), `docs/vnext/design-research.md`, and the craft rulebooks in `docs/vnext/od-pack/` (anti-ai-slop, color, typography, laws-of-ux, state-coverage, accessibility-baseline, animation-discipline).
+
+## Your three concepts and their deliberately different starting points
+- **c589**: OpenDesign skill `frontend-design` (docs/vnext/od-pack/skill-frontend-design.md) + design system `hud` (docs/vnext/od-pack/ds-hud.md)
+- **c399**: OpenDesign skill `after-hours-editorial-template` (docs/vnext/od-pack/skill-after-hours-editorial-template.md) + design system `warm-editorial` (docs/vnext/od-pack/ds-warm-editorial.md)
+- **c736**: OpenDesign skill `algorithmic-art` (docs/vnext/od-pack/skill-algorithmic-art.md) + design system `dithered` (docs/vnext/od-pack/ds-dithered.md)
+
+Read each concept's skill and design-system file and let them shape that concept. The three must be clearly different from each other (information architecture, navigation, main gesture, composition). Your own round-1 concepts were: the-band, the-desk, the-reach (in docs/vnext/round1/). You may evolve ONE of them into one of these concepts if it becomes a real integrated shell; ignore the other folders in docs/vnext/round1/.
+
+## Do
+Write `docs/vnext/round2/<concept-id>/DESIGN.md` for each of the three ids above, about one page each, using the ten headings in concept-brief-v2.md. Concrete, honest, UNKNOWN where unknown. No code, no HTML in this step. Do not touch anything else. Do not push. When done, list the three files.

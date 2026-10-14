@@ -1,0 +1,14 @@
+# Worlds design: merge the two refinement audits into the spec
+
+## Decisions in force
+- 2026-10-13 Rylee: "I love this. Let's send back for one round of refinement and to get every additional piece down and all the reactive elements we might need. Please. I'd like this to be a little robust and polished along with our whimsical snail"
+- Protect the look, Dot, the warmth and delight (spec §1); copy is terse warmth (spec "Voice: terse warmth").
+- Claude's calls on the audits' open questions (keep the protected feeling): keep Dot curious beside Stale and Dot's goodbye after disconnect; stamp may take 280ms; the live toggle keeps its id `#live-toggle` (its age text may move beside it); phone Settings may become pushed screens; "needs you" counts decisions; in-session undo after disconnect lasts 30 seconds with a visible "Undo" (mock time), and the "keep history after disconnect" decision stays open.
+
+Inputs: `docs/vnext/worlds-design.md` (the spec), two independent audits `docs/vnext/refine-audit-minimax.md` and `docs/vnext/refine-audit-sonnet.md`, `docs/vnext/prototype/index.html`, the Field Guide in `docs/vnext/field-guide/`, `docs/vnext/connect/connect-contract.md`, `docs/vnext/house/`.
+
+Write `docs/vnext/worlds-design.md`, revised:
+1. Add a section **"Refinement round 1: checklist"** near the top (after Voice): ONE merged, de-duplicated list from both audits, grouped Missing pieces / Reactive / Robustness / Polish, each line `- [ ] ID · what · where · fix (S/M/L) · source (MM, SN or both)`. Keep everything that serves daily use, robustness or polish; drop only items that conflict with the decisions above or with Sol's conditions, and list those under "Not doing, and why" (one line each). Include Explore and Guide (Field Guide skeleton) if the audits or the Field Guide call for them.
+2. Add a section **"Reactive components"**: a small set of reusable pieces the prototype must use everywhere, each with props, states, transitions, reduced-motion form, and announcement rule: LiveFactRow, FreshnessBadge (live → ageing → stale → unknown), ServiceCard states, DotMood (Dot's pose bound to app state: asleep, welcome, nod, parcel, settled, goodbye, curious, peek, tucked), Counter/badge, ChangeRipple (one fact updating many views, Source → Worlds → Agent / You stagger), LiveTick (the feed clock, pause/resume, backoff), Toast + live region, OptimisticAction (pending → settled | rolled back), Skeleton/loading. Say which screens use which.
+3. Update the screen/state sections and §6 Components so they include every added piece, in the same voice and look. New art available (in `docs/vnext/prototype/art/` next round): `dot-peek`, `dot-tucked`, `dot-settled`, `icon-generic`, `scene-quiet` (needs-you empty, no Dot), `empty-ledger` (activity empty).
+Write only that file. Do not push.

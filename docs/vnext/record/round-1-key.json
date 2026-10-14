@@ -1,0 +1,62 @@
+{
+ "A": {
+  "engine": "codex",
+  "slug": "foldout-atlas",
+  "path": "/var/home/agent/worktrees/offload/personal-world-gh-wv-r1-codex-more-20261013-142156-6119/docs/vnext/round1/foldout-atlas/"
+ },
+ "B": {
+  "engine": "ollama",
+  "slug": "patchbay",
+  "path": "/var/home/agent/worktrees/offload/personal-world-gh-wv-r1-ollama-more-20261013-142238-8946/docs/vnext/round1/patchbay/"
+ },
+ "C": {
+  "engine": "codex",
+  "slug": "signal-instrument",
+  "path": "/var/home/agent/worktrees/offload/personal-world-gh-wv-r1-codex-more-20261013-142156-6119/docs/vnext/round1/signal-instrument/"
+ },
+ "D": {
+  "engine": "ollama",
+  "slug": "nowline",
+  "path": "/var/home/agent/worktrees/offload/personal-world-gh-wv-r1-ollama-20261013-141928-3915/docs/vnext/round1/nowline/"
+ },
+ "E": {
+  "engine": "minimax",
+  "slug": "the-band",
+  "path": "/var/home/agent/worktrees/offload/personal-world-gh-wv-r1-minimax-more-20261013-142319-2244/docs/vnext/round1/the-band/"
+ },
+ "F": {
+  "engine": "sonnet",
+  "slug": "switchboard",
+  "path": "/var/home/agent/worktrees/offload/personal-world-gh-wv-r1-sonnet-more-20261013-142127-3436/docs/vnext/round1/switchboard/"
+ },
+ "G": {
+  "engine": "codex",
+  "slug": "service-loom",
+  "path": "/var/home/agent/worktrees/offload/personal-world-gh-wv-r1-codex-20261013-142004-1919/docs/vnext/round1/service-loom/"
+ },
+ "H": {
+  "engine": "sonnet",
+  "slug": "strata",
+  "path": "/var/home/agent/worktrees/offload/personal-world-gh-wv-r1-sonnet-more-20261013-142127-3436/docs/vnext/round1/strata/"
+ },
+ "I": {
+  "engine": "minimax",
+  "slug": "the-desk",
+  "path": "/var/home/agent/worktrees/offload/personal-world-gh-wv-r1-minimax-more-20261013-142319-2244/docs/vnext/round1/the-desk/"
+ },
+ "J": {
+  "engine": "minimax",
+  "slug": "the-reach",
+  "path": "/var/home/agent/worktrees/offload/personal-world-gh-wv-r1-minimax-20261013-141928-3877/docs/vnext/round1/the-reach/"
+ },
+ "K": {
+  "engine": "ollama",
+  "slug": "altitude",
+  "path": "/var/home/agent/worktrees/offload/personal-world-gh-wv-r1-ollama-more-20261013-142238-8946/docs/vnext/round1/altitude/"
+ },
+ "L": {
+  "engine": "sonnet",
+  "slug": "orrery",
+  "path": "/var/home/agent/worktrees/offload/personal-world-gh-wv-r1-sonnet-20261013-141928-3869/docs/vnext/round1/orrery/"
+ }
+}

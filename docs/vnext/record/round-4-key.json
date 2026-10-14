@@ -1,0 +1,38 @@
+{
+ "V1": {
+  "engine": "sonnet",
+  "flow": "Counter-first (home-first)",
+  "od_skill": "frontend-design",
+  "od_design_system": "user:rylee-bee-studio",
+  "batch": 1,
+  "skill_file": "skill-frontend-design.md",
+  "route": "OpenDesign run (lab design od run, agent claude/sonnet)"
+ },
+ "V2": {
+  "engine": "codex",
+  "flow": "Welcome-led (onboarding-first)",
+  "od_skill": "design-taste-frontend",
+  "od_design_system": "user:rylee-bee-studio",
+  "batch": 1,
+  "skill_file": "skill-taste-skill.md",
+  "route": "OpenDesign run (lab design od run, agent codex)"
+ },
+ "V3": {
+  "engine": "minimax",
+  "flow": "Ask-the-counter (command/search-led)",
+  "od_skill": "frontend-design",
+  "od_design_system": "user:rylee-bee-studio",
+  "batch": 1,
+  "skill_file": "skill-frontend-design.md",
+  "route": "offload worker with the OpenDesign skill + design-system files"
+ },
+ "V4": {
+  "engine": "ollama",
+  "flow": "Today's slips (timeline/feed-led)",
+  "od_skill": "frontend-design",
+  "od_design_system": "user:rylee-bee-studio",
+  "batch": 1,
+  "skill_file": "skill-frontend-design.md",
+  "route": "offload worker with the OpenDesign skill + design-system files"
+ }
+}

@@ -1,0 +1,224 @@
+{
+ "v9370": {
+  "engine": "codex",
+  "skill_file": "skill-taste-skill.md",
+  "od_skill": "design-taste-frontend",
+  "od_design_system": "skeumorphism",
+  "batch": 1,
+  "route": "OpenDesign run (lab design od run, agent codex)"
+ },
+ "v1656": {
+  "engine": "minimax",
+  "skill_file": "skill-soft-skill.md",
+  "od_skill": "high-end-visual-design",
+  "od_design_system": "expressive",
+  "batch": 1,
+  "route": "offload worker with the OpenDesign skill + design-system files"
+ },
+ "v9307": {
+  "engine": "ollama",
+  "skill_file": "skill-gpt-tasteskill.md",
+  "od_skill": "gpt-taste",
+  "od_design_system": "spotify",
+  "batch": 1,
+  "route": "offload worker with the OpenDesign skill + design-system files"
+ },
+ "v6591": {
+  "engine": "minimax",
+  "skill_file": "skill-stitch-skill.md",
+  "od_skill": "stitch-design-taste",
+  "od_design_system": "retro",
+  "batch": 1,
+  "route": "offload worker with the OpenDesign skill + design-system files"
+ },
+ "v3604": {
+  "engine": "codex",
+  "skill_file": "skill-minimalist-skill.md",
+  "od_skill": "minimalist-ui",
+  "od_design_system": "storytelling",
+  "batch": 1,
+  "route": "OpenDesign run (lab design od run, agent codex)"
+ },
+ "v8457": {
+  "engine": "sonnet",
+  "skill_file": "skill-frontend-design.md",
+  "od_skill": "frontend-design",
+  "od_design_system": "wise",
+  "batch": 1,
+  "route": "OpenDesign run (lab design od run, agent claude/sonnet)"
+ },
+ "v9657": {
+  "engine": "minimax",
+  "skill_file": "skill-swiss-creative-mode-template.md",
+  "od_skill": "swiss-creative-mode-template",
+  "od_design_system": "miro",
+  "batch": 2,
+  "route": "offload worker with the OpenDesign skill + design-system files"
+ },
+ "v7873": {
+  "engine": "minimax",
+  "skill_file": "skill-field-notes-editorial-template.md",
+  "od_skill": "field-notes-editorial-template",
+  "od_design_system": "contemporary",
+  "batch": 2,
+  "route": "offload worker with the OpenDesign skill + design-system files"
+ },
+ "v4182": {
+  "engine": "sonnet",
+  "skill_file": "skill-after-hours-editorial-template.md",
+  "od_skill": "after-hours-editorial-template",
+  "od_design_system": "lovable",
+  "batch": 2,
+  "route": "OpenDesign run (lab design od run, agent claude/sonnet)"
+ },
+ "v4065": {
+  "engine": "sonnet",
+  "skill_file": "skill-hand-drawn-diagrams.md",
+  "od_skill": "hand-drawn-diagrams",
+  "od_design_system": "atelier-zero",
+  "batch": 2,
+  "route": "OpenDesign run (lab design od run, agent claude/sonnet)"
+ },
+ "v7989": {
+  "engine": "codex",
+  "skill_file": "skill-emil-design-eng.md",
+  "od_skill": "emil-design-eng",
+  "od_design_system": "airbnb",
+  "batch": 2,
+  "route": "OpenDesign run (lab design od run, agent codex)"
+ },
+ "v2731": {
+  "engine": "ollama",
+  "skill_file": "skill-impeccable-design-polish.md",
+  "od_skill": "impeccable-design-polish",
+  "od_design_system": "warm-editorial",
+  "batch": 2,
+  "route": "offload worker with the OpenDesign skill + design-system files"
+ },
+ "v6612": {
+  "engine": "codex",
+  "skill_file": "skill-ui-ux-pro-max.md",
+  "od_skill": "ui-ux-pro-max",
+  "od_design_system": "duolingo",
+  "batch": 3
+ },
+ "v3956": {
+  "engine": "codex",
+  "skill_file": "skill-taste-skill.md",
+  "od_skill": "design-taste-frontend",
+  "od_design_system": "artistic",
+  "batch": 3
+ },
+ "v4629": {
+  "engine": "sonnet",
+  "skill_file": "skill-soft-skill.md",
+  "od_skill": "high-end-visual-design",
+  "od_design_system": "paper",
+  "batch": 3
+ },
+ "v1802": {
+  "engine": "sonnet",
+  "skill_file": "skill-gpt-tasteskill.md",
+  "od_skill": "gpt-taste",
+  "od_design_system": "clay",
+  "batch": 3
+ },
+ "v8112": {
+  "engine": "sonnet",
+  "skill_file": "skill-stitch-skill.md",
+  "od_skill": "stitch-design-taste",
+  "od_design_system": "claymorphism",
+  "batch": 3
+ },
+ "v4220": {
+  "engine": "codex",
+  "skill_file": "skill-minimalist-skill.md",
+  "od_skill": "minimalist-ui",
+  "od_design_system": "pinterest",
+  "batch": 3
+ },
+ "v7807": {
+  "engine": "codex",
+  "skill_file": "skill-frontend-design.md",
+  "od_skill": "frontend-design",
+  "od_design_system": "totality-festival",
+  "batch": 4
+ },
+ "v4704": {
+  "engine": "sonnet",
+  "skill_file": "skill-swiss-creative-mode-template.md",
+  "od_skill": "swiss-creative-mode-template",
+  "od_design_system": "friendly",
+  "batch": 4
+ },
+ "v6544": {
+  "engine": "minimax",
+  "skill_file": "skill-field-notes-editorial-template.md",
+  "od_skill": "field-notes-editorial-template",
+  "od_design_system": "starbucks",
+  "batch": 4
+ },
+ "v8187": {
+  "engine": "ollama",
+  "skill_file": "skill-after-hours-editorial-template.md",
+  "od_skill": "after-hours-editorial-template",
+  "od_design_system": "intercom",
+  "batch": 4
+ },
+ "v1227": {
+  "engine": "ollama",
+  "skill_file": "skill-hand-drawn-diagrams.md",
+  "od_skill": "hand-drawn-diagrams",
+  "od_design_system": "vintage",
+  "batch": 4
+ },
+ "v3807": {
+  "engine": "ollama",
+  "skill_file": "skill-emil-design-eng.md",
+  "od_skill": "emil-design-eng",
+  "od_design_system": "kami",
+  "batch": 4
+ },
+ "v4434": {
+  "engine": "codex",
+  "skill_file": "skill-impeccable-design-polish.md",
+  "od_skill": "impeccable-design-polish",
+  "od_design_system": "colorful",
+  "batch": 5
+ },
+ "v6455": {
+  "engine": "ollama",
+  "skill_file": "skill-ui-ux-pro-max.md",
+  "od_skill": "ui-ux-pro-max",
+  "od_design_system": "doodle",
+  "batch": 5
+ },
+ "v4709": {
+  "engine": "codex",
+  "skill_file": "skill-taste-skill.md",
+  "od_skill": "design-taste-frontend",
+  "od_design_system": "loom",
+  "batch": 5
+ },
+ "v6553": {
+  "engine": "minimax",
+  "skill_file": "skill-soft-skill.md",
+  "od_skill": "high-end-visual-design",
+  "od_design_system": "elegant",
+  "batch": 5
+ },
+ "v5414": {
+  "engine": "minimax",
+  "skill_file": "skill-gpt-tasteskill.md",
+  "od_skill": "gpt-taste",
+  "od_design_system": "notion",
+  "batch": 5
+ },
+ "v2993": {
+  "engine": "ollama",
+  "skill_file": "skill-stitch-skill.md",
+  "od_skill": "stitch-design-taste",
+  "od_design_system": "cafe",
+  "batch": 5
+ }
+}
