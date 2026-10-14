@@ -405,11 +405,29 @@ dialog::backdrop{background:color-mix(in oklch,var(--surface-sunken) 82%,transpa
  .stamp{font-size:var(--type-body)}
  .tabbar .nav-item{font-size:var(--type-micro)}
 }
+/* Forced colors (Windows high contrast): authored accents are dropped, so each role is mapped to a system colour. Words carry every state. */
 @media(forced-colors:active){
- .fab-slot .btn,.toast,.slip,.fact,.receipt,.note,.mrow,.chipbtn{border:var(--wv-frame-line) solid ButtonText}
- .btn[aria-disabled="true"]{border-style:dashed;color:GrayText}
- .nav-item[aria-current="page"],.slip[aria-pressed="true"],.fact[aria-pressed="true"],.chipbtn[aria-pressed="true"]{outline:var(--wv-ring-width) solid Highlight}
- .badge{border:var(--wv-frame-line) solid ButtonText}
+ html,body{background:Canvas;color:CanvasText}
+ h1,h2,h3,.wordmark,.slip-name,.peek-val,.stamp,.chip,.mockup,.sim,.sel-word,.upd,.mark-new,.nav-item,.btn,.link,.step-cue,.lane-end,.says,.lane .lane-end{color:CanvasText}
+ .muted,.slip-kind,.slip-reason,.slip-extra,.peek-lbl,.st-line,.counter,.ctl-why,.live-age,.perm-line,.ref-msg span,.act-row{color:GrayText}
+ a,.link{color:LinkText}
+ .btn{background:ButtonFace;color:ButtonText;border-color:ButtonText}
+ .btn.primary{background:Highlight;color:HighlightText;border-color:Highlight}
+ .btn.danger,.btn.quiet-danger{color:ButtonText;border-color:ButtonText}
+ .fab-slot .btn,.toast,.slip,.fact,.receipt,.note,.mrow,.chipbtn,.cand,.check,.sel-card,.owner-note,.dlg-card{background:Canvas;border-color:ButtonText}
+ .toast.failed{border-color:CanvasText}
+ .fab-slot .btn{border-color:Highlight}
+ .chipbtn,.cand:has(input:checked),.slip,.fact,.row,.set-list a,.cand,.panel,.retry,.proposal,.help,.mem-group,.station,.frame,.cx-body,.cx-aside,.card,.set-sec,.empty,.journey,.skel,.mrow{background:Canvas;border-color:ButtonText}
+ .strip{background:Canvas;border-color:ButtonText}
+ .badge,.mark-new{background:Canvas;color:CanvasText;border:var(--wv-frame-line) solid CanvasText}
+ .mockup{border-color:CanvasText}
+ .nav-item[aria-current="page"],.chipbtn[aria-pressed="true"],.slip[aria-pressed="true"],.fact[aria-pressed="true"],.tabbar .nav-item[aria-current="page"]{background:Highlight;color:HighlightText;border-color:Highlight;outline:none}
+ :focus-visible{outline:var(--wv-ring-width) solid Highlight;outline-offset:var(--wv-ring-width)}
+ .btn[aria-disabled="true"]{border-style:dashed;border-color:GrayText;color:GrayText;background:Canvas}
+ .radios label:has(input:checked),.tabs .btn[aria-pressed="true"]{border-color:CanvasText}
+ dialog::backdrop{background:Canvas}
+ /* the art keeps its own colours; nothing else opts out */
+ img,.dot,.sico,.hero,.scene{forced-color-adjust:none}
 }
 </style>
 </head>
@@ -880,6 +898,8 @@ function TestPanel(i){
 }
 
 /* ---------- ServiceCard: slip (Home), card (Needs you), row (Settings), candidate (Discover) ---------- */
+/* the slip's accessible name is written once, at render: name, state word, age, and "selected" when it is.
+   The ticking age inside the slip is aria-hidden, so a tick is never read (§8.3). */
 function slipLabel(i){const[k,sim]=svcState(i),w=SW[k]?SW[k][1]:k;return`${i.name}, ${w}${sim?', simulated':''}, ${i.checkedAt==null?'never checked':'checked '+ago(i.checkedAt)}${i.id===st.selected?', selected':''}`}
 function ServiceCard(i,v,o={}){
  const[k,sim]=svcState(i);
@@ -924,12 +944,17 @@ function slipsHTML(){
 function finderHTML(){
  if(st.connected.length<=6)return'';
  const cnt=c=>st.connected.filter(id=>chipMatch(st.inst[id],c)).length;
- return`<div class="finder" data-od-id="finder"><label for="find-q"><strong>Find a service</strong></label><input type="search" id="find-q" data-input="find" value="${esc(st.filter.q)}" autocomplete="off" spellcheck="false"><div class="chips" role="group" aria-label="Filter by state">${CHIPS.map(([k,l])=>`<button type="button" class="chipbtn" data-act="chip" data-c="${k}" aria-pressed="${st.filter.chip===k}">${l}${k==='all'?'':' '+cnt(k)}</button>`).join('')}</div><div><label for="sort-s" class="micro muted">Sort</label> <select id="sort-s" data-chg="sort">${[['needs','Needs you first'],['name','Name'],['recent','Recently checked'],['newest','Newest']].map(([v,l])=>`<option value="${v}" ${st.sort===v?'selected':''}>${l}</option>`).join('')}</select></div></div>`;
+ return`<div class="finder" id="find-res" data-od-id="finder"><label for="find-q"><strong>Find a service</strong></label><input type="search" id="find-q" data-input="find" value="${esc(st.filter.q)}" autocomplete="off" spellcheck="false"><div class="chips" role="group" aria-label="Filter by state">${CHIPS.map(([k,l])=>`<button type="button" class="chipbtn" data-act="chip" data-c="${k}" aria-pressed="${st.filter.chip===k}">${l}${k==='all'?'':' '+cnt(k)}</button>`).join('')}</div><div><label for="sort-s" class="micro muted">Sort</label> <select id="sort-s" data-chg="sort">${[['needs','Needs you first'],['name','Name'],['recent','Recently checked'],['newest','Newest']].map(([v,l])=>`<option value="${v}" ${st.sort===v?'selected':''}>${l}</option>`).join('')}</select></div></div>`;
 }
 function paintSlips(){
  const el=$('#slips-res');if(!el)return;
+ const box=el.closest('[data-scroll]'),top=box?box.scrollTop:0;
  holdFocus(()=>{el.innerHTML=slipsHTML();ensureFks(el)});
+ if(box)box.scrollTop=top;
  const sb=$('#sel-bar');if(sb)sb.innerHTML=selBarInner();
+ const sc=$('#sel-slot');if(sc)sc.innerHTML=selCard(selInst());
+ const fd=$('#find-res');
+ if(fd&&!textFocus()&&!fd.contains(document.activeElement))fd.innerHTML=finderHTML();
 }
 const selBarInner=()=>{const i=selInst();return i?`<strong>Selected</strong> ${nm(i)} ${chipS(i)}`:''};
 function noteHTML(){
@@ -938,7 +963,8 @@ function noteHTML(){
  const back=n.parcelBack&&motionOK()?`<div class="lane">${DotMood('parcel',{mirrored:true})}<span class="lane-end">Counter</span></div>`:n.parcelBack?'':'';
  return`<div class="note${n.bye?' has-dot':''}" data-od-id="last-change">${n.bye?DotMood('goodbye'):''}<div><p>${esc(n.text)}</p>${back}<div class="actions tight">${u?`<button class="btn primary" type="button" id="undo" data-act="undo" data-fk="note-undo"><span data-ak="u|">${undoTxt()}</span></button>`:''}${n.reconnect?`<button class="btn" type="button" data-act="reconnect" data-id="${esc(n.reconnect)}">Reconnect</button>`:''}${n.ow?`<a class="btn" href="#/owner/${esc(n.ow.route.replace('app://',''))}" data-act="owner" data-app="${esc(n.ow.app)}" data-route="${esc(n.ow.route)}" data-fk="owner-note">${esc(n.ow.label)}</a>`:''}<button class="btn text" type="button" data-act="dismiss-note">Dismiss</button></div></div></div>`;
 }
-const pageHead=(title,o={})=>`<header class="page-head" data-od-id="page-head"><div><h1 tabindex="-1">${title}</h1>${freshLine(o.noDot)}</div><div class="status-slot"></div></header>${noteHTML()}`;
+/* the note lives in its own slot so a state change can repaint it without redrawing the view */
+const pageHead=(title,o={})=>`<header class="page-head" data-od-id="page-head"><div><h1 tabindex="-1">${title}</h1>${freshLine(o.noDot)}</div><div class="status-slot"></div></header><div id="note-slot">${noteHTML()}</div>`;
 const discReason=()=>`<p class="muted" id="disc-reason">Connect something first</p>`;
 function journeyHTML(i){if(st.journeySeen||(i&&!i.facts.length))return'';return`<aside class="journey" data-od-id="fact-journey"><h3>One fact, traced.</h3><p>Media Shelf holds 1,284 items. Where from, who sees it, who acts.</p><div class="mini-stations" aria-hidden="true"><span>Source · Media Shelf, local</span><span>Worlds · Items in library</span><span>Agent / Human</span></div><p class="muted">Every fact shows this.</p><button type="button" class="btn" data-act="dismiss-journey">Got it</button></aside>`}
 function chooseList(tid,chosen,o={}){
@@ -971,22 +997,26 @@ function viewHome(r){
  else if(sid)st.selected=sid;
  const i=selInst();
  if(!st.connected.length)return`${pageHead('Your counter')}<div class="sel-strip"><p>Nothing selected.</p><div class="disc-slot"></div>${discReason()}</div><section class="empty" data-od-id="empty-counter"><div class="empty-art">${st.fallAsleep&&motionOK()?DotMood('rest',{size:'lg'}):img('empty-counter','scene')}</div><div><h2>Quiet here.</h2><p>Connect something?</p><div class="actions"><button type="button" class="btn primary" data-act="add">Connect a service</button></div></div></section>`;
- if(isPhone()&&sid&&i)return`<div data-od-id="pushed-service"><header class="page-head" data-od-id="page-head"><div class="status-slot"></div></header>${noteHTML()}${detailHTML(i,true)}</div>`;
- return`${pageHead('Your counter')}${selCard(i)}${i?`<div class="sel-bar" id="sel-bar" data-od-id="sel-bar">${selBarInner()}</div>`:''}<div class="home-grid"><section aria-labelledby="slips-h" data-od-id="slips" class="slips-col" data-scroll="slips"><h2 id="slips-h" class="sr-only">Services</h2>${finderHTML()}<div id="slips-res">${slipsHTML()}</div></section>${i?detailHTML(i,false):''}</div>`;
+ if(isPhone()&&sid&&i)return`<div data-od-id="pushed-service"><header class="page-head" data-od-id="page-head"><div class="status-slot"></div></header><div id="note-slot">${noteHTML()}</div>${detailHTML(i,true)}</div>`;
+ return`${pageHead('Your counter')}<div id="sel-slot">${selCard(i)}</div>${i?`<div class="sel-bar" id="sel-bar" data-od-id="sel-bar">${selBarInner()}</div>`:''}<div class="home-grid"><section aria-labelledby="slips-h" data-od-id="slips" class="slips-col" data-scroll="slips"><h2 id="slips-h" class="sr-only">Services</h2>${finderHTML()}<div id="slips-res">${slipsHTML()}</div></section>${i?detailHTML(i,false):''}</div>`;
 }
 
 /* ---------- Needs you (N1): the quietest screen. No Dot anywhere. ---------- */
-function viewNeeds(){
- const nl=st.connected.filter(id=>st.inst[id].state==='needs_attention'&&!st.inst[id].refused).map(id=>st.inst[id]),rt=st.connected.map(id=>st.inst[id]).filter(s=>s.retry&&s.state!=='needs_attention');
+const needsList=()=>st.connected.filter(id=>st.inst[id].state==='needs_attention'&&!st.inst[id].refused).map(id=>st.inst[id]);
+function needsBody(){
+ const nl=needsList(),rt=st.connected.map(id=>st.inst[id]).filter(s=>s.retry&&s.state!=='needs_attention');
  const cleared=st.log.filter(e=>e.cleared).slice(0,5);
- let h=pageHead(nl.length?`Needs you <span class="badge" aria-hidden="true">${capCount(nl.length)}</span><span class="sr-only">, ${nl.length}</span>`:'Needs you',{noDot:true});
- h+='<div class="narrow">';
+ let h='';
  if(!nl.length)h+=`<section class="empty" data-od-id="needs-empty">${img('scene-quiet','scene')}<div><h2 class="h-card">Nothing needs you.</h2><p>It'll show here.</p></div></section>`;
  nl.forEach(i=>{h+=ServiceCard(i,'card')});
  if(rt.length){h+=`<h2 class="sec-title">Owner retries</h2><p class="muted measure">Not approvals. You retry these in the owning app.</p>`;rt.forEach(i=>{h+=`<div class="card"><div class="card-head">${chipS(i)} <strong>${nm(i)}</strong></div>${retryHTML(i,'needs')}</div>`})}
  h+=`<h2 class="sec-title">Proposals</h2><div class="proposal" data-od-id="proposal-sample"><p class="micro"><strong>Sample. No real proposals.</strong></p><p><strong>Sample action</strong> · Changes something outside Worlds</p><p>Proposed. Not active.</p><p class="muted">Worlds can't run this, only show it. Decider: unknown. Agent can't.</p></div>`;
  if(cleared.length)h+=`<h2 class="sec-title">Recently cleared</h2><ul class="cx-list">${cleared.map(e=>`<li class="act-row"><b>${esc(e.svc)}.</b> Cleared ${fmtT(e.t)}. ${esc(e.who||'')}</li>`).join('')}</ul>`;
- return h+'</div>';
+ return h;
+}
+function viewNeeds(){
+ const n=needsList().length;
+ return pageHead(n?`Needs you <span id="needs-count">${badgeHTML(n)}</span>`:'Needs you',{noDot:true})+`<div class="narrow" id="needs-res">${needsBody()}</div>`;
 }
 
 /* ---------- Memory (M1): the trail. Rows are one line with a disclosure ---------- */
@@ -1005,13 +1035,17 @@ function memResHTML(){
  if(!groups)return`<div class="empty compact" data-od-id="no-matches">${DotMood('peek')}<p><strong>No matches.</strong></p><button type="button" class="btn" data-act="mem-clear">Clear filter</button></div>`;
  return groups;
 }
+function memToolsHTML(){
+ const cnt=c=>st.connected.reduce((n,id)=>n+st.inst[id].facts.filter(f=>factChip(st.inst[id],f,c)).length,0);
+ return`<div class="two"><div class="field"><label for="mem-filter"><strong>Show</strong></label><select id="mem-filter" data-chg="mem-filter"><option value="all">All services</option>${st.connected.map(id=>`<option value="${esc(id)}" ${st.mem.svc===id?'selected':''}>${esc(st.inst[id].name)}</option>`).join('')}</select></div><div class="field"><label for="mem-q"><strong>Find a fact</strong></label><input type="search" id="mem-q" data-input="mem-q" value="${esc(st.mem.q)}" autocomplete="off" spellcheck="false"></div></div><div class="chips" role="group" aria-label="Filter by state">${CHIPS.map(([k,l])=>`<button type="button" class="chipbtn" data-act="mem-chip" data-c="${k}" aria-pressed="${st.mem.chip===k}">${l}${k==='all'?'':' '+cnt(k)}</button>`).join('')}</div>`;
+}
 function viewMemory(){
  const head=pageHead('Agent facts');
  if(!st.connected.length)return`${head}<section class="empty" data-od-id="memory-empty"><div class="empty-art">${DotMood('asleep',{size:'lg'})}</div><div><h2>No facts yet.</h2><p>Connect a service.</p><div class="actions"><button type="button" class="btn primary" data-act="add">Connect a service</button></div></div></section>`;
- const cnt=c=>st.connected.reduce((n,id)=>n+st.inst[id].facts.filter(f=>factChip(st.inst[id],f,c)).length,0);
- return`${head}<div class="narrow"><div class="mem-tools"><div class="two"><div class="field"><label for="mem-filter"><strong>Show</strong></label><select id="mem-filter" data-chg="mem-filter"><option value="all">All services</option>${st.connected.map(id=>`<option value="${esc(id)}" ${st.mem.svc===id?'selected':''}>${esc(st.inst[id].name)}</option>`).join('')}</select></div><div class="field"><label for="mem-q"><strong>Find a fact</strong></label><input type="search" id="mem-q" data-input="mem-q" value="${esc(st.mem.q)}" autocomplete="off" spellcheck="false"></div></div><div class="chips" role="group" aria-label="Filter by state">${CHIPS.map(([k,l])=>`<button type="button" class="chipbtn" data-act="mem-chip" data-c="${k}" aria-pressed="${st.mem.chip===k}">${l}${k==='all'?'':' '+cnt(k)}</button>`).join('')}</div></div><div id="mem-res">${memResHTML()}</div></div>`;
+ return`${head}<div class="narrow"><div class="mem-tools" id="mem-tools">${memToolsHTML()}</div><div id="mem-res">${memResHTML()}</div></div>`;
 }
-function paintMem(){const el=$('#mem-res');if(!el)return;holdFocus(()=>{el.innerHTML=memResHTML();ensureFks(el)})}
+/* the tools carry the per-state counts, so they move with the rows */
+function paintMem(){const el=$('#mem-res'),t=$('#mem-tools');if(t&&!t.contains(document.activeElement))t.innerHTML=memToolsHTML();if(!el)return;holdFocus(()=>{el.innerHTML=memResHTML();ensureFks(el)})}
 
 /* ---------- the owner-link stand-in, errors, offline wells ---------- */
 function viewOwner(r){const route='app://'+r.slice(1).join('/'),d=Object.values(DEFS).find(x=>x.owner.route===route),app=d?d.owner.app:(r[1]||'an app');return`<section class="empty" data-od-id="owner-route"><div><h1 tabindex="-1">Would open ${esc(app)} outside Worlds.</h1><p>Mockup: this link goes nowhere. Nothing opened.</p><p class="muted"><code>${esc(route)}</code></p><div class="actions"><a class="btn primary" href="#/home">Go to Home</a></div></div></section>`}
@@ -1116,16 +1150,19 @@ function viewConnect(step){
  const steps=`<ol class="steps" aria-label="Connect steps">${SN.map((n,k)=>`<li class="${k<i?'done':''}" ${k===i?'aria-current="step"':''}><span class="n">${k<i?svg(GL.check):k+1}</span><span>${n}${k<i?'<span class="sr-only"> (done)</span>':''}</span></li>`).join('')}</ol>`;
  return`${connectHead()}<div class="cx" data-od-id="connect">${steps}<section class="cx-body" aria-label="${SN[i]}">${stepLine}${body}${cxBar(step)}</section>${aside}</div>`;
 }
-const connectHead=()=>`<header class="page-head" data-od-id="page-head"><div><p class="micro muted">Connect</p>${freshLine()}</div><div class="status-slot"></div></header>${noteHTML()}`;
+const connectHead=()=>`<header class="page-head" data-od-id="page-head"><div><p class="micro muted">Connect</p>${freshLine()}</div><div class="status-slot"></div></header><div id="note-slot">${noteHTML()}</div>`;
 
 /* ---------- Settings (T1-T8): one routed section at a time. Phone: a list, each section a pushed screen ---------- */
 const SECS=[['services','Connected services'],['references','Credential references'],['providers','Providers'],['live','Live feed'],['activity','Activity'],['help','Help'],['about','About'],['reviewers','For reviewers']];
 const secTitle=k=>(SECS.find(s=>s[0]===k)||['',''])[1];
-function secServices(){
- const many=st.connected.length>6,q=(st.setQ||'').toLowerCase();
+function setRowsHTML(){
+ const q=(st.setQ||'').toLowerCase();
  const ids=st.connected.filter(id=>!q||st.inst[id].name.toLowerCase().includes(q));
- const rows=ids.map(id=>ServiceCard(st.inst[id],'row')).join('');
- return`${many?`<div class="field"><label for="set-q"><strong>Find a service</strong></label><input type="search" id="set-q" data-input="set-q" value="${esc(st.setQ||'')}" autocomplete="off"></div>`:''}<div id="set-rows">${rows||(st.connected.length?`<div class="empty compact">${DotMood('peek')}<p><strong>No matches.</strong></p></div>`:'<div class="empty compact"><p>Quiet here. Connect something?</p><button type="button" class="btn primary" data-act="add">Connect a service</button></div>')}</div>`;
+ return ids.map(id=>ServiceCard(st.inst[id],'row')).join('')||(st.connected.length?`<div class="empty compact">${DotMood('peek')}<p><strong>No matches.</strong></p></div>`:'<div class="empty compact"><p>Quiet here. Connect something?</p><button type="button" class="btn primary" data-act="add">Connect a service</button></div>');
+}
+function secServices(){
+ const many=st.connected.length>6;
+ return`${many?`<div class="field"><label for="set-q"><strong>Find a service</strong></label><input type="search" id="set-q" data-input="set-q" value="${esc(st.setQ||'')}" autocomplete="off"></div>`:''}<div id="set-rows">${setRowsHTML()}</div>`;
 }
 function refRow(i){
  const rep=st.rep&&st.rep.id===i.id;
@@ -1230,7 +1267,8 @@ const go=h=>{if(location.hash===h)onRoute();else location.hash=h};
 function ripple(keys,o={}){
  const seq=st.ripple=(st.ripple||0)+1;
  st.updUntil=performance.now()+3000;st.nodUntil=performance.now()+(motionOK()?1000:0);
- render({force:true,keepFocus:true});
+ /* a scripted state change repaints its slices; an action that also moves chrome still redraws the view */
+ if(o.slice)store.emit('state');else render({force:true,keepFocus:true});
  const ks=new Set(keys);
  $$('[data-fact]').forEach(n=>{if(!ks.has(n.dataset.fact))return;n.classList.add('settle');$$('.chip',n).forEach(c=>c.classList.add('xfade'));if(n.matches('.slip,.fact,.mrow,.receipt,.slip-peek'))setTimeout(()=>{if(st.ripple===seq)n.classList.remove('settle')},1600)});
  clearTimeout(ripple.t);ripple.t=setTimeout(paintFresh,3100);clearTimeout(ripple.n);ripple.n=setTimeout(paintFresh,1100);
@@ -1243,7 +1281,7 @@ function changed(ch,o={}){
  const msgs=['stale','unknown'].filter(k=>by[k].length).map(k=>`${list(by[k])} ${by[k].length===1?'is':'are'} now ${k==='stale'?'Stale':'Unknown'} (simulated).`);
  ch.forEach(c=>logEvt({kind:'change',sim:true,svc:c.i.name,text:`${c.f.label} is now ${c.to==='stale'?'Stale':'Unknown'}.`,t:c.t}));
  if(!o.quiet)say(msgs.join(' '));
- ripple(keys,{origin:'rule'});
+ ripple(keys,{origin:'rule',slice:true});
 }
 
 /* ---------- LiveTick ---------- */
@@ -1258,6 +1296,7 @@ function recheckAll(){
  st.connected.forEach(id=>{const i=st.inst[id];i.facts.forEach(f=>{if(rechecking(i,f)&&!f.miss){f.obs=t;f.ok=t;f.next=t+RECHECK}});if(i.state==='healthy')i.checkedAt=t;if(i.ladder)i.ladder={rung:0,next:t+15000*jit()}});
 }
 function onResume(gap){if(gap>60000){recheckAll();refreshAges()}}
+/* the tick repaints age text and the freshness line and nothing else: no view is re-rendered here, and a tick is never announced (§9, §8.3). */
 function tick(){
  if(!paused()){
   const ch=advance(now());
@@ -1572,7 +1611,7 @@ function checkNow(sid,fid){
  if(f.sim==='stale'||f.sim==='unknown'){
   if(f.lastVal!==undefined){f.value=f.lastVal;delete f.lastVal;delete f.lastAt}
   f.state='live';f.sim=null;f.miss=false;f.obs=t;f.ok=t;f.next=t+RECHECK;f.chg=t;delete f.staleAt;
-  logEvt({kind:'change',svc:i.name,text:`${f.label} checked. Live again.`});say(`${f.label} checked. Live again.`);ripple([fkey(i,f)]);
+  logEvt({kind:'change',svc:i.name,text:`${f.label} checked. Live again.`});say(`${f.label} checked. Live again.`);ripple([fkey(i,f)],{slice:true});
  }else{
   if(i.ladder)i.ladder={rung:0,next:t+15000*jit()};
   const w=SW[fs(f)]?SW[fs(f)][1]:fs(f);
@@ -1592,14 +1631,14 @@ function simulate(){
  logEvt({kind:'change',cleared:true,svc:fd.name,text:'Back door locked. Home reported it.',who:'Home reported it.'});
  st.note={text:'Counter, Needs you and Agent facts all show it now.',view:'any'};
  say('Updated everywhere. Home reported the back door locked. Worlds locked nothing.');
- ripple(keys);updateTop();
+ ripple(keys,{slice:true});updateTop();
 }
 function unlockAgain(){
  const fd=frontDoor();if(!fd||!doorLockedNow()){say('Nothing to reverse.');return}
  st.doorLocked=false;const t=now(),b=fd.facts.find(f=>f.id==='frontdoor.back-door'),u=fd.facts.find(f=>f.id==='frontdoor.unlocked-for');
  b.value='unlocked';b.obs=t;b.chg=t;u.value=47;u.obs=t;u.chg=t;fd.state='needs_attention';fd.reason=DEFS['front-door'].reason;fd.summary=DEFS['front-door'].summary;fd.checkedAt=t;st.lastOne=false;
  if((route()[0]||'home')!=='needs-you')st.newMarks.add(fd.id);
- logEvt({kind:'change',svc:fd.name,text:'Back door unlocked. Home reported it.'});say('Home reports the back door unlocked again. Needs you.');ripple(fd.facts.map(f=>fkey(fd,f)));updateTop();
+ logEvt({kind:'change',svc:fd.name,text:'Back door unlocked. Home reported it.'});say('Home reports the back door unlocked again. Needs you.');ripple(fd.facts.map(f=>fkey(fd,f)),{slice:true});updateTop();
 }
 function mockStale(){
  const i=st.connected.map(id=>st.inst[id]).find(x=>x.tid==='media-shelf'&&x.facts.some(f=>f.state==='live'));
@@ -1610,9 +1649,9 @@ function mockStale(){
 function mockRefuse(){
  const i=st.connected.map(id=>st.inst[id]).find(x=>x.tid==='notes-sync');
  if(!i){say('Connect Notes Sync first.');return}
- if(i.refused){i.refused=false;i.facts.forEach(f=>{if(f.refStale){f.state='live';f.sim=null;delete f.refStale;f.obs=now();f.ok=now()}});say('Notes Sync accepts its reference again.');ripple(i.facts.map(f=>fkey(i,f)));return}
+ if(i.refused){i.refused=false;i.facts.forEach(f=>{if(f.refStale){f.state='live';f.sim=null;delete f.refStale;f.obs=now();f.ok=now()}});say('Notes Sync accepts its reference again.');ripple(i.facts.map(f=>fkey(i,f)),{slice:true});return}
  i.refused=true;const t=now();i.facts.forEach(f=>{if(f.state==='live'){f.state='stale';f.sim='stale';f.staleAt=t;f.refStale=true}});
- logEvt({kind:'change',sim:true,svc:i.name,text:'Refused the reference.'});say('Notes Sync refused the reference.');ripple(i.facts.map(f=>fkey(i,f)));
+ logEvt({kind:'change',sim:true,svc:i.name,text:'Refused the reference.'});say('Notes Sync refused the reference.');ripple(i.facts.map(f=>fkey(i,f)),{slice:true});
 }
 function mockUnscoped(){const i=st.connected.map(id=>st.inst[id]).find(x=>x.tid==='media-shelf');if(!i){say('Connect Media Shelf first.');return}i.scope=null;save();say('Media Shelf: unscoped connection.');render({force:true,keepFocus:true})}
 function mockNeeds(){
@@ -1621,7 +1660,7 @@ function mockNeeds(){
  if(i.state==='needs_attention'){say('Studio Printer already needs you.');return}
  i.state='needs_attention';i.reason='Your call. Nothing acts on its own.';i.ladder=null;
  if((route()[0]||'home')!=='needs-you')st.newMarks.add(i.id);
- logEvt({kind:'change',sim:true,svc:i.name,text:'Needs you.'});say(`${i.name} needs you.`);render({force:true,keepFocus:true});renderNav();updateTop();
+ logEvt({kind:'change',sim:true,svc:i.name,text:'Needs you.'});say(`${i.name} needs you.`);store.emit('state');
 }
 function mockMany(){
  const tids=TIDS.filter(t=>t!=='local-weather');let k=0;
@@ -1697,6 +1736,24 @@ function measureBars(){
  const h=$('#topbar').offsetHeight;if(h)document.documentElement.style.setProperty('--wv-top-h',h+'px');
  const tb=$('#tabbar');if(tb&&tb.offsetHeight&&getComputedStyle(tb).display!=='none'){const base=3.5*parseFloat(getComputedStyle(document.documentElement).fontSize),c=tb.firstElementChild?tb.firstElementChild.offsetHeight:0;document.documentElement.style.setProperty('--wv-tab-h',Math.max(base,c)+'px')}
 }
+
+/* ---------- slices: a state change repaints only the regions that show it. A tick never comes here: it repaints age text and the freshness line only. ---------- */
+const SLICES=['slips','mem','needs','rows','detail','note','chrome'];
+const SLICE={
+ slips:()=>paintSlips(),
+ mem:()=>paintMem(),
+ needs:()=>{const c=$('#needs-count'),el=$('#needs-res'),n=needsList().length;if(c)c.innerHTML=badgeHTML(n);if(el)holdFocus(()=>{el.innerHTML=needsBody();ensureFks(el)})},
+ rows:()=>{const el=$('#set-rows');if(el&&!textFocus())holdFocus(()=>{el.innerHTML=setRowsHTML();ensureFks(el)})},
+ detail:()=>{const el=$('#main .detail'),i=selInst();if(!el||!i)return;const h1=isPhone()&&!!route()[1],pos={};$$('[data-scroll]',el).forEach(e=>{pos[e.dataset.scroll]=e.scrollTop});holdFocus(()=>{el.outerHTML=detailHTML(i,h1);const nx=$('#main .detail')||el;ensureFks(nx);$$('[data-scroll]',nx).forEach(e=>{if(pos[e.dataset.scroll]!=null)e.scrollTop=pos[e.dataset.scroll]})})},
+ note:()=>{const el=$('#note-slot');if(el)holdFocus(()=>{el.innerHTML=noteHTML();ensureFks(el)})},
+ chrome:()=>{paintFresh();renderNav();updateTop();measureBars()}
+};
+function repaintSlices(names){
+ const y=scrollY;
+ for(const n of names){const p=SLICE[n];if(p)p()}
+ if(scrollY!==y)scrollTo(0,y);
+}
+store.subscribe('state',()=>repaintSlices(SLICES));
 
 /* ---------- render ---------- */
 function buildView(){
@@ -1922,7 +1979,7 @@ document.addEventListener('input',e=>{
  else if(id&&id.startsWith('rn-')&&!id.startsWith('rn-c-')){st.renameText=t.value;const c=$('[data-slot="rn-count"]');if(c)c.textContent=cp(t.value).length+'/40'}
  else if(t.dataset.input==='find'){st.filter.q=t.value;save();paintSlips();announceCount()}
  else if(t.dataset.input==='mem-q'){st.mem.q=t.value;paintMem()}
- else if(t.dataset.input==='set-q'){st.setQ=t.value;const el=$('#set-rows');if(el)holdFocus(()=>{el.innerHTML=st.connected.filter(id=>!st.setQ||st.inst[id].name.toLowerCase().includes(st.setQ.toLowerCase())).map(id=>ServiceCard(st.inst[id],'row')).join('')||'<div class="empty compact"><p><strong>No matches.</strong></p></div>';ensureFks(el)})}
+ else if(t.dataset.input==='set-q'){st.setQ=t.value;SLICE.rows()}
 });
 document.addEventListener('paste',e=>{
  const t=e.target;if(t.id!=='cx-ref'&&t.id!=='rep-ref')return;
@@ -1998,6 +2055,14 @@ if(/[?&]test\b/.test(location.search)){
    ok('no inline style with a length',!inl.length,inl.slice(0,2).map(e=>e.className).join(','));
    /* 3. regions */
    ok('one polite status region, one assertive alert',$$('[role="status"],[aria-live="polite"]').length===1&&$$('[role="alert"],[aria-live="assertive"]').length===1);
+   /* 3b. forced colours: every role maps to a system colour, and only the art opts out */
+   const flat=r=>[...r].flatMap(x=>x.cssRules?flat(x.cssRules):[x]);
+   const tops=[...document.styleSheets].flatMap(s=>{try{return [...s.cssRules]}catch(e){return[]}});
+   const fc=tops.filter(r=>r.media&&/forced-colors/.test(r.media.mediaText||''));
+   const fctxt=fc.map(r=>r.cssText).join(' ');
+   ok('a forced-colors block maps text, borders, rings, badges and chips to system colours',fc.length===1&&['CanvasText','Canvas','LinkText','Highlight','HighlightText','GrayText','ButtonText','ButtonFace'].every(c=>fctxt.includes(c)),fc.length+' block(s)');
+   const adj=flat(tops).filter(r=>r.style&&r.style.getPropertyValue('forced-color-adjust'));
+   ok('only the art opts out of forced colours',adj.length>0&&adj.every(r=>/(^|,)\s*(img|\.dot|\.sico|\.hero|\.scene)\b/.test(r.selectorText)),adj.map(r=>r.selectorText).join(','));
    /* 4. welcome, then every action has a stable key */
    await goPath();ok('welcome connects two and lands on Home',location.hash==='#/home'&&st.connected.length===2,location.hash);
    const nokey=()=>$$('[data-act]').filter(e=>!(e.dataset.fk||e.id));
@@ -2022,9 +2087,29 @@ if(/[?&]test\b/.test(location.search)){
    window.__wv.advance(95000);await sleep(200);
    ok('the armed fact goes Stale at 90s with its last value kept',arm.state==='stale'&&arm.value!=null,arm.state);
    ok('the slip says so while the service stays Unavailable',/Unavailable/.test($('.slip[data-id="notes-sync"]').textContent)&&/stale/i.test($('.slip[data-id="notes-sync"]').textContent));
-   window.__wv.advance(60000);await sleep(200);ok('then Unknown at 150s with no number',arm.state==='unknown'&&arm.value==null);
+   /* RX-01: a tick repaints age text; a state change repaints the slices that show it, never the view */
+   const ageNode=$('#main .slip .age-v'),gridNode=$('.home-grid'),h1Node=$('#main h1');
+   window.__wv.tick();await sleep(60);window.__wv.tick();await sleep(120);
+   ok('a tick repaints age text, not the view',$('#main .slip .age-v')===ageNode&&$('.home-grid')===gridNode&&$('#main h1')===h1Node);
+   window.__wv.advance(60000);await sleep(200);
+   ok('then Unknown at 150s with no number',arm.state==='unknown'&&arm.value==null);
+   ok('a state change repaints its slices, not the whole view',$('.home-grid')===gridNode&&$('#main h1')===h1Node&&/Unknown/.test($('.slip[data-id="notes-sync"]').textContent)&&/Unknown/.test($('.receipt').textContent));
+   /* RB-23: slip labels written once at render, ticking ages hidden, only changes announced */
+   const WORDS=['Healthy','Live','Needs you','Stale','Unavailable','Unknown','Not configured'],lab=s=>s.getAttribute('aria-label')||'';
+   const slips=$$('.slip');
+   ok('every slip is labelled with its name and a state word',slips.length>0&&slips.every(s=>lab(s).startsWith(st.inst[s.dataset.id].name)&&WORDS.some(w=>lab(s).includes(w))),lab(slips[0]));
+   ok('"selected" is in the label exactly when the slip is pressed',slips.every(s=>lab(s).includes(', selected')===(s.getAttribute('aria-pressed')==='true')));
+   ok('the ticking age on a slip is aria-hidden',slips.every(s=>{const a=s.querySelector('.age');return !a||!!a.closest('[aria-hidden="true"]')}));
+   await sleep(3200);
+   ok('a state-word change is announced once',$('#live-polite').textContent.includes('now Unknown'),$('#live-polite').textContent);
+   const quiet=$('#live-polite').textContent+'|'+$('#live-alert').textContent;
+   window.__wv.tick();await sleep(1300);window.__wv.tick();await sleep(1300);
+   ok('ticks are never announced',$('#live-polite').textContent+'|'+$('#live-alert').textContent===quiet,$('#live-polite').textContent);
    const ol=$('.detail a[data-act="owner"]');await click(ol);ok('an owner link opens a note, not a page',!!$('.owner-note')&&location.hash.startsWith('#/home'));
    document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));await sleep(100);ok('Escape closes it',!$('.owner-note'));
+   await click('.slip[data-id="front-door"]');await sleep(3200);
+   ok('selecting announces "Selected Front Door."',$('#live-polite').textContent.includes('Selected Front Door.'),$('#live-polite').textContent);
+   await click($('.slip[data-id="notes-sync"]'));await sleep(120);
    /* 6. hostile names on every screen */
    const H=['<img src=x onerror=alert(1)>','"><scr'+'ipt>window.__pwn=1</scr'+'ipt>','\u202Eevil\u202C','zero\u200Bwidth','a\u200D\u{1F9D1}\u200D\u{1F680}b','Tom & "Jerry" \'s'];
    for(const h of H){st.inst['media-shelf'].name=cleanName(h)||'x'}
