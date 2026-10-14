@@ -1,11 +1,15 @@
 # Worlds: documentation index
 
-> **Status:** Current · **Verified:** 2026-09-26 · **Canonical for:** where every doc is and what state it's in · **Read this if:** you're looking for a document, or checking whether one is still true.
+> **Status:** Current · **Verified:** 2026-10-13 · **Canonical for:** where every doc is and what state it's in · **Read this if:** you're looking for a document, or checking whether one is still true.
 
-**In short:** the map of every doc. Start with the five pages under "Start
+**In short:** the map of every doc. Start with the pages under "Start
 here". Every page carries a status line (Current, Reference, Direction or
-Historical); the generated table at the end lists them all by status, and it
-wins over the hand-written tables above it if they ever disagree.
+Historical) — **that line is the authority on a page's state**, and
+[`vnext/docs-truth.md`](vnext/docs-truth.md) is the authority on which file
+owns which command or claim (routes, build, install, tests, backup). The
+tables at the end of this page are a convenience index over those status
+lines: they can lag a day or two, so if they disagree with a page's own
+status line, the status line wins.
 
 (The product was called "Personal World", then "Project Worlds"; it is
 **Worlds** since 2026-09-12. Technical identifiers such as `personal_world`
@@ -18,12 +22,14 @@ are unchanged.)
 | [library/](library/README.md) | **Plain words, for anyone:** short books on how Worlds works and why: rooms, live updates, how the screens are layered, honesty, secrets, roles, notifications, shipping, and lessons learned the hard way. |
 | [WHERE-WE-ARE.md](WHERE-WE-ARE.md) | **Plain words:** what Worlds is and where things stand today. Read this if you don't remember. |
 | [`.project/CURRENT.md`](../.project/CURRENT.md) | **For agents:** the canonical current-state entry point; routes to the canonical files. |
+| [vnext/docs-truth.md](vnext/docs-truth.md) | **The canonical pointer table:** which file owns each command or claim (routes, build, install, tests, backup) and which pages are superseded. Read it before hand-copying a list into a page. |
+| [BACKLOG.md](BACKLOG.md) | Current work carried after #262/#263 closed, newest entries first. |
 | [ROOMS.md](ROOMS.md) | How Worlds finds, checks and shows rooms (Workshop, Studio, Engine room, Candy), and how to add one. |
 | [gallery/README.md](gallery/README.md) | Screenshots of every screen at 390 and 1440, from mock data. |
 | [docs/README.md](README.md) | Where truth lives: canonical source per subject, and the repo's layers. |
 | [README](../README.md) | The front door: what this is, quick start, navigation. |
 | [CHANGELOG](../CHANGELOG.md) | Curated project milestones, newest first. |
-| [`.project/PLAN.md`](../.project/PLAN.md) | **Current direction** (owner-approved 2026-09-25): "things come to me", the Bridge, Keeper + briefing as one experience. Wins over TRUE-NORTH on scope and sequencing. |
+| [`.project/PLAN.md`](../.project/PLAN.md) | **Current direction** (owner-approved 2026-09-25): "things come to me". Its landmarks are ADR-0008's (`Home · Connect · Memory · Settings`); the Bridge/Keeper naming is superseded. Wins over TRUE-NORTH on scope and sequencing. |
 | [TRUE-NORTH](TRUE-NORTH.md) | Direction (owner-approved 2026-09-22): vision, five commitments, honesty and accessibility principles, which still hold. |
 | [ROADMAP](../ROADMAP.md) | Historical horizon record — superseded as direction by TRUE-NORTH (2026-09-22). |
 | [history/ROADMAP-AND-TODO.md](history/ROADMAP-AND-TODO.md) | Owner-facing alpha-status snapshot, dated; links to the canonical roadmap. |
@@ -45,6 +51,10 @@ are unchanged.)
 | [NATIVE-BASELINE-AND-ENRICHMENT.md](NATIVE-BASELINE-AND-ENRICHMENT.md) | Normative | The core invariant: capabilities core-owned, providers optional. Enforced by `framework validate`. |
 | [adr/0001](adr/0001-capabilities-core-owned-providers-optional.md) | Accepted | Why the capability-ownership rule became test-enforced. |
 | [adr/0002](adr/0002-default-brain-selection.md) | Accepted | Default brain selection (Qwen3 1.7B with an LFM2.5 fallback). |
+| [adr/0008](adr/0008-front-door.md) | Accepted (canonical current) | **The front door.** Landmarks `Home · Connect · Memory · Settings`, Memory as durable state, one authority path for consequential actions. Merged to `main` in PR #277 (2026-10-06). Wins over every older navigation/product-shape document. |
+| [rebuild/CONTRACTS.md](rebuild/CONTRACTS.md) | Accepted 2026-10-01 | The five contracts the front-door lanes build against. |
+| [rebuild/DURABILITY.md](rebuild/DURABILITY.md) | Accepted 2026-10-01 | Durability classes, Memory export/backup/restore, the interrupted-action edge. Owns backup and restore; the measured drill is [`scripts/restore-drill.sh`](../scripts/restore-drill.sh). |
+| [rebuild/FRAMEWORK-GATE.md](rebuild/FRAMEWORK-GATE.md) | Reference | `personal-world framework validate` — the framework gate's JSON envelope and exit codes. |
 | [PROVIDERS.md](PROVIDERS.md) | Canonical | How to add a provider, step by step. |
 | [OPERATIONS.md](OPERATIONS.md) | Canonical | Running it locally: CLI, web API, containers, health. |
 | [ALPHA-ACCEPTANCE.md](ALPHA-ACCEPTANCE.md) | Runbook | Owner checklist for declaring private technical alpha; evidence stays outside the repo. |
@@ -61,7 +71,7 @@ are unchanged.)
 | [COMPANION_INTEGRATION.md](../design/COMPANION_INTEGRATION.md) | Canonical design + baseline/target notes | Five residents and identity design; current standalone Chat versus target contextual/global chat. |
 | [CREW-AND-STATION-THESIS.md](CREW-AND-STATION-THESIS.md) | Canonical thesis (role amended 2026-09-22) | Crew/voice/companion family rules remain canonical; the *Station-as-primary-experience* role is superseded — Station is a kept theme package behind the stable skeleton. |
 | [COMPANION-CANON.md](COMPANION-CANON.md) | Canonical naming | Companion display names (Renai, Ratatoskr, Bolt, Burrito Journalism, Personal World, Hekek, Bruma, Mira), the station-id ↔ server-key mapping, per-surface naming rules, and the OPEN/UNKNOWN items. Settings is an icon, not a resident. |
-| [history/STATION-MAP.md](history/STATION-MAP.md) | Station-era deck plan (historical) | The retired Station's logical deck plan: eight decks, each named for its job, with its resident. The current navigation is the stable skeleton (`Overview · Memory · Chat · Settings`, per `docs/PRODUCT-LANGUAGE.md`); Station survives only as a theme package. |
+| [history/STATION-MAP.md](history/STATION-MAP.md) | Station-era deck plan (historical) | The retired Station's logical deck plan: eight decks, each named for its job, with its resident. The current navigation is ADR-0008's front door (`Home · Connect · Memory · Settings`); the earlier `Overview · Memory · Chat · Settings` skeleton in `docs/PRODUCT-LANGUAGE.md` is itself superseded. Station survives only as a theme package. |
 | [Station design concepts](../design/concepts/README.md) | Archived 2026-09-25 | The Station concept pages (index, eight layout packets, dialect sheet, Today) now live at tag `archive/pre-design-cleanup-2026-09-25`. Their art stays in `design/concepts/assets/`. |
 | [ART-REQUESTS.md](ART-REQUESTS.md) | Canonical request sheet | What to ask for when commissioning companion/crew art (style clause, per-character clauses, formats), and the current "still missing" gap list. |
 | [CHARACTER-HANDBOOK.md](CHARACTER-HANDBOOK.md) | Canonical character + voice | The crew's *who*: each resident's emotional identity and voice, what they should never be, the two-voices rule, the attention voices, and Personal-vs-Contextual. Distinct from names/ids (COMPANION-CANON) and art (COMPANION_INTEGRATION). |
@@ -90,6 +100,9 @@ are unchanged.)
 | Doc | What it is |
 |---|---|
 | [AGENTS.md](../AGENTS.md) | Working-tree rules for agents and humans (worktrees, staging discipline). |
+| [vnext/docs-truth.md](vnext/docs-truth.md) | Which file owns each command or claim, and which pages are superseded — read before adding a list to a page. |
+| [../scripts/route-inventory.json](../scripts/route-inventory.json) | The **generated** route contract (every `/api` route plus `/healthz`, with its auth level). Regenerate with `uv run python scripts/contract-drift-check.py --write`; check with the same script without `--write`. |
+| [../scripts/gen-openapi.py](../scripts/gen-openapi.py) | The **generator** for `ui/src/generated/openapi.json` (written from the live front-door app). Never hand-edit the generated files. |
 | [safe-commit.sh](../scripts/safe-commit.sh) | Stages named paths only; refuses unrelated-file sweeps. |
 | [Validation commands](../AGENTS.md#checks) | `pytest`, `framework validate` — the canonical checks. |
 | [DEV-ENVIRONMENT.md](DEV-ENVIRONMENT.md) | Setting up to run, test, or contribute: prerequisites, verification commands, and environment hygiene. |
@@ -125,9 +138,12 @@ are unchanged.)
 
 ## Every page, by status
 
-Generated from each page's status line (2026-09-26). If a page is missing here, it has no status line: add one.
+Last swept from each page's status line on 2026-10-13. This table is a
+convenience index, not a second source of truth: the **status line on the
+page itself** decides that page's state. If a page is missing here, it has
+no status line (or was added since the sweep): add one.
 
-### Current (10)
+### Current (15)
 
 | Page | Read this if |
 |---|---|
@@ -140,9 +156,14 @@ Generated from each page's status line (2026-09-26). If a page is missing here, 
 | [ROOMS.md](ROOMS.md) | you want to add a room, understand a room's status, or change how Worlds talks to rooms |
 | [WHERE-WE-ARE.md](WHERE-WE-ARE.md) | you don't remember where things stand. That's okay |
 | [accessibility/SCREEN_READER_WALKTHROUGH.md](accessibility/SCREEN_READER_WALKTHROUGH.md) | you use a screen reader, or you are changing labels, landmarks or focus in `ui/` |
+| [accessibility/VOICEOVER_PASS.md](accessibility/VOICEOVER_PASS.md) | you are about to check Worlds with VoiceOver by hand, or you changed labels, focus or live regions |
 | [gallery/README.md](gallery/README.md) | you want to see Worlds without running it, or you are refreshing the pictures after a UI change |
+| [BACKLOG.md](BACKLOG.md) | you want the current work carried after #262/#263 closed |
+| [rebuild/DURABILITY.md](rebuild/DURABILITY.md) | you deploy, back up or restore Worlds |
+| [vnext/docs-truth.md](vnext/docs-truth.md) | a doc told you something the code no longer does, or you are about to hand-copy a command or route list |
+| [adr/0008-front-door.md](adr/0008-front-door.md) | you need the accepted architecture behind today's product: landmarks, Memory, the authority path |
 
-### Reference (46)
+### Reference (48)
 
 | Page | Read this if |
 |---|---|
@@ -177,6 +198,8 @@ Generated from each page's status line (2026-09-26). If a page is missing here, 
 | [WORLDS-BACKUP.md](WORLDS-BACKUP.md) | you need to save or move a whole Worlds instance |
 | [accessibility/ACCESSIBILITY_CONTRACT.md](accessibility/ACCESSIBILITY_CONTRACT.md) | you are designing, building or reviewing anything a person perceives or operates |
 | [accessibility/RESPONSIVE_RULES.md](accessibility/RESPONSIVE_RULES.md) | you are changing layout, navigation or a screen's narrow-width behaviour |
+| [accessibility/FRONT-DOOR-SCREEN-READER-WALKTHROUGH.md](accessibility/FRONT-DOOR-SCREEN-READER-WALKTHROUGH.md) | you are about to sign off the front door as accessible; the manual pass it scripts has not been run yet |
+| [rebuild/FRAMEWORK-GATE.md](rebuild/FRAMEWORK-GATE.md) | you are changing the framework gate, or wondering why an old ADR-0001 rule is gone |
 | [adr/0001-capabilities-core-owned-providers-optional.md](adr/0001-capabilities-core-owned-providers-optional.md) | you are adding or changing a capability, a provider, or anything that could make a vendor's shape into product truth |
 | [adr/0002-default-brain-selection.md](adr/0002-default-brain-selection.md) | you are changing the default brain, the fallback, or the `reasoning` provider |
 | [brain-templates.md](brain-templates.md) | you are editing chat prompt text or adding a persona/surface/task template |
@@ -193,13 +216,14 @@ Generated from each page's status line (2026-09-26). If a page is missing here, 
 | [surfaces/TOOL-DOMAIN-MATRIX.md](surfaces/TOOL-DOMAIN-MATRIX.md) | you need to know what a model can inspect or propose |
 | [surfaces/UI-API-MATRIX.md](surfaces/UI-API-MATRIX.md) | you need to know what a screen calls, and what gate that call passes |
 
-### Direction (8)
+### Direction (9)
 
 | Page | Read this if |
 |---|---|
 | [CREW-AND-STATION-THESIS.md](CREW-AND-STATION-THESIS.md) | you are touching companion art, voice, or the crew's place in the product |
 | [PERSONAL-WORLD-FINISH-LINE.md](PERSONAL-WORLD-FINISH-LINE.md) | you are planning toward "finished enough to live in every day" and need the experience-level target |
 | [TRUE-NORTH.md](TRUE-NORTH.md) | you need *why* Worlds is shaped this way; for *what we are building now* read `.project/PLAN.md` first |
+| [adr/0009-play-nice-semantic-kernel.md](adr/0009-play-nice-semantic-kernel.md) | you are proposing the Play-Nice semantic-kernel experiment; it is **proposed**, not built |
 | [adr/0003-workbench-core-owned-capability.md](adr/0003-workbench-core-owned-capability.md) | you are touching workbench/terminal/exec/preview work |
 | [adr/0004-node-agent-capability-model.md](adr/0004-node-agent-capability-model.md) | you are working on Nodes, remote machines, or the Worlds Agent |
 | [adr/0005-network-overlay-netbird.md](adr/0005-network-overlay-netbird.md) | you are touching mesh networking for Nodes |

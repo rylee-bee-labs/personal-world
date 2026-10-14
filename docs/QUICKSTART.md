@@ -2,7 +2,7 @@
 
 > **Superseded in part by [ADR-0008](adr/0008-front-door.md) (2026-10-01):** the Worlds interface was replaced by the front door (`ui/src/fd`: Home · Connect · Memory · Settings). Screen, component, route and test names in this document describe the old interface; read them as history. The current map is [FRONTEND-INVENTORY.md](../FRONTEND-INVENTORY.md).
 
-> **Status:** Current · **Verified:** 2026-09-26 · **Canonical for:** installing and first-running Worlds · **Read this if:** you want to run Worlds on your own machine, or you need the plain-language on-ramp.
+> **Status:** Current for install and first run · **Scope-limited:** the install, data and accessibility sections below are current; any description of the old screens, components or route names is history. **Verified:** 2026-10-13 · **Canonical for:** installing and first-running Worlds · **Read this if:** you want to run Worlds on your own machine, or you need the plain-language on-ramp. Command-by-command ownership lives in [docs/vnext/docs-truth.md](vnext/docs-truth.md).
 
 **In short:** one command installs Worlds and a setup wizard walks you
 through the rest in plain words. No config files, no pasted tokens, no
@@ -13,10 +13,10 @@ people first.
 
 ## What this is
 Worlds is a **gentle, private home for your thoughts and your life**.
-It opens on a simple home screen (the **Bridge**) with Memory, Chat and
-Settings a tap away — not a dashboard, not a feed, not a wall of red
-badges. It stays quiet until something genuinely needs you, and it never
-tells you how to feel.
+It opens on **Home**, with **Connect**, **Memory** and **Settings** a tap
+away — those four are the whole door ([ADR-0008](adr/0008-front-door.md)) —
+not a dashboard, not a feed, not a wall of red badges. It stays quiet until
+something genuinely needs you, and it never tells you how to feel.
 
 It runs on **your own machine** — or on a server you reach over SSH:
 setup writes are loopback-only by design, so on a remote box open an
@@ -63,10 +63,10 @@ This was built for you first. Here's what's true:
   what's real vs. not-set-up-yet.
 
 *Standing gate, not a todo:* the interface is covered by the automated
-Playwright gate (`cd ui && npx playwright test`), which boots the real
-app with a seeded world and runs the accessibility, accurate-state, keyboard,
-motion, and reflow suite — including axe with color-contrast enabled (see
-`ui/e2e/accessibility.spec.ts` and `ui/e2e/axe.spec.ts`). If something fights you, that's
+Playwright gate (`cd ui && npx playwright test`), which runs the front-door
+suites in `ui/e2e-fd/` (mocked API) and `ui/e2e-fd-live/` (the real read
+API) against phone and desktop viewports, including axe with
+color-contrast enabled via `ui/e2e-fd/helpers.ts`. If something fights you, that's
 still a bug we want — not your fault.
 
 ---
@@ -81,12 +81,15 @@ still a bug we want — not your fault.
   `$PW_DATA_DIR/backups/` with SQLite's online backup API. It is not encrypted
   by the app, so keep the copy as private as the database itself.
 - **Restore** on a fresh machine: stop Worlds, then
-  `python -c "from personal_world.worlds.memory_store import restore_backup; print(restore_backup('<backup file>', '<data dir>'))"`,
+  `python -c "from personal_world.worlds.memory_store import restore_backup; print(restore_backup('<backup file>', '<data dir>'))"`
+  (or `uv run personal-world memory restore <backup file>`),
   and start Worlds again. It refuses a directory that already holds Memory, so
   it never overwrites.
 - The full durability contract — what survives, what to back up, how to
   restore — is `docs/rebuild/DURABILITY.md`. The measured drill is
-  `scripts/restore-drill.sh`.
+  `scripts/restore-drill.sh`. The route list behind these paragraphs is
+  generated: `scripts/route-inventory.json` (`uv run python
+  scripts/contract-drift-check.py --write`), not a list kept by hand here.
 
 ---
 
