@@ -86,11 +86,19 @@ export const STATE_SHAPE: Record<SourceState, { shape: string; word: string }> =
 /** C1 Connect: config object kinds. Every object is wrapped in an etag-bearing envelope. */
 export type ConfigKind = "provider" | "request" | "card" | "action";
 
+/** Mirrors `Auth` in `src/personal_world/worlds/models.py` (the authority). */
 export interface Auth {
-  type: "none" | "bearer" | "header" | "basic";
+  type: "none" | "bearer" | "header" | "basic" | "cookie_session" | "password_grant";
   header_name?: string;
   /** `env:NAME` or `vault:NAME`. Only the reference NAME is ever stored or shown. */
   secret_ref?: string;
+  /** `cookie_session` only: where the credential is POSTed, and the form fields carrying it. */
+  login_path?: string;
+  username_field?: string;
+  password_field?: string;
+  /** `password_grant` only: the token endpoint, and the response key carrying the token. */
+  token_path?: string;
+  token_field?: string;
 }
 
 export interface Provider {
