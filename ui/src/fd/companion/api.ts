@@ -35,6 +35,8 @@ async function call<T>(path: string, init: RequestInit & { json?: unknown } = {}
     const b = (body ?? {}) as { state?: string; text?: string; reason?: string; detail?: string };
     let failure: CompanionFailure;
     if (res.status === 503 && b.state === "not_configured") failure = { kind: "not_configured", text: "Companion isn't set up." };
+    // A refused session is its own reason, so nothing downstream has to guess that "unreachable" meant "not you".
+    else if (res.status === 401 || res.status === 403) failure = { kind: "unknown", text: NOT_ANSWERING, reason: "unauthorized" };
     else if (res.status === 400) failure = { kind: "invalid", text: typeof b.detail === "string" ? b.detail : "That wasn't something Companion could take." };
     else failure = { kind: "unknown", text: NOT_ANSWERING, reason: typeof b.reason === "string" ? b.reason : "unreachable" };
     return { ok: false, failure };

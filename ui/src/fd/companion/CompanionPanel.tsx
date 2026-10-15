@@ -3,6 +3,7 @@ import { safeHref } from "../safe-href";
 import { formatClock } from "../time";
 import { companionApi } from "./api";
 import { useCompanion } from "./companion-core";
+import { healthLine } from "./companion-status";
 import { poseFor } from "./presentation";
 import type { CompanionFailure, ContextItem, ContextView, GrantView, HealthView, Result, StoredTurn } from "./types";
 import "../fd.css";
@@ -54,11 +55,10 @@ function Health({ open }: { open: boolean }) {
   if (loading && !result) return <p className="fd-companion-health">Checking Companion…</p>;
   if (!result) return null;
   if (!result.ok) return <Unknown failure={result.failure} />;
-  const down = [...Object.entries(result.data.sources), ...Object.entries(result.data.models)].filter(([, v]) => v === "unavailable").map(([k]) => k);
   return (
     <p className="fd-companion-health">
       <span aria-hidden="true">● </span>
-      {down.length === 0 ? "Companion is up." : `Companion is up. Not answering: ${down.join(", ")}.`}
+      {healthLine(result.data)}
     </p>
   );
 }

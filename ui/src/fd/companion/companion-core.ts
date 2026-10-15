@@ -37,3 +37,8 @@ export function useCompanion(): Ctx {
   return c;
 }
 
+/** The context, or null where there is none. Settings reads the health itself, so it works with or without a panel. */
+export function useCompanionOptional(): Ctx | null {
+  return useContext(CompanionCtx);
+}
+

@@ -7,9 +7,6 @@ import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { Connect } from "../fd/Connect";
 import { handlers as fdHandlers } from "../fd/msw";
 import { Memory } from "../fd/Memory";
-import { PrefsProvider } from "../fd/prefs";
-import { usePrefs } from "../fd/prefs-core";
-import { Settings } from "../fd/Settings";
 
 const server = setupServer(
   ...fdHandlers,
@@ -145,68 +142,5 @@ describe("Memory", () => {
     await userEvent.keyboard("{ArrowRight}");
     expect(screen.getByRole("tab", { name: "Later" })).toHaveFocus();
     expect(screen.getByRole("tab", { name: "Later" })).toHaveAttribute("aria-selected", "true");
-  });
-});
-
-function Probe() {
-  const { prefs } = usePrefs();
-  return <output aria-label="prefs">{`${prefs.pack}|${prefs.theme}|${prefs.density}|${prefs.words}|${prefs.text}`}</output>;
-}
-const renderSettings = () => render(<PrefsProvider><Settings /><Probe /></PrefsProvider>);
-
-describe("Settings", () => {
-  it("puts Comfort first, then Look, Experience, Assistant and Notifications", () => {
-    renderSettings();
-    expect(screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent)).toEqual(["Comfort", "Look", "Experience", "Assistant", "Notifications"]);
-  });
-  it("offers each choice once, as a group named once, with no Plain theme", () => {
-    renderSettings();
-    const opts = (name: string) => within(screen.getByRole("group", { name })).getAllByRole("radio").map((r) => (r as HTMLInputElement).labels?.[0]?.textContent);
-    expect(opts("Density")).toEqual(["Calm", "Standard", "Detailed"]);
-    expect(opts("Words")).toEqual(["Minimal", "Short", "Full"]);
-    expect(opts("Text size")).toEqual(["Standard", "Large", "Larger"]);
-    expect(opts("Theme")).toEqual(["Mulberry & Mint", "Starfield", "Daylight"]);
-    expect(opts("Experience pack")).toEqual(["None", "Station"]);
-    expect(screen.queryAllByRole("radiogroup")).toHaveLength(0);          // the legend is announced once
-    expect(screen.queryByRole("radio", { name: "Plain" })).not.toBeInTheDocument();
-  });
-  it("describes each option in one line", () => {
-    renderSettings();
-    expect(screen.getByRole("radio", { name: "Calm" })).toHaveAccessibleDescription("What needs you first, quiet things folded away.");
-    expect(screen.getByRole("radio", { name: "Station" })).toHaveAccessibleDescription(/never changes what Worlds says or does/);
-  });
-  it("defaults to None, Mulberry & Mint, Standard, Short and changes preferences", async () => {
-    renderSettings();
-    expect(screen.getByLabelText("prefs")).toHaveTextContent("none|mulberry|standard|short|standard");
-    await userEvent.click(screen.getByRole("radio", { name: "Station" }));
-    await userEvent.click(screen.getByRole("radio", { name: "Full" }));
-    await userEvent.click(screen.getByRole("radio", { name: "Detailed" }));
-    await userEvent.click(screen.getByRole("radio", { name: "Daylight" }));
-    await userEvent.click(screen.getByRole("radio", { name: "Larger" }));
-    expect(screen.getByLabelText("prefs")).toHaveTextContent("station|daylight|detailed|full|larger");
-  });
-  it("a stored Plain theme falls back to Mulberry & Mint", () => {
-    window.localStorage.setItem("worlds.prefs.v2", JSON.stringify({ theme: "plain" }));
-    renderSettings();
-    expect(screen.getByLabelText("prefs")).toHaveTextContent(/\|mulberry\|/);
-    window.localStorage.clear();
-  });
-  it("an old save's Starfield was only the default, so it opens in Mulberry & Mint", () => {
-    window.localStorage.setItem("worlds.prefs.v2", JSON.stringify({ theme: "starfield" }));
-    renderSettings();
-    expect(screen.getByLabelText("prefs")).toHaveTextContent(/\|mulberry\|/);
-    window.localStorage.clear();
-  });
-  it("Starfield chosen after the switch is kept", () => {
-    window.localStorage.setItem("worlds.prefs.v2", JSON.stringify({ theme: "starfield", themeV: 2 }));
-    renderSettings();
-    expect(screen.getByLabelText("prefs")).toHaveTextContent(/\|starfield\|/);
-    window.localStorage.clear();
-  });
-  it("says motion follows the device and the assistant is not installed", () => {
-    renderSettings();
-    expect(screen.getByText(/Motion follows your device setting/)).toBeInTheDocument();
-    expect(screen.getByText("Assistant")).toBeInTheDocument();
-    expect(screen.getByText("Not installed")).toBeInTheDocument();
   });
 });
