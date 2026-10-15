@@ -38,7 +38,7 @@ jobs:
   uat-live:
     permissions:
       actions: write
-    uses: rylee-bee-labs/ci-harness/.github/workflows/reusable-uat.yml@561b1daa2314f5e902c5b1e4e2a24802a9ecdfaf  # ci-harness main, pinned 2026-09-29
+    uses: rylee-bee-labs/ci-harness/.github/workflows/reusable-uat.yml@1596539c1e7f0cf43c73bb41e8477cad2cc63d1b  # ci-harness main, pinned 2026-10-15
     with:
       working-directory: "ui"
       uat-url: ${{ vars.PW_UAT_URL }}
