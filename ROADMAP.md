@@ -70,10 +70,11 @@ Gaps that are real and verifiable in the current tree:
   palette/theme preferences via API-065; full frontend application of
   pack assets, state poses, and per-pack icon families from
   `design/THEME_PACK_FRAMEWORK.md` remains incomplete.
-- **Ingress rollup operational verification.** The provider
+- ~~**Ingress rollup operational verification.** The provider
   (`providers/traefik_ingress.py`, `/api/ingress/rollups`) exists;
   verify configured-provider behaviour in a real deployment —
-  implementation alone is not operational acceptance.
+  implementation alone is not operational acceptance.~~
+  Dropped 2026-10-15 (owner decision): no agent can produce this evidence.
 
 ## Next
 

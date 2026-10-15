@@ -9,7 +9,7 @@ The list was built by rule, not by judgement: every issue open in this repositor
 
 - Issue: https://github.com/Rylee-Bee/personal-world/issues/268
 - Opened: 2026-10-04 · Labels: none
-- Status on 2026-10-07: closed as not planned on 2026-10-07 — tracked here
+- OPEN: Studio still vendors the Worlds kit at static/kit (checked 2026-10-15); reopened by owner decision 2026-10-15. Tracked by the studio item; issue to file by coordinator.
 
 Studio vendors this kit into its own static copy, and its agent instructions say not to hand-edit that copy: fix kit bugs here upstream, then re-stamp it there.
 A diff of the two trees shows the vendored copy is behind the published build. The recorded kit version strings differ, so the vendored copy has not been re-stamped since an earlier build.
