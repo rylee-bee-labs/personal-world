@@ -39,6 +39,9 @@ jobs:
     with:
       sync-args: "--extra test --extra crypto"
       pytest-args: "--timeout=30"
+      # 2026-10-15 trial on Bazzite: 330s serial -> ~103s with -n 4, three runs. The one failure seen
+      # (#343) also fails serially, so it is a flaky test, not a parallel-ordering problem.
+      pytest-workers: 4
       enable-ruff: true
       enable-bandit: true
       bandit-args: "-q -r . -x ./tests,./.venv,./node_modules -s B101"
