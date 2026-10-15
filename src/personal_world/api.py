@@ -58,6 +58,7 @@ from .rooms import STATE_FILENAME as ROOMS_STATE_FILENAME
 from .rooms import RoomsService
 from .source_control import (
     discover_repositories,
+    enrich_all_repositories,
     repository_history,
     repository_status,
     status_all,
@@ -4565,9 +4566,12 @@ def create_app(data_dir: Path | None = None, config_dir: Path | None = None) -> 
 
     @app.get("/api/source-control/enrichment", dependencies=[Depends(require_auth)])
     async def source_control_enrichment(repo: str = "") -> dict:
-        """GitHub enrichment for ONE repository (remote-side facts
+        """GitHub enrichment for one repository (remote-side facts
         local Git cannot know: canonical identity, open PRs, open
-        issues, default branch, last remote push).
+        issues, default branch, last remote push), or — when ``repo``
+        is omitted — for EVERY repository discovered in the configured
+        search paths, one entry per repository under
+        ``data.repositories``.
 
         Local Git stays canonical — this only ADDS remote facts; the
         native status shape is unchanged. Quiet degradation is the
@@ -4580,10 +4584,24 @@ def create_app(data_dir: Path | None = None, config_dir: Path | None = None) -> 
 
         paths = _sc_paths()
         if not repo:
+            entries = enrich_all_repositories(discover_repositories(paths))
+            if not entries:
+                return {
+                    "ok": False,
+                    "status": "not_configured",
+                    "data": {"repositories": []},
+                    "warnings": [
+                        "no repositories found in configured search paths"
+                    ],
+                }
+            first_bad = next((e for e in entries if not e["ok"]), None)
             return {
-                "ok": False,
-                "status": "not_configured",
-                "warnings": ["repo query parameter is required"],
+                "ok": first_bad is None,
+                "status": (
+                    "healthy" if first_bad is None else first_bad["status"]
+                ),
+                "data": {"repositories": entries},
+                "warnings": [],
             }
         matches = [
             e
