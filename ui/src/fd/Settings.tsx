@@ -1,6 +1,10 @@
-import { useId } from "react";
+import { useEffect, useId, useState } from "react";
 import { usePrefs } from "./prefs-core";
 import { Notifications } from "./Notifications";
+import { companionApi } from "./companion/api";
+import { useCompanionOptional } from "./companion/companion-core";
+import { companionStatus } from "./companion/companion-status";
+import type { HealthView, Result } from "./companion/types";
 import type { Density, Pack, TextSize, Theme, Words } from "./types";
 import "./fd.css";
 
@@ -73,7 +77,44 @@ function RadioGroup<T extends string>({ label, options, value, onChange }: Radio
   );
 }
 
-/** Settings: comfort first, then the look, then the optional pack, then the assistant. */
+/** The same health the panel reads, in one line, with the next step. One call on open, read-only: no thread,
+ * context or grant is touched here, so Settings cannot show anyone's content or imply a permission it did not get.
+ * Where the panel is mounted, the button opens that same panel — there is one Companion, not a second status. */
+function CompanionStatus() {
+  const companion = useCompanionOptional();
+  const [result, setResult] = useState<Result<HealthView> | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let live = true;
+    void companionApi.health().then((r) => {
+      if (live) {
+        setResult(r);
+        setLoading(false);
+      }
+    });
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  const status = companionStatus(result, loading);
+  return (
+    <>
+      <p className="fd-settings-value" role="status">
+        {status.line}
+      </p>
+      {status.next && <p className="fd-settings-note">{status.next}</p>}
+      {companion && (
+        <button type="button" className="fd-btn fd-btn--quiet" onClick={() => companion.setOpen(true)}>
+          Open the Companion panel
+        </button>
+      )}
+    </>
+  );
+}
+
+/** Settings: comfort first, then the look, then the optional pack, then Companion. */
 export function Settings() {
   const { prefs, set } = usePrefs();
 
@@ -100,8 +141,9 @@ export function Settings() {
       </section>
 
       <section className="fd-settings-section">
-        <h2 className="fd-settings-section-title">Assistant</h2>
-        <p className="fd-settings-value">Not installed</p>
+        <h2 className="fd-settings-section-title">Companion</h2>
+        <p className="fd-settings-note">One Companion: the presence in the header. It reads only what you approve, and you approve in Project Home.</p>
+        <CompanionStatus />
       </section>
       <Notifications />
     </div>

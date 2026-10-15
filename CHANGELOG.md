@@ -7,6 +7,7 @@ is a record, not today's state: for that read `.project/CURRENT.md` or, in
 plain words, `docs/WHERE-WE-ARE.md`.
 
 ## [Unreleased]
+- 2026-10-15 — **One Companion, one name (#316).** Settings reported an unconditional "Assistant: Not installed" — a leftover from the deleted Station *World Assistant* drawer — while the governed Companion was mounted and working. Settings now has a "Companion" section that reads the same `GET /api/companion/health` as the panel, words it identically (up / not answering / not set up / unknown / not the owner), adds the next step, and opens that same panel. One read, no thread, context or grant; approvals still live in Project Home. Meaning documented in `docs/COMPANION.md`; tests in `ui/src/test/fd-settings.test.tsx`.
 - 2026-09-26 — **Docs truth pass + screenshot gallery.** Every page carries a status line (Current, Reference, Direction, Historical) and a plain-words summary; README, WHERE-WE-ARE, ARCHITECTURE, OPERATIONS and COMPANION-CANON match the verified state; new `docs/ROOMS.md`; `docs/gallery/` captures every screen at 390/1440 from the mock API.
 - 2026-09-26 — **Per-person rooms (#103).** Rooms that opt in (`forward_principal`) are told who is asking with `X-Worlds-Principal` alongside their own token; cards and needs are cached per person. Candy is the first. Engine room and Candy are live in production.
 - 2026-09-26 — **Type floor in every theme (#101, #104).** Body text 16px, labels 13px, in starfield, doorways, station, moss, ocean and plain.

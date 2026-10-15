@@ -72,6 +72,22 @@ test("Companion down: an honest unknown, the message kept, axe clean", async ({ 
   if (SHOTS) await page.screenshot({ path: `${SHOTS}/${info.project.name}-companion-down.png` });
 });
 
+test("Settings reports the same governed Companion and opens that panel from the keyboard", async ({ page }) => {
+  await open(page, "#settings");
+  const section = page.locator("main section", { has: page.getByRole("heading", { name: "Companion", exact: true }) });
+  await expect(section.getByText("Companion is up. Not answering: ph.")).toBeVisible();
+  await expect(page.getByText("Not installed")).toHaveCount(0);
+  const openPanel = section.getByRole("button", { name: "Open the Companion panel" });
+  await openPanel.focus();
+  await expect(openPanel).toBeFocused();
+  await page.keyboard.press("Enter");
+  const dialog = page.getByRole("dialog", { name: "Companion" });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByText("Companion is up. Not answering: ph.")).toBeVisible();
+  expect(await axe(page)).toEqual([]);
+  await noHorizontalOverflow(page);
+});
+
 test("Station on: the panel and the landmarks are identical", async ({ page }) => {
   await open(page, "#settings");
   await page.getByRole("group", { name: "Experience pack" }).getByLabel("Station").check();
