@@ -153,7 +153,7 @@ def test_journey_empty_to_disconnected_and_still_usable(world):
 # ---------------------------------------------------------------- condition 4: no write path
 
 def test_c4_a_write_request_is_refused_before_the_sender(world):
-    store, fx, clock, cards, _ = world
+    store, fx, _, cards, _ = world
     connect(store)
     store.save("request", Request(id="synth.change", provider="synth", method="POST", path="/change"))
     store.save("card", Card(id="synth-change", title="Change", request="synth.change",
@@ -197,7 +197,7 @@ def test_c3_today_a_credential_applies_to_every_request_of_the_provider():
         provider = Provider(id="synth", name="S", kind="http", base_url="http://fixture.invalid",
                             auth=Auth(type="bearer", secret_ref=SECRET_REF))
         assert "scope" not in Auth.model_fields          # None / unscoped is the only state that exists
-        with _Dials() as dials:
+        with _Dials():
             for path in ("/health", "/anything-else"):
                 confinement.confined_request(provider, Request(id="synth.r", provider="synth", path=path), effect="read",
                                              resolver=lambda host, port: ["192.0.2.10"])
@@ -225,7 +225,7 @@ def test_c3_auth_scope_exists_and_none_is_the_legacy_unscoped_state():
 
 @pytest.mark.xfail(strict=True, reason="no 'unscoped' label exists anywhere in src/ or ui/src; condition 3 needs one")
 def test_c3_unscoped_is_labelled_wherever_it_appears(world):
-    store, fx, clock, cards, _ = world
+    store, fx, _, cards, _ = world
     connect(store)
     fx.script = ok({"status": "ok", "queue": 1})
     assert "unscoped" in json.dumps(cards.build("synth-health")).lower()
@@ -320,7 +320,7 @@ def test_c1_a_verifier_that_fails_hard_also_leaves_it_unapproved(tmp_path):
 def test_c2_an_unexposed_action_is_inert_for_an_agent_directly(tmp_path):
     """Closest real analogue of state=proposed (contract §6.1: 'already inert: exposed: false')."""
     from personal_world.worlds.dispatcher import NotPermitted
-    d, fx, clock = _dispatch_env(tmp_path, exposed=False)
+    d, fx, _ = _dispatch_env(tmp_path, exposed=False)
     with pytest.raises(NotPermitted):
         d.request_authorization(_agent(), "go")
     assert d.list_actions(_agent()) == [] and fx.calls == []
