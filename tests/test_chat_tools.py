@@ -35,6 +35,7 @@ from personal_world.chat import (  # noqa: E402
 from personal_world.chat_registry import (  # noqa: E402
     ChatContract,
     OllamaChat,
+    OpenAIChat,
     OpenAICompatChat,
     lenient_tool_calls,
 )
@@ -677,3 +678,71 @@ class TestTemplateDiscovery:
 
         # auth-gated like every other API surface
         assert client.get("/api/templates").status_code in (401, 503)
+
+
+# ── 8. request bodies: no `stream` flag where it was a no-op ────────
+#
+# The OpenAI chat-completions API is non-streaming by default, so the
+# flag was never sent. Ollama's native /api/chat streams by default
+# and MUST keep it, or the response stops being parseable JSON.
+
+
+def _capturing_urlopen(monkeypatch, payload):
+    """Patch the module's urlopen, recording each outgoing request body."""
+    import personal_world.chat_registry as cr
+
+    sent = []
+
+    def fake(req, timeout=None):
+        sent.append(json.loads(req.data.decode()))
+        return _FakeHTTPResponse(payload)
+
+    monkeypatch.setattr(cr, "http_urlopen", fake)
+    return sent
+
+
+_OPENAI_REPLY = {
+    "model": "gpt-x",
+    "choices": [{"message": {"content": "hello"}}],
+}
+_OLLAMA_REPLY = {"model": "qwen3:1.7b", "message": {"content": "hello"}}
+
+
+class TestRequestBodyStreamFlag:
+    def test_openai_compat_chat_sends_no_stream_flag(self, monkeypatch):
+        sent = _capturing_urlopen(monkeypatch, _OPENAI_REPLY)
+        r = OpenAICompatChat("http://127.0.0.1:8080", "m").chat(_MESSAGES)
+        assert r.ok
+        assert sent == [{"model": "m", "messages": _MESSAGES}]
+
+    def test_openai_compat_tools_sends_no_stream_flag(self, monkeypatch):
+        sent = _capturing_urlopen(monkeypatch, _OPENAI_REPLY)
+        r = OpenAICompatChat("http://127.0.0.1:8080", "m").chat_with_tools(
+            _MESSAGES, [{"type": "function"}]
+        )
+        assert r.ok
+        assert "stream" not in sent[0]
+        assert sent[0]["tools"] == [{"type": "function"}]
+
+    def test_openai_chat_sends_no_stream_flag(self, monkeypatch):
+        monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+        sent = _capturing_urlopen(monkeypatch, _OPENAI_REPLY)
+        r = OpenAIChat("gpt-x").chat(_MESSAGES)
+        assert r.ok
+        assert sent == [{"model": "gpt-x", "messages": _MESSAGES}]
+
+    def test_openai_tools_sends_no_stream_flag(self, monkeypatch):
+        monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+        sent = _capturing_urlopen(monkeypatch, _OPENAI_REPLY)
+        r = OpenAIChat("gpt-x").chat_with_tools(_MESSAGES)
+        assert r.ok
+        assert "stream" not in sent[0]
+
+    def test_ollama_keeps_stream_false(self, monkeypatch):
+        # Ollama's native endpoint streams by default: dropping the
+        # flag would hand back newline-delimited JSON we cannot parse.
+        sent = _capturing_urlopen(monkeypatch, _OLLAMA_REPLY)
+        chat = OllamaChat("http://127.0.0.1:11434", "qwen3:1.7b")
+        assert chat.chat(_MESSAGES).ok
+        assert chat.chat_with_tools(_MESSAGES).ok
+        assert [b["stream"] for b in sent] == [False, False]

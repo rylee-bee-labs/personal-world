@@ -523,9 +523,9 @@ class OpenAICompatChat(ChatContract):
             )
 
     def chat(self, messages: list[dict[str, str]]) -> Result:
-        body = json.dumps(
-            {"model": self.model, "messages": messages, "stream": False}
-        ).encode()
+        # No "stream" flag: the OpenAI chat-completions API is
+        # non-streaming by default, so it was never sent.
+        body = json.dumps({"model": self.model, "messages": messages}).encode()
         base = self.base_url.rstrip("/")
         if base.endswith("/v1"):
             url = f"{base}/chat/completions"
@@ -566,7 +566,6 @@ class OpenAICompatChat(ChatContract):
         body: dict[str, Any] = {
             "model": self.model,
             "messages": messages,
-            "stream": False,
         }
         if tools:
             body["tools"] = tools
@@ -640,9 +639,7 @@ class OpenAIChat(ChatContract):
             return Result(ok=False, status="unavailable", warnings=[f"openai: {e}"])
 
     def chat(self, messages: list[dict[str, str]]) -> Result:
-        body = json.dumps(
-            {"model": self.model, "messages": messages, "stream": False}
-        ).encode()
+        body = json.dumps({"model": self.model, "messages": messages}).encode()
         req = urllib.request.Request(
             "https://api.openai.com/v1/chat/completions",
             data=body,
@@ -681,7 +678,6 @@ class OpenAIChat(ChatContract):
         body: dict[str, Any] = {
             "model": self.model,
             "messages": messages,
-            "stream": False,
         }
         if tools:
             body["tools"] = tools

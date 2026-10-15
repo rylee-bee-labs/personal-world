@@ -17,7 +17,9 @@ import subprocess
 
 import pytest
 
+from personal_world.envelope import fail, ok
 from personal_world.providers.github import GitHubEnrichment, _gh_binary
+from personal_world.source_control import enrich_all_repositories
 
 
 def _real_gh() -> bool:
@@ -226,6 +228,127 @@ class TestEnrichRepoLive:
         assert r.data is None or "slug" not in (r.data or {})
 
 
+class FakeEnricher:
+    """Injected stand-in for GitHubEnrichment: keyed by remote URL,
+    returning a canned Result. No gh, no network, no credentials."""
+
+    def __init__(self, answers=None):
+        self.answers = answers or {}
+        self.seen = []
+
+    def enrich_repo(self, remote_url):
+        self.seen.append(remote_url)
+        answer = self.answers.get(remote_url)
+        if answer is None:
+            return fail("not_github", data={"remote": remote_url or None},
+                        warnings=["remote is not a GitHub remote"])
+        return answer
+
+
+ALPHA = "https://github.com/acme/alpha.git"
+BETA = "https://github.com/acme/beta.git"
+
+
+class TestEnrichAllRepositories:
+    """The fan-out: one entry per DISCOVERED repository, in input order.
+    Plain directories are skipped, and one repository's failure never
+    breaks the loop."""
+
+    @staticmethod
+    def _repos():
+        # what discover_repositories returns: repos plus a plain dir
+        return [
+            {"name": "alpha", "path": "/tmp/alpha", "is_repository": True},
+            {"name": "notes", "path": "/tmp/notes", "is_repository": False},
+            {"name": "beta", "path": "/tmp/beta", "is_repository": True},
+        ]
+
+    @staticmethod
+    def _remotes(monkeypatch, remotes):
+        """Stub repository_status ONCE with a path -> remote map (a
+        second per-path patch would replace the first)."""
+        monkeypatch.setattr(
+            "personal_world.source_control.repository_status",
+            lambda p: {"path": p, "remote": remotes.get(p)},
+        )
+
+    def test_one_entry_per_repository_with_slug_bearing_data(self, monkeypatch):
+        self._remotes(monkeypatch, {"/tmp/alpha": ALPHA,
+                                    "/tmp/beta": "git@github.com:acme/beta.git"})
+        fake = FakeEnricher({
+            ALPHA: ok("healthy", data={
+                "slug": "acme/alpha", "open_prs": 3, "open_issues": 4}),
+            "git@github.com:acme/beta.git": ok("healthy", data={
+                "slug": "acme/beta", "open_prs": 0, "open_issues": 0}),
+        })
+        entries = enrich_all_repositories(self._repos(), fake)
+        assert [e["name"] for e in entries] == ["alpha", "beta"]
+        assert [e["path"] for e in entries] == ["/tmp/alpha", "/tmp/beta"]
+        assert [e["data"]["slug"] for e in entries] == ["acme/alpha", "acme/beta"]
+        assert all(e["ok"] is True and e["status"] == "healthy" for e in entries)
+        assert all(set(e) == {"name", "path", "ok", "status", "data", "warnings"}
+                   for e in entries)
+        assert fake.seen == [ALPHA, "git@github.com:acme/beta.git"]
+
+    def test_non_repository_directories_are_skipped(self, monkeypatch):
+        self._remotes(monkeypatch, {})
+        fake = FakeEnricher()
+        entries = enrich_all_repositories(self._repos(), fake)
+        assert [e["name"] for e in entries] == ["alpha", "beta"]
+        assert "notes" not in [e["name"] for e in entries]
+        assert all("/tmp/notes" != e["path"] for e in entries)
+
+    def test_not_github_is_a_valid_per_entry_answer(self, monkeypatch):
+        self._remotes(monkeypatch, {
+            "/tmp/alpha": "https://gitlab.com/acme/alpha.git", "/tmp/beta": None})
+        fake = FakeEnricher()
+        entries = enrich_all_repositories(self._repos(), fake)
+        assert [e["status"] for e in entries] == ["not_github", "not_github"]
+        assert all(e["ok"] is False for e in entries)
+        # the real enricher answers not_github with the remote it saw
+        assert [e["data"] for e in entries] == [
+            {"remote": "https://gitlab.com/acme/alpha.git"},
+            {"remote": None},
+        ]
+        assert all(e["warnings"] for e in entries)
+
+    def test_one_failing_repo_does_not_break_the_loop(self, monkeypatch):
+        self._remotes(monkeypatch, {"/tmp/alpha": ALPHA, "/tmp/beta": BETA})
+        fake = FakeEnricher({
+            ALPHA: ok("healthy", data={"slug": "acme/alpha"}),
+            BETA: fail("unavailable", warnings=["gh CLI not found on this host"]),
+        })
+        entries = enrich_all_repositories(self._repos(), fake)
+        assert entries[0]["ok"] is True
+        assert entries[1]["ok"] is False
+        assert entries[1]["status"] == "unavailable"
+
+    def test_raising_enricher_stays_in_its_own_entry(self, monkeypatch):
+        self._remotes(monkeypatch, {"/tmp/alpha": ALPHA, "/tmp/beta": BETA})
+
+        class Boom(FakeEnricher):
+            def enrich_repo(self, remote_url):
+                if remote_url and "beta" in remote_url:
+                    raise RuntimeError("gh exploded")
+                return ok("healthy", data={"slug": "acme/alpha"})
+
+        entries = enrich_all_repositories(self._repos(), Boom())
+        assert len(entries) == 2
+        assert entries[0]["ok"] is True
+        assert entries[1]["ok"] is False
+        assert entries[1]["status"] == "unavailable"
+        assert entries[1]["data"] == {}
+        assert entries[1]["warnings"]
+
+    def test_no_repositories_is_an_empty_list(self, monkeypatch):
+        self._remotes(monkeypatch, {})
+        fake = FakeEnricher()
+        assert enrich_all_repositories(
+            [{"name": "notes", "path": "/tmp/notes", "is_repository": False}],
+            fake,
+        ) == []
+
+
 class TestEndpoint:
     """/api/source-control/enrichment through the real app factory."""
 
@@ -263,11 +386,51 @@ class TestEndpoint:
         r = c.get("/api/source-control/enrichment?repo=x")
         assert r.status_code == 401
 
-    def test_no_repo_param_is_not_configured(self, client):
+    def test_no_repo_param_enriches_every_discovered_repository(
+        self, client, monkeypatch
+    ):
+        """Since #334 the omitted `repo` fans out over every discovered
+        repository, one entry each, answered by the enricher."""
+        fake = FakeEnricher({
+            "https://github.com/octocat/Hello-World.git": ok(
+                "healthy", data={"slug": "octocat/Hello-World"}),
+        })
+        monkeypatch.setattr(
+            "personal_world.providers.github.GitHubEnrichment", lambda: fake)
         r = client.get("/api/source-control/enrichment")
         body = r.json()
+        assert r.status_code == 200
+        assert body["ok"] is True
+        assert body["status"] == "healthy"
+        assert body["warnings"] == []
+        repos = body["data"]["repositories"]
+        assert [e["name"] for e in repos] == ["someworld"]
+        assert set(repos[0]) == {"name", "path", "ok", "status", "data",
+                                 "warnings"}
+        assert repos[0]["data"] == {"slug": "octocat/Hello-World"}
+
+    def test_no_repo_param_reports_first_failing_status(self, client, monkeypatch):
+        monkeypatch.setattr(
+            "personal_world.providers.github.GitHubEnrichment",
+            lambda: FakeEnricher())  # unknown remote -> not_github
+        body = client.get("/api/source-control/enrichment").json()
+        assert body["ok"] is False
+        assert body["status"] == "not_github"
+        assert [e["status"] for e in body["data"]["repositories"]] == ["not_github"]
+
+    def test_no_repo_param_not_configured_only_when_nothing_found(
+        self, tmp_path, monkeypatch
+    ):
+        monkeypatch.setenv("PW_API_TOKEN", "t")
+        from fastapi.testclient import TestClient
+
+        from personal_world.api import create_app
+        c = TestClient(create_app(tmp_path, tmp_path))
+        c.headers.update({"Authorization": "Bearer t"})
+        body = c.get("/api/source-control/enrichment").json()
         assert body["ok"] is False
         assert body["status"] == "not_configured"
+        assert body["data"] == {"repositories": []}
 
     def test_unknown_repo_is_not_configured(self, client):
         r = client.get("/api/source-control/enrichment?repo=nope")

@@ -227,6 +227,53 @@ def repository_history(path: str, limit: int = 20) -> list[dict]:
     return history
 
 
+def enrich_all_repositories(
+    repos: list[dict], enricher=None
+) -> list[dict]:
+    """Remote enrichment for EVERY discovered repository, in input
+    order — one entry per repository, plain directories skipped by
+    design (never an error, never reported).
+
+    Local Git stays canonical: this only ADDS remote-side facts on top
+    of what repository_status already knows locally, and the native
+    status shape is unchanged. 'not_github' and 'unavailable' are
+    valid, non-crashing answers; a number is never guessed. A single
+    repository's failure — including an enricher that raises — stays
+    inside that one entry and never breaks the loop.
+
+    ``enricher`` defaults to the optional GitHub enrichment, imported
+    INSIDE this function (as api.py does) so this module keeps no
+    import cycle with the providers package. Tests inject a fake.
+    """
+    if enricher is None:
+        from .providers.github import GitHubEnrichment
+
+        enricher = GitHubEnrichment()
+
+    entries: list[dict] = []
+    for repo in repos:
+        if not repo.get("is_repository"):
+            continue
+        try:
+            status = repository_status(repo["path"])
+            r = enricher.enrich_repo(status.get("remote"))
+        except Exception as err:  # never raise out of a fan-out
+            r = fail(
+                "unavailable",
+                data={},
+                warnings=[f"enrichment failed: {err}"],
+            )
+        entries.append({
+            "name": repo.get("name"),
+            "path": repo.get("path"),
+            "ok": r.ok,
+            "status": r.status,
+            "data": r.data if isinstance(r.data, dict) else {},
+            "warnings": list(r.warnings),
+        })
+    return entries
+
+
 def status_all(search_paths: list[str]) -> list[dict]:
     """Discovery plus status for every configured path that is a
     repository; plain directories are skipped by design."""
