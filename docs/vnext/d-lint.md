@@ -177,3 +177,10 @@ EVIDENCE: src/personal_world/worlds/models.py:517 (fixed); docs/vnext/d-lint.md 
 UNRESOLVED: ruff itself not run, so "B018 cleared" is inferred, not shown; project tests not run (pytest/fastapi absent)
 NEXT: Re-run CI on this branch; if still red, the violation lies outside the files this branch changed
 ```
+
+## d-ci-fix: what CI named for `tests/vnext/test_connect_proof.py`
+
+CI reported `I001` at `13:1` and `F841` (`dials`) at `259:26`.
+- **I001, cause found:** the import of `personal_world.worlds.models` was one line of 123 characters (added in `e5c9324`), over the 120 `line-length` in `pyproject.toml`. Ruff's isort wraps that line, so it is a format-of-the-block violation, not an ordering one. The block order was already right. I wrapped it into the parenthesised one-name-per-line form with a trailing comma.
+- **F841, already fixed on this head:** `16ea831` dropped the dead binding. At the head I was given, both `as dials` bindings (`:215`, `:242`) are read, and the third `_Dials()` has no `as`. Line 259 now holds no `dials`, so CI ran on an older head. I changed nothing for it.
+- **NOT RUN:** `ruff` is not installed. Both findings above come from reading the file and the config, not from the rule engine. CI decides.

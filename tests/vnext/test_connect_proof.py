@@ -20,7 +20,17 @@ from personal_world.worlds import confinement
 from personal_world.worlds.cards import CardService, home_board_defs
 from personal_world.worlds.config_store import ConfigInvalid, ConfigStore
 from personal_world.worlds.confinement import ConfinementError, RawResponse
-from personal_world.worlds.models import Action, Auth, Board, BoardItem, Card, Provider, Request, scope_allows, send_scoped
+from personal_world.worlds.models import (
+    Action,
+    Auth,
+    Board,
+    BoardItem,
+    Card,
+    Provider,
+    Request,
+    scope_allows,
+    send_scoped,
+)
 from personal_world.worlds.room0 import valid_link
 from personal_world.worlds.runner import Runner
 
