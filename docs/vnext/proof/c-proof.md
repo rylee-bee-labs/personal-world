@@ -21,6 +21,12 @@ I ran the file with a throwaway stand-in kept outside the repo (`/tmp/shim/run.p
 `authn.py` imports). That is a weaker check than pytest: it honours strict xfail and `raises=`, but it is my own runner. The
 dispatcher tests ran under the stub; with real fastapi absent they would be SKIPPED (`importorskip`), meaning NOT RUN.
 
+2026-10-16, after the second-model review (REQUEST-CHANGES) fixed the two condition-3 tests: re-run with a fresh stand-in
+at the same distance from the repo (`/tmp/shim-run/run.py`, same surface). Counts unchanged: `{'passed': 10, 'failed': 0,
+'skipped': 0, 'xfailed': 5, 'xpassed': 0}`. The out-of-scope xfail now fires as `AssertionError: not refused for scope`
+(the request ran to the stubbed sender on an accepted address and was refused by nothing) instead of on a loopback
+`confinement_denied`. Real pytest is still missing in the sandbox (no network); the host re-runs it.
+
 ## Commands and observed output
 
 | # | Command | Exit | Observed tail |
@@ -91,13 +97,19 @@ PASS). That is a proxy, not the condition. I did not test the runtime (`Runner`)
 ## Condition 3: scoped auth before the network, and "unscoped"
 
 **Not met in code.** `grep -n scope src/personal_world/worlds/confinement.py` returns nothing: no scope check exists, and
-`Auth` has no `scope` field. Observed with a counting resolver and the dial functions stubbed (no socket opened): a bearer
-credential for `/other` reached DNS (`lookups= 1`, `dials= 0`, `confinement_denied` because the fixture resolver returned
-loopback), so nothing refuses an out-of-scope capability before DNS. The word "unscoped" occurs in no file under `src/` or
-`ui/src` (it appears only in the contract and a history doc), so a legacy no-scope credential is not labelled anywhere. Three
-strict xfails record this. Passing, but narrow: `test_c3_today_a_credential_applies_to_every_request_of_the_provider`
-documents that scope is absent today, and `test_c3_an_unresolvable_reference_sends_nothing` shows an unresolvable reference
-dials nothing.
+`Auth` has no `scope` field. Observed with a counting resolver and the dial functions stubbed (no socket opened), on an
+address confinement ACCEPTS (lan provider, synthetic private `10.9.9.9`): a credential scoped to capability `synth.health` <!-- pw-safety: synthetic -->
+(carried by a synthetic provider in the contract's §6.1 shape, since `Auth` has no `scope` field) was asked to serve
+`synth.other` — the request reached DNS (`lookups= 1`), reached the send seam (`dials= 1`, the scoped credential attached)
+and was refused by nothing. So nothing refuses an out-of-scope capability before DNS. The strict xfail asserts the contract
+order (§4.2: `auth_failed` before any DNS, no bytes); a scope check that lands only AFTER DNS keeps it red on the
+`lookups == []` order assertion, and one that lands before DNS turns it into an XPASS(strict), which is loud. The word
+"unscoped" occurs in no file under `src/` or `ui/src` (it appears only in the contract and a history doc), so a legacy
+no-scope credential is not labelled anywhere. Three strict xfails record this. Passing, and no longer narrow:
+`test_c3_today_a_credential_applies_to_every_request_of_the_provider` now proves BOTH requests of the provider reached the
+sender and EACH carried `Authorization: Bearer <value>` (bite-checked 2026-10-16: an unavailable credential never reaches
+the sender, an unattached one arrives bare, and the test fails on both breaks and recovers when restored), and
+`test_c3_an_unresolvable_reference_sends_nothing` shows an unresolvable reference dials nothing.
 
 ## Condition 4: read-only end to end, keyboard, 390px
 
