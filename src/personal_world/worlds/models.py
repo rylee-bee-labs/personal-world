@@ -109,6 +109,9 @@ class Auth(BaseModel):
     # password_grant only: the token endpoint and the response key that carries the token.
     token_path: str | None = None
     token_field: str = "access_token"
+    # Capabilities (the <name> half of a request id, ``<provider>.<name>``) that may receive this credential.
+    # ``None`` is the legacy unscoped state: the credential is for the whole provider. ``[]`` allows none.
+    scope: list[Id] | None = None
 
     @field_validator("header_name")
     @classmethod
@@ -250,6 +253,9 @@ class Request(_Strict):
     ttl_s: int = Field(default=60, ge=0, le=86400)
     timeout_s: float | None = Field(default=None, gt=0, le=15)
     assertions: list[Assertion] = Field(default_factory=list)
+    # Where this read shape came from, and whether a read-only check vouched for it. The defaults claim least.
+    provenance: Literal["owner", "discovered", "provider_declared"] = "owner"
+    verified: bool = False
 
     @field_validator("path")
     @classmethod
@@ -466,6 +472,8 @@ class Action(_Strict):
     scope: str = ""
     idempotency: Literal["required", "optional", "none"] = "optional"
     exposed: bool = False
+    # Anything but "adopted" is inert: not visible to an agent, never authorized, never consumed.
+    state: Literal["proposed", "adopted", "refused", "expired"] = "adopted"
     # Only an owner (config writes are owner-only) can waive approval for a request that WRITES.
     owner_waives_approval: bool = False
 
@@ -485,15 +493,24 @@ def action_version(action: Action, request: Request, provider: Provider) -> str:
 
     Computed, never written. Covers destination and credential ref (not the secret value).
     """
+    action_d, request_d, auth_d = (action.model_dump(mode="json"), request.model_dump(mode="json"),
+                                   provider.auth.model_dump(mode="json"))
+    # Fields added later are left out at their defaults, so a version computed before they existed still matches.
+    if action.state == "adopted":
+        action_d.pop("state")
+    if request.provenance == "owner" and not request.verified:
+        request_d.pop("provenance"), request_d.pop("verified")
+    if provider.auth.scope is None:
+        auth_d.pop("scope")
     payload = {
-        "action": action.model_dump(mode="json"),
-        "request": request.model_dump(mode="json"),
+        "action": action_d,
+        "request": request_d,
         "provider": {
             "id": provider.id,
             "kind": provider.kind,
             "base_url": provider.base_url,
             "path_prefix": provider.path_prefix,
-            "auth": provider.auth.model_dump(mode="json"),
+            "auth": auth_d,
             "network": provider.network.model_dump(mode="json"),
             "tls_verify": provider.tls_verify,
         },

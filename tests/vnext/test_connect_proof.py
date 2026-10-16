@@ -196,13 +196,14 @@ def test_c3_today_a_credential_applies_to_every_request_of_the_provider():
     try:
         provider = Provider(id="synth", name="S", kind="http", base_url="http://fixture.invalid",
                             auth=Auth(type="bearer", secret_ref=SECRET_REF))
-        assert "scope" not in Auth.model_fields          # None / unscoped is the only state that exists
+        assert provider.auth.scope is None               # None is the legacy unscoped state
         with _Dials():
             for path in ("/health", "/anything-else"):
                 confinement.confined_request(provider, Request(id="synth.r", provider="synth", path=path), effect="read",
                                              resolver=lambda host, port: ["192.0.2.10"])
-        # whatever happened at classify time, no request was ever refused FOR SCOPE: there is no such check
-        assert not hasattr(confinement, "scope_allows") and "scope" not in open(confinement.__file__).read().lower()
+        # whatever happened at classify time, no request is refused FOR SCOPE while the credential is unscoped
+        assert all(confinement.scope_allows(provider, Request(id="synth.r", provider="synth", path=p))
+                   for p in ("/health", "/anything-else"))
     finally:
         os.environ.pop("SYNTH_CONNECT_TOKEN", None)
 
@@ -217,10 +218,11 @@ def test_c3_an_unresolvable_reference_sends_nothing():
     assert isinstance(out, ConfinementError) and dials.dialed == []
 
 
-@pytest.mark.xfail(strict=True, raises=ValidationError,
-                   reason="contract §6.1 proposes Auth.scope (None = unscoped); the field does not exist yet")
 def test_c3_auth_scope_exists_and_none_is_the_legacy_unscoped_state():
-    Auth(type="bearer", secret_ref=SECRET_REF, scope=["health"])
+    assert Auth(type="bearer", secret_ref=SECRET_REF, scope=["health"]).scope == ["health"]
+    assert Auth(type="bearer", secret_ref=SECRET_REF).scope is None
+    with pytest.raises(ValidationError):
+        Auth(type="bearer", secret_ref=SECRET_REF, scope=["Not An Id"])
 
 
 @pytest.mark.xfail(strict=True, reason="no 'unscoped' label exists anywhere in src/ or ui/src; condition 3 needs one")
@@ -231,24 +233,38 @@ def test_c3_unscoped_is_labelled_wherever_it_appears(world):
     assert "unscoped" in json.dumps(cards.build("synth-health")).lower()
 
 
-@pytest.mark.xfail(strict=True, reason="no scope check exists in confinement.py: nothing refuses an out-of-scope capability")
 def test_c3_out_of_scope_capability_fails_before_any_dns_lookup():
     provider = Provider(id="synth", name="S", kind="http", base_url="http://fixture.invalid",
-                        auth=Auth(type="bearer", secret_ref=SECRET_REF))
+                        auth=Auth(type="bearer", secret_ref=SECRET_REF, scope=["health"]))
     lookups = []
     os.environ["SYNTH_CONNECT_TOKEN"] = SECRET_VALUE
     try:
-        with _Dials():
+        with _Dials() as dials:
             out = confinement.confined_request(provider, Request(id="synth.other", provider="synth", path="/other"),
                                                effect="read", resolver=lambda *a: lookups.append(a) or ["127.0.0.1"])
     finally:
         os.environ.pop("SYNTH_CONNECT_TOKEN", None)
     assert isinstance(out, ConfinementError) and out.error_class == "auth_failed" and lookups == []
+    assert dials.dialed == []
+
+
+def test_c3_an_in_scope_capability_still_reaches_dns():
+    provider = Provider(id="synth", name="S", kind="http", base_url="http://fixture.invalid",
+                        auth=Auth(type="bearer", secret_ref=SECRET_REF, scope=["health"]))
+    lookups = []
+    os.environ["SYNTH_CONNECT_TOKEN"] = SECRET_VALUE
+    try:
+        with _Dials():
+            confinement.confined_request(provider, Request(id="synth.health", provider="synth", path="/health"),
+                                         effect="read", resolver=lambda *a: lookups.append(a) or ["127.0.0.1"])
+    finally:
+        os.environ.pop("SYNTH_CONNECT_TOKEN", None)
+    assert len(lookups) == 1
 
 
 # ---------------------------------------------------------------- conditions 1 and 2: the dispatcher
 
-def _dispatch_env(tmp_path, *, governance=None, verifier=None, exposed=False):
+def _dispatch_env(tmp_path, *, governance=None, verifier=None, exposed=False, state="adopted"):
     pytest.importorskip("fastapi")   # authn imports it; without it these are SKIPPED, i.e. NOT RUN
     from personal_world.worlds.db import Database
     from personal_world.worlds.dispatcher import Dispatcher
@@ -259,7 +275,8 @@ def _dispatch_env(tmp_path, *, governance=None, verifier=None, exposed=False):
     store.save("provider", Provider(id="ph", name="PH", kind="http", base_url="http://fixture.invalid",
                                     governance=governance))
     store.save("request", Request(id="ph.go", provider="ph", method="POST", path="/go"))
-    store.save("action", Action(id="go", request="ph.go", name="Go", scope="deploy.run", exposed=exposed))
+    store.save("action", Action(id="go", request="ph.go", name="Go", scope="deploy.run", exposed=exposed,
+                                  state=state))
     fx = Fixture()
     fx.script = RawResponse(200, body=b"{}")
     return Dispatcher(db, store, send=fx, clock=clock, project_home_verifier=verifier), fx, clock
@@ -338,13 +355,28 @@ def test_c2_an_unexposed_action_is_inert_through_other_paths(tmp_path):
     assert d.get_authorization(owner_auth["id"])["state"] == "pending" and fx.calls == []
 
 
-@pytest.mark.xfail(strict=True, raises=ValidationError,
-                   reason="contract §6.1 proposes Action.state; no Action can be state=proposed in code yet")
 def test_c2_a_state_proposed_action_can_exist():
-    Action(id="go", request="ph.go", name="Go", state="proposed")
+    assert Action(id="go", request="ph.go", name="Go", state="proposed").state == "proposed"
+    assert Action(id="go", request="ph.go", name="Go").state == "adopted"
+    with pytest.raises(ValidationError):
+        Action(id="go", request="ph.go", name="Go", state="executed")
 
 
-@pytest.mark.xfail(strict=True, raises=ValidationError,
-                   reason="needs Action.state first; then direct + indirect dispatch of a proposed action must be refused")
 def test_c2_a_state_proposed_action_is_inert_at_dispatcher_and_runtime(tmp_path):
-    Action(id="go", request="ph.go", name="Go", state="proposed", exposed=True)
+    from personal_world.worlds.dispatcher import NotConsumable, NotPermitted
+    d, fx, clock = _dispatch_env(tmp_path, exposed=True, state="adopted")
+    owner = _owner(clock)
+    auth = d.request_authorization(owner, "go")                           # adopted: authorizable
+    assert [a.id for a in d.list_actions(_agent())] == ["go"]
+    d.approve(owner, auth["id"])                                          # approved, not yet consumed
+    # the proposal path: the same action file is rewritten as proposed (exposed stays true on purpose)
+    d._store.save("action", Action(id="go", request="ph.go", name="Go", scope="deploy.run", exposed=True,
+                                   state="proposed"))
+    assert d.list_actions(_agent()) == []                                  # never exposed
+    for who in (_agent(), owner):
+        with pytest.raises(NotPermitted):
+            d.request_authorization(who, "go")                             # never authorized
+    with pytest.raises(NotConsumable):
+        d.execute(owner, auth["id"])                                       # runtime: an old approval is not consumable
+    assert fx.calls == []                                                  # nothing was ever sent
+    assert d._db.conn().execute("SELECT count(*) FROM executions").fetchone()[0] == 0

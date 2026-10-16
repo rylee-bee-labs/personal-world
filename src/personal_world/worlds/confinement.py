@@ -176,6 +176,14 @@ def _deny(note: str, started: float | None = None) -> ConfinementError:
     return ConfinementError("confinement_denied", note, duration_ms=_ms(started), pre_send=True)
 
 
+def scope_allows(provider: Any, request: Any) -> bool:
+    """May this provider's credential go to this request's capability? ``scope`` None is unscoped: yes."""
+    scope = getattr(getattr(provider, "auth", None), "scope", None)
+    if scope is None:
+        return True
+    return str(getattr(request, "id", "")).partition(".")[2] in scope
+
+
 def _ms(started: float | None) -> int | None:
     return None if started is None else int((time.monotonic() - started) * 1000)
 
@@ -589,6 +597,10 @@ def _prepare(provider: Any, request: Any, effect: str, resolver: Resolver, deadl
         if any(c in f"{name}{value}" for c in ("\r", "\n", "\x00")):
             return _deny("header contains a control character", started)
         headers[name] = value
+
+    if not scope_allows(provider, request):  # before DNS: an out-of-scope capability costs no lookup and no bytes
+        return ConfinementError("auth_failed", "capability is outside the credential's scope", duration_ms=_ms(started),
+                                pre_send=True)
 
     addresses = resolve_within(resolver, host, port, deadline, key=str(getattr(provider, 'id', '')))
     if isinstance(addresses, ConfinementError):

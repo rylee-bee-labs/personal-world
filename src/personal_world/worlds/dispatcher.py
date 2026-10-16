@@ -208,8 +208,8 @@ class Dispatcher:
     # -------------------------------------------------------- authorization
 
     def can_see(self, principal: Principal, action: Action) -> bool:
-        """Agents see only exposed actions inside their scope; the owner sees all."""
-        return principal.is_owner or (action.exposed and principal.allows_scope(action.scope))
+        """Agents see only adopted, exposed actions inside their scope; the owner sees all."""
+        return principal.is_owner or (action.state == "adopted" and action.exposed and principal.allows_scope(action.scope))
 
     def list_actions(self, principal: Principal) -> list[Action]:
         return [obj for kind, obj in self._store.iter_all() if kind == "action" and self.can_see(principal, obj)]
@@ -220,6 +220,8 @@ class Dispatcher:
         action, request, provider = self._resolve(action_id)
         if not self.can_see(principal, action):
             raise NotPermitted("that action is not available to this caller")
+        if action.state != "adopted":  # a proposed (or refused/expired) action is inert for everyone, the owner included
+            raise NotPermitted(f"that action is {action.state}, not adopted")
         params = {} if params is None else params
         if not isinstance(params, dict) or len(canonical_json(params).encode()) > MAX_PARAMS_BYTES:
             raise BadRequest("params must be a JSON object under 8 KiB")
@@ -338,6 +340,8 @@ class Dispatcher:
                 action, request, provider = self._resolve(row["action_id"])
             except BadRequest:
                 raise NotConsumable("the action is no longer configured") from None
+            if action.state != "adopted":
+                raise NotConsumable(f"the action is {action.state}, not adopted")
             current = self._store.action_version(row["action_id"])
             if row["params_hash"] != params_hash(json.loads(row["params_json"])):
                 raise NotConsumable("stored parameters do not match their hash")
