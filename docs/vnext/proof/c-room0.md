@@ -41,7 +41,15 @@ the contract's room/0" is only **partly provable today**. This file proves the r
 exists - `room0.py`, `config_store.py`, `confinement.py`, `dispatcher.py` - across the three states the
 card names, and carries the Stage C conditions through: condition 1 fails closed and passes here;
 conditions 2 and 3 are pinned strict `xfail` in the sibling file and are **not provable** against today's
+<<<<<<< HEAD
 code. An `xfail` is a gap, not a pass.
+=======
+code. The 2026-10-16 revision adds a pin that lives in this file itself: the zero-provider surface is
+proven to render, but its missing empty-state explanation is a strict `xfail` here, because no such
+words exist in the code. An `xfail` is a gap, not a pass. So this proof does **not** show that Worlds
+tells a person why the screen is empty: the server half of contract C6.1 holds (200, `first_run` true),
+and the UI's guided start ("Connect your first service") is unbuilt. Tracked in personal-world#357.
+>>>>>>> origin/main
 
 ## How it was run (read this first)
 
@@ -55,6 +63,21 @@ real pytest **without** fastapi they would be SKIPPED, i.e. NOT RUN; with the `t
 real. A negative control confirmed the pin-assertion parser sees a relaxed pin as not-strict (strict
 `False`), so the pins cannot be silently relaxed.
 
+<<<<<<< HEAD
+=======
+**Revision 2026-10-16 (codex REQUEST-CHANGES).** The review found state 1 proved only that the service
+data was empty; it could not show that Worlds stays usable and *tells the person why* the screen is
+empty. The revision adds two tests at the surface the UI reads (`GET /api/boards/home`, wired as
+production wires it, `production.py:91`) and re-ran everything with a rewritten stand-in at the same
+outside-the-repo path. The stub `fastapi` now also carries `FastAPI`/`Depends`/`Body` and a stub
+`TestClient` that calls the registered route handler directly, so the home-board route's real code runs
+under the runner - a weaker check than a real HTTP round trip (no middleware, no principal dependency,
+no starlette). The bite of both new assertions was verified by negative controls (commands J, K): a
+temporarily blanked surface fails the render test, and a temporarily added explanation flips the strict
+xfail to XPASS, which fails the run. `src/` was restored byte-identical after each control; no `src/`
+or `ui/` file is part of this change.
+
+>>>>>>> origin/main
 ## Commands and observed output
 
 | # | Command | Exit | Observed tail |
@@ -66,6 +89,40 @@ real. A negative control confirmed the pin-assertion parser sees a relaxed pin a
 | E | `PW_REPO=$PWD python3 -I /tmp/room0-shim/run.py tests/vnext/test_connect_proof.py tests/vnext/test_room0_proof.py` | 0 | `{'passed': 23, 'failed': 0, 'skipped': 0, 'xfailed': 5, 'xpassed': 0}` |
 | F | `command -v node; ls ui/node_modules` | 1 | `command -v node` prints nothing; `ls: cannot access 'ui/node_modules': No such file or directory` |
 | G | `test -s docs/vnext/proof/c-room0.md && python3 -m compileall -q src tests` | 0 | (no output) |
+<<<<<<< HEAD
+=======
+| H | `PW_REPO=$PWD python3 -I /tmp/room0-shim/run.py tests/vnext/test_room0_proof.py` (revision) | 0 | `{'passed': 14, 'failed': 0, 'skipped': 0, 'xfailed': 1, 'xpassed': 0}` |
+| I | `PW_REPO=$PWD python3 -I /tmp/room0-shim/run.py tests/vnext/test_connect_proof.py tests/vnext/test_room0_proof.py` (revision) | 0 | `{'passed': 24, 'failed': 0, 'skipped': 0, 'xfailed': 6, 'xpassed': 0}` |
+| J | bite control: same runner, `PW_K=home_board`, with the home route temporarily made to answer 404 when no board exists | 1 | `FAIL test_room0_zero_provider_home_board_still_renders` / `XFAIL test_room0_zero_provider_home_board_says_why_it_is_empty` |
+| K | bite control: same runner, `PW_K=home_board`, with `out["first_run_reason"] = "No services connected yet."` temporarily added to the route | 1 | `XPASS test_room0_zero_provider_home_board_says_why_it_is_empty (strict xfail passed: the gap it named is gone)` |
+| L | `python -m pytest -q tests/vnext/test_room0_proof.py` | 1 | `/usr/bin/python: No module named pytest` - the host re-runs this for real |
+
+Per-test lines from H (the whole file as revised; `XFAIL` is the new empty-state pin, not a pass):
+
+```
+PASS test_room0_zero_provider_home_board_still_renders
+XFAIL test_room0_zero_provider_home_board_says_why_it_is_empty
+PASS test_room0_zero_provider_is_empty_and_honest
+PASS test_room0_a_card_for_an_absent_source_reads_not_configured
+PASS test_room0_a_stale_card_is_never_current
+PASS test_room0_last_good_after_a_failure_is_stale_not_live
+PASS test_room0_unknown_is_unknown_never_healthy_or_zero
+PASS test_room0_a_revoked_credential_is_named_and_not_retried
+PASS test_room0_a_removed_provider_is_not_served_from_a_stale_snapshot
+PASS test_room0_runs_synthetic_and_read_only_reaching_no_live_project_home
+PASS test_c1_room0_a_project_home_answer_without_a_verifier_is_never_approved
+PASS test_c1_room0_the_owner_cannot_approve_a_project_home_action_in_worlds
+PASS test_c1_room0_a_verifier_that_does_not_confirm_leaves_it_unapproved
+PASS test_c2_room0_the_state_proposed_pins_are_strict_and_the_gap_is_still_real
+PASS test_c3_room0_the_scope_pins_are_strict_and_the_gap_is_still_real
+```
+
+(Command J was run twice. The first run, before the explanation pin was tightened, also XPASSed it -
+an error body's `detail` string was being counted as words - so
+`test_room0_zero_provider_home_board_says_why_it_is_empty` now asserts the surface answers 200 before
+looking for words. The J line above is the tightened test's output: the render test FAILs and the pin
+stays XFAIL, exactly because a blank surface is not an explanation.)
+>>>>>>> origin/main
 
 Per-test lines from C (the whole new file):
 
@@ -95,18 +152,31 @@ PASS test_room0_... (all 13 above)
 
 ## State 1 - zero-provider: nothing configured at all
 
+<<<<<<< HEAD
 Command (filtered to the two zero-provider tests; same stand-in runner as C):
 
 ```
 PW_REPO=$PWD PW_K=room0_zero_provider python3 -I /tmp/room0-shim/run.py tests/vnext/test_room0_proof.py
 PASS test_room0_zero_provider_is_empty_and_honest
 {'passed': 1, 'failed': 0, 'skipped': 0, 'xfailed': 0, 'xpassed': 0}          (exit 0)
+=======
+Command (filtered to the four zero-provider tests; same stand-in runner as C; the two `home_board` tests
+are the 2026-10-16 revision's):
+
+```
+PW_REPO=$PWD PW_K=zero_provider python3 -I /tmp/room0-shim/run.py tests/vnext/test_room0_proof.py
+PASS test_room0_zero_provider_home_board_still_renders
+XFAIL test_room0_zero_provider_home_board_says_why_it_is_empty
+PASS test_room0_zero_provider_is_empty_and_honest
+{'passed': 2, 'failed': 0, 'skipped': 0, 'xfailed': 1, 'xpassed': 0}          (exit 0)
+>>>>>>> origin/main
 
 PW_REPO=$PWD PW_K=absent_source python3 -I /tmp/room0-shim/run.py tests/vnext/test_room0_proof.py
 PASS test_room0_a_card_for_an_absent_source_reads_not_configured
 {'passed': 1, 'failed': 0, 'skipped': 0, 'xfailed': 0, 'xpassed': 0}          (exit 0)
 ```
 
+<<<<<<< HEAD
 What that observed: with an empty `ConfigStore`, `RoomService.providers()` and `rooms()` and
 `home_items()` and `needs()` are all `[]` (`room0.py:467-468`, `:493-500`, `:516-526`, `:528-531`),
 `Room0Client.snapshot("project-home")` is `None` because `provider()` rejects a missing id before any
@@ -116,6 +186,46 @@ bug - the surface answers with the honest empty word. The one explicit word for 
 is a card whose source is absent reading `not_configured` with values `{"text": "unknown"}`, never `0`
 (`cards.py:126-135`, `:173-178`; `cards.py:256-288`). **No browser check was run** (command F): the
 empty-state *screen* is NOT RUN.
+=======
+**The surface still renders (proven).** The screen a person opens is the React Home, which reads
+`GET /api/boards/home` (`server.py:164-175`; production wires the room's `home_items` into it,
+`production.py:91`). With zero providers the route answers **200** with the same keys a populated
+board answers - `id`, `title`, `items` - plus `first_run: true`; it is never a 404, first run is a
+state, not an error (`server.py:173-174`). Observed: `r.status_code == 200`, the three keys are
+present, `items == []`, `first_run is True`, and rendering the surface sent nothing (`fx.calls == []`).
+So the empty config does not break the front door: the board loads, the screen can be navigated. That
+is the "Worlds stays usable" half of the claim, and before the revision it was never asserted - the
+test checked only that the service data was empty.
+
+**The surface does NOT say why it is empty (gap, pinned - never claimed checked).** The empty-state
+explanation **is missing from the code**:
+
+- the payload's only empty-state marker is the bare boolean `first_run` (`server.py:174`) - no words at
+  all, nothing like "no services connected yet";
+- the React UI never even reads the flag: `ui/src/fd/types.ts:55-59` (`Board`) has only `id`, `title`,
+  `items`, and `ui/src/fd/Home.tsx` never mentions `first_run`, so no guided start renders;
+- `docs/rebuild/CONTRACTS.md:161` promises that `first_run` drives "a guided start (one 'Connect your
+  first service' card, plus Memory)" - no code implements that promise;
+- the only empty-state words an empty Home renders are the generic "Nothing for you right now." and
+  "Nothing needs a look. Everything is answering." (`ui/src/fd/Home.tsx`), which never say why the
+  screen is empty - and "everything is answering" is not a reason a zero-provider world can give.
+
+Per the review's instruction no explanation was invented in `src/` or `ui/` (and none of those files is
+part of this change). Instead `test_room0_zero_provider_home_board_says_why_it_is_empty` pins the gap as
+a strict `xfail`: it passes only when the payload carries person-readable words (beyond the board's own
+`id`/`title`) or the home UI consumes `first_run`, and a strict xfail that starts passing fails the run
+(command K observed exactly that flip). An `xfail` is a gap, not a pass.
+
+What the rest of state 1 observed: with an empty `ConfigStore`, `RoomService.providers()` and `rooms()`
+and `home_items()` and `needs()` are all `[]` (`room0.py:467-468`, `:493-500`, `:516-526`, `:528-531`),
+`Room0Client.snapshot("project-home")` is `None` because `provider()` rejects a missing id before any
+send (`room0.py:303-305`), `home_board_defs` is `None` (`cards.py:366-381`) and no sender call was made
+(`fx.calls == []`). Nothing is invented: no "connected", no fabricated card, no error that reads like a
+bug. The one explicit word for "there is nothing here" is a card whose source is absent reading
+`not_configured` with values `{"text": "unknown"}`, never `0` (`cards.py:126-135`, `:173-178`;
+`cards.py:256-288`). **No browser check was run** (command F): the empty-state *screen* is NOT RUN -
+what is proven above is the payload the screen reads, plus the source of the UI that would render it.
+>>>>>>> origin/main
 
 ## State 2 - stale and UNKNOWN
 
@@ -278,10 +388,18 @@ in the app, and it does not claim no other code could dial.
 
 ## NOT RUN
 
+<<<<<<< HEAD
 - Real `pytest` (command B: `No module named pytest`).
 - Real `fastapi`: command D; the three `test_c1_room0_*` tests ran under the shim's fastapi stub and are
   SKIPPED under real pytest without the `test` extra.
 - The HTTP 403 on the wire (`room_routes.py:75-76`) - no `TestClient`.
+=======
+- Real `pytest` (commands B, L: `No module named pytest`).
+- Real `fastapi`: command D; the three `test_c1_room0_*` tests and the two `home_board` tests ran under
+  the shim's fastapi stub and are SKIPPED under real pytest without fastapi (fastapi is a runtime
+  dependency, so a normal install runs them for real).
+- The HTTP 403 on the wire (`room_routes.py:75-76`) - no real `TestClient`.
+>>>>>>> origin/main
 - Keyboard visibility of the stale/unknown/retry states and the 390px phone layout - no node, no
   `ui/node_modules` (command F). The repo has `ui/e2e-fd` Playwright specs; I did not run them and make
   no claim about them. Human screen-reader and physical-device checks are NOT RUN until a human runs them.
@@ -289,8 +407,17 @@ in the app, and it does not claim no other code could dial.
 
 ## UNRESOLVED
 
+<<<<<<< HEAD
 - Real pytest and real fastapi never ran; command C/E used my own stand-in runner and a fastapi stub.
   Re-run `python3 -m pytest -q tests/vnext` in an environment with the `test` extra.
+=======
+- Real pytest and real fastapi never ran; command C/E/H/I used my own stand-in runner and a fastapi
+  stub. Re-run `python -m pytest -q tests/vnext` in an environment with the `test` extra.
+- **The zero-provider empty-state explanation does not exist in the code** (2026-10-16 revision): the
+  payload carries only the bare boolean `first_run` (`server.py:174`), the UI never reads it
+  (`ui/src/fd/types.ts:55-59`, `ui/src/fd/Home.tsx`), and `docs/rebuild/CONTRACTS.md:161`'s promised
+  guided start is unimplemented. Pinned strict xfail in the test file; not invented here.
+>>>>>>> origin/main
 - Condition 2: `models.py:460-476` `Action` has no `state` (contract §6.1 proposes it). Protected code;
   not patched.
 - Condition 3: `confinement.py:571-613` resolves DNS before any credential/scope decision; `models.py:78-159`
@@ -304,6 +431,7 @@ in the app, and it does not claim no other code could dial.
 ## Return
 
 ```
+<<<<<<< HEAD
 RESULT: done (read-only, synthetic). States 1, 2 and 3 proven by command and observed output; inherited
 condition 1 passes; conditions 2 and 3 are unmettable today and stay pinned strict xfail, asserted here.
 
@@ -331,4 +459,44 @@ room-says-403 path names a revocation; (5) condition 1 over HTTP not exercised; 
 NEXT: Implement Auth.scope (checked before DNS) and Action.state as contract §6.1 proposes, as
 protected-code work for Rylee's d-plan; then flip the five strict xfail pins and run the phone-390 e2e
 where a browser exists.
+=======
+RESULT: done (read-only, synthetic), revised 2026-10-16 for the codex REQUEST-CHANGES. States 1, 2 and
+3 proven by command and observed output; state 1 now also proves the person-facing surface (GET
+/api/boards/home) still renders with zero providers, and pins as a strict xfail that no explanation of
+the empty screen exists anywhere in the code. Inherited condition 1 passes; conditions 2 and 3 are
+unmettable today and stay pinned strict xfail, asserted here.
+
+CHANGED: tests/vnext/test_room0_proof.py (15 tests now: +home_board_still_renders, +the empty-state
+explanation pin as strict xfail; reuses the Stage C fixture style), docs/vnext/proof/c-room0.md
+(revision section, state 1 rewritten, new commands, UNRESOLVED updated). No src/ or ui/ file is part
+of the change; the two bite-check edits to server.py were restored byte-identical. The stand-in runner
+lives outside the repo at /tmp/room0-shim/run.py and is not part of the change.
+
+CHECKS: python3 -m compileall -q src tests -> exit 0. python -m pytest -q tests/vnext/test_room0_proof.py
+-> exit 1 (No module named pytest; the host re-runs). Stand-in runner on the revised file -> exit 0,
+14 passed 1 xfailed 0 failed; on both vnext files -> exit 0, 24 passed 6 xfailed 0 failed. Bite
+controls -> both exit 1 with the expected FAIL/XPASS (commands J, K), src/ restored after each.
+
+EVIDENCE: observed summaries {'passed': 14, 'failed': 0, 'skipped': 0, 'xfailed': 1, 'xpassed': 0} and
+{'passed': 24, 'failed': 0, 'skipped': 0, 'xfailed': 6, 'xpassed': 0}; bite controls 'FAIL
+test_room0_zero_provider_home_board_still_renders' (blanked surface) and 'XPASS
+test_room0_zero_provider_home_board_says_why_it_is_empty (strict xfail passed: the gap it named is
+gone)' (explanation added); No module named pytest. Empty-state gap at src/personal_world/worlds/
+server.py:164-175 + ui/src/fd/types.ts:55-59 + ui/src/fd/Home.tsx; contract promise at
+docs/rebuild/CONTRACTS.md:161. Stage C pins at tests/vnext/test_connect_proof.py:220-226, 341-350.
+
+UNRESOLVED: (1) real pytest/fastapi never ran (stand-in runner + fastapi stub); (2) the zero-provider
+empty-state explanation does not exist - bare first_run flag, UI never reads it, CONTRACTS.md:161's
+guided start unimplemented - pinned strict xfail; (3) condition 2 - Action has no state
+(models.py:460-476); (4) condition 3 - no Auth.scope (models.py:78-159) and DNS resolves before any
+scope check (confinement.py:593); (5) no room0 revoke route/state - only the room-says-403 path names a
+revocation; (6) condition 1 over HTTP not exercised; (7) NOT RUN: keyboard, 390px, real browser, real
+fastapi.
+
+NEXT: Add the missing empty-state explanation where a person reads it (words in the home board payload,
+or the UI's guided start from first_run as docs/rebuild/CONTRACTS.md:161 promises), flip that strict
+xfail; implement Auth.scope (checked before DNS) and Action.state as contract §6.1 proposes, as
+protected-code work for Rylee's d-plan; then flip the remaining strict xfail pins and run the
+phone-390 e2e where a browser exists.
+>>>>>>> origin/main
 ```

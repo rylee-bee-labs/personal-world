@@ -1,10 +1,18 @@
 """Synthetic, read-only, no-network proof of the Connect contract (docs/vnext/connect-contract.md, #329).
 
+<<<<<<< HEAD
 The contract is a MOCKUP: no ``/api/connect/v1`` route exists, and ``Auth.scope`` and ``Action.state``,
 which it proposed, now exist (d-impl Steps 2-5). So this file proves the journey against the pieces that DO exist
 (config store, runner, card service, confinement seam, dispatcher) and pins the one place the contract is still
 ahead of the code (the "unscoped" label, build-plan Q2) as a strict ``xfail`` naming the missing piece. Nothing here
 touches protected code, a real credential, a real URL or a socket: senders are fixtures, and the two
+=======
+The contract is a MOCKUP: no ``/api/connect/v1`` route exists, and ``Auth.scope`` / ``Action.state`` are
+fields it PROPOSES. So this file proves the journey against the pieces that DO exist (config store,
+runner, card service, confinement seam, dispatcher) and pins each place the contract is ahead of the
+code as a strict ``xfail`` naming the missing piece, instead of passing by assertion. Nothing here
+touches protected code, a real credential, a real URL or a socket: senders are fixtures, and the three
+>>>>>>> origin/main
 confinement tests replace the dial functions with stubs for the length of the test.
 
 Sol #158 conditions: 1 -> ``test_c1_*``, 2 -> ``test_c2_*``, 3 -> ``test_c3_*``, 4 -> ``test_c4_*`` and the journey.
@@ -12,6 +20,10 @@ The browser half of 4 (keyboard, 390px) is NOT RUN here; see docs/vnext/proof/c-
 """
 import json
 import os
+<<<<<<< HEAD
+=======
+from types import SimpleNamespace
+>>>>>>> origin/main
 
 import pytest
 from pydantic import ValidationError
@@ -20,6 +32,7 @@ from personal_world.worlds import confinement
 from personal_world.worlds.cards import CardService, home_board_defs
 from personal_world.worlds.config_store import ConfigInvalid, ConfigStore
 from personal_world.worlds.confinement import ConfinementError, RawResponse
+<<<<<<< HEAD
 from personal_world.worlds.models import (
     Action,
     Auth,
@@ -31,6 +44,9 @@ from personal_world.worlds.models import (
     scope_allows,
     send_scoped,
 )
+=======
+from personal_world.worlds.models import Action, Auth, Board, BoardItem, Card, Network, Provider, Request
+>>>>>>> origin/main
 from personal_world.worlds.room0 import valid_link
 from personal_world.worlds.runner import Runner
 
@@ -184,6 +200,7 @@ def test_c4_the_confinement_seam_refuses_a_mutating_read_effect():
 # ---------------------------------------------------------------- condition 3: scoped auth before the network
 
 class _Dials:
+<<<<<<< HEAD
     """Replace the two functions that put bytes on a socket; restored on exit, so nothing here can dial."""
 
     def __enter__(self):
@@ -194,6 +211,36 @@ class _Dials:
             self.dialed.append(a)
             return ConfinementError("connection", "stubbed: no network in the proof")
         confinement._exchange = confinement._session_send = stub
+=======
+    """Replace the two functions that put bytes on a socket; restored on exit, so nothing here can dial.
+
+    Every call lands in ``dialed`` (the request path). The bearer path's calls also land in ``sent`` as
+    (request path, credential headers): the fake never dials, so what the sender was asked to carry is the
+    proof. The default answer is a connection error; a test that means its requests to succeed passes
+    ``answer=``. The session path records only that it was reached: no c3 test takes it.
+    """
+
+    def __init__(self, answer=None):
+        self.dialed = []
+        self.sent = []
+        self.answer = ConfinementError("connection", "stubbed: no network in the proof") if answer is None else answer
+
+    def __enter__(self):
+        self._saved = (confinement._exchange, confinement._session_send)
+        answer = self.answer
+
+        def stub_exchange(ready, provider, request, deadline, credential=None):
+            self.dialed.append(request.path)
+            self.sent.append({"path": request.path, "credential": dict(credential or {})})
+            return answer
+
+        def stub_session(provider, request, ready, effect, deadline):
+            self.dialed.append(request.path)
+            return answer
+
+        confinement._exchange = stub_exchange
+        confinement._session_send = stub_session
+>>>>>>> origin/main
         return self
 
     def __exit__(self, *exc):
@@ -205,6 +252,7 @@ def test_c3_today_a_credential_applies_to_every_request_of_the_provider():
     os.environ["SYNTH_CONNECT_TOKEN"] = SECRET_VALUE
     try:
         provider = Provider(id="synth", name="S", kind="http", base_url="http://fixture.invalid",
+<<<<<<< HEAD
                             auth=Auth(type="bearer", secret_ref=SECRET_REF))
         assert provider.auth.scope is None               # None is the legacy unscoped state
         with _Dials():
@@ -214,6 +262,27 @@ def test_c3_today_a_credential_applies_to_every_request_of_the_provider():
         # whatever happened at classify time, no request is refused FOR SCOPE while the credential is unscoped
         assert all(scope_allows(provider, Request(id="synth.r", provider="synth", path=p))
                    for p in ("/health", "/anything-else"))
+=======
+                            auth=Auth(type="bearer", secret_ref=SECRET_REF), network=Network(lan=True))
+        assert "scope" not in Auth.model_fields          # None / unscoped is the only state that exists
+        outs = []
+        with _Dials(answer=ok({})) as dials:
+            for path in ("/health", "/anything-else"):
+                # an address confinement ACCEPTS for this provider, so nothing but the credential
+                # (or the lack of one) can stand between the request and the sender
+                outs.append(confinement.confined_request(
+                    provider, Request(id="synth.r", provider="synth", path=path), effect="read",
+                    resolver=lambda host, port: ["10.9.9.9"]))        # pw-safety: synthetic; allowed for a lan provider
+        # BOTH requests reached the sender, and EACH one carried the provider's credential: miss it on
+        # either request and this fails -- an unavailable credential never reaches the sender at all,
+        # and a dropped one arrives bare.
+        assert [s["path"] for s in dials.sent] == ["/health", "/anything-else"], "a request never reached the sender"
+        assert all(s["credential"] == {"Authorization": f"Bearer {SECRET_VALUE}"} for s in dials.sent), \
+            "a request reached the sender without the credential"
+        assert all(isinstance(o, RawResponse) and o.status_code == 200 for o in outs)
+        # and no request was ever refused FOR SCOPE: there is no such check anywhere in the sender
+        assert not hasattr(confinement, "scope_allows") and "scope" not in open(confinement.__file__).read().lower()
+>>>>>>> origin/main
     finally:
         os.environ.pop("SYNTH_CONNECT_TOKEN", None)
 
@@ -228,6 +297,7 @@ def test_c3_an_unresolvable_reference_sends_nothing():
     assert isinstance(out, ConfinementError) and dials.dialed == []
 
 
+<<<<<<< HEAD
 def test_c3_auth_scope_exists_and_none_is_the_legacy_unscoped_state():
     assert Auth(type="bearer", secret_ref=SECRET_REF, scope=["health"]).scope == ["health"]
     assert Auth(type="bearer", secret_ref=SECRET_REF).scope is None
@@ -236,6 +306,15 @@ def test_c3_auth_scope_exists_and_none_is_the_legacy_unscoped_state():
 
 
 @pytest.mark.xfail(strict=True, reason="the word 'unscoped' exists in src/ but in no card envelope (cards.build) or UI surface; condition 3 needs one there (build-plan Q2)")
+=======
+@pytest.mark.xfail(strict=True, raises=ValidationError,
+                   reason="contract §6.1 proposes Auth.scope (None = unscoped); the field does not exist yet")
+def test_c3_auth_scope_exists_and_none_is_the_legacy_unscoped_state():
+    Auth(type="bearer", secret_ref=SECRET_REF, scope=["health"])
+
+
+@pytest.mark.xfail(strict=True, reason="no 'unscoped' label exists anywhere in src/ or ui/src; condition 3 needs one")
+>>>>>>> origin/main
 def test_c3_unscoped_is_labelled_wherever_it_appears(world):
     store, fx, _, cards, _ = world
     connect(store)
@@ -243,13 +322,28 @@ def test_c3_unscoped_is_labelled_wherever_it_appears(world):
     assert "unscoped" in json.dumps(cards.build("synth-health")).lower()
 
 
+<<<<<<< HEAD
 def test_c3_out_of_scope_capability_fails_before_any_dns_lookup():
     provider = Provider(id="synth", name="S", kind="http", base_url="http://fixture.invalid",
                         auth=Auth(type="bearer", secret_ref=SECRET_REF, scope=["health"]))
+=======
+@pytest.mark.xfail(strict=True, raises=AssertionError,
+                   reason="no scope check exists in confinement.py: an out-of-scope capability reaches DNS and "
+                          "the sender today, refused by nothing (contract §4.2: out of scope is auth_failed "
+                          "BEFORE any DNS, no bytes)")
+def test_c3_out_of_scope_capability_fails_before_any_dns_lookup():
+    # Auth has no scope field yet (pinned above), so the scoped credential rides a synthetic provider in
+    # the contract's §6.1 shape: the sender has nothing to read it with, which is the gap being pinned.
+    provider = SimpleNamespace(id="synth", kind="http", base_url="http://fixture.invalid", path_prefix="",
+                               timeout_s=5, auth=SimpleNamespace(type="bearer", secret_ref=SECRET_REF,
+                                                                 scope=["synth.health"]),
+                               network=SimpleNamespace(lan=True))
+>>>>>>> origin/main
     lookups = []
     os.environ["SYNTH_CONNECT_TOKEN"] = SECRET_VALUE
     try:
         with _Dials() as dials:
+<<<<<<< HEAD
             out = send_scoped(lambda p, r, *, effect, **kw: confinement.confined_request(
                 p, r, effect=effect, resolver=lambda *a: lookups.append(a) or ["127.0.0.1"], **kw),
                 provider, Request(id="synth.other", provider="synth", path="/other"), effect="read")
@@ -304,11 +398,29 @@ def test_c3_an_in_scope_capability_still_reaches_dns():
     finally:
         os.environ.pop("SYNTH_CONNECT_TOKEN", None)
     assert len(lookups) == 1
+=======
+            # scoped to capability "synth.health"; this request serves "synth.other". The address is one
+            # confinement accepts and the credential is available, so the ONLY thing that can refuse
+            # this request is scope -- address classification can no longer mask the ordering.
+            out = confinement.confined_request(provider, Request(id="synth.other", provider="synth", path="/other"),
+                                               effect="read", resolver=lambda *a: lookups.append(a) or ["10.9.9.9"])  # pw-safety: synthetic
+    finally:
+        os.environ.pop("SYNTH_CONNECT_TOKEN", None)
+    # the contract's ORDER: the scope refusal comes first, so the resolver was never asked and nothing was
+    # sent. A scope check that lands only AFTER DNS keeps this test red: lookups would be non-empty.
+    assert isinstance(out, ConfinementError) and out.error_class == "auth_failed", f"not refused for scope: {out!r}"
+    assert lookups == [], "the capability was refused for scope, but only after DNS"
+    assert dials.dialed == [], "bytes were attempted"
+>>>>>>> origin/main
 
 
 # ---------------------------------------------------------------- conditions 1 and 2: the dispatcher
 
+<<<<<<< HEAD
 def _dispatch_env(tmp_path, *, governance=None, verifier=None, exposed=False, state="adopted"):
+=======
+def _dispatch_env(tmp_path, *, governance=None, verifier=None, exposed=False):
+>>>>>>> origin/main
     pytest.importorskip("fastapi")   # authn imports it; without it these are SKIPPED, i.e. NOT RUN
     from personal_world.worlds.db import Database
     from personal_world.worlds.dispatcher import Dispatcher
@@ -319,8 +431,12 @@ def _dispatch_env(tmp_path, *, governance=None, verifier=None, exposed=False, st
     store.save("provider", Provider(id="ph", name="PH", kind="http", base_url="http://fixture.invalid",
                                     governance=governance))
     store.save("request", Request(id="ph.go", provider="ph", method="POST", path="/go"))
+<<<<<<< HEAD
     store.save("action", Action(id="go", request="ph.go", name="Go", scope="deploy.run", exposed=exposed,
                                   state=state))
+=======
+    store.save("action", Action(id="go", request="ph.go", name="Go", scope="deploy.run", exposed=exposed))
+>>>>>>> origin/main
     fx = Fixture()
     fx.script = RawResponse(200, body=b"{}")
     return Dispatcher(db, store, send=fx, clock=clock, project_home_verifier=verifier), fx, clock
@@ -399,6 +515,7 @@ def test_c2_an_unexposed_action_is_inert_through_other_paths(tmp_path):
     assert d.get_authorization(owner_auth["id"])["state"] == "pending" and fx.calls == []
 
 
+<<<<<<< HEAD
 def test_c2_a_state_proposed_action_can_exist():
     assert Action(id="go", request="ph.go", name="Go", state="proposed").state == "proposed"
     assert Action(id="go", request="ph.go", name="Go").state == "adopted"
@@ -440,3 +557,15 @@ def test_c2_a_state_consume_refuses_a_proposed_action_even_with_a_current_versio
     with pytest.raises(NotConsumable, match="not adopted"):
         d.execute(owner, auth["id"])
     assert fx.calls == []
+=======
+@pytest.mark.xfail(strict=True, raises=ValidationError,
+                   reason="contract §6.1 proposes Action.state; no Action can be state=proposed in code yet")
+def test_c2_a_state_proposed_action_can_exist():
+    Action(id="go", request="ph.go", name="Go", state="proposed")
+
+
+@pytest.mark.xfail(strict=True, raises=ValidationError,
+                   reason="needs Action.state first; then direct + indirect dispatch of a proposed action must be refused")
+def test_c2_a_state_proposed_action_is_inert_at_dispatcher_and_runtime(tmp_path):
+    Action(id="go", request="ph.go", name="Go", state="proposed", exposed=True)
+>>>>>>> origin/main
