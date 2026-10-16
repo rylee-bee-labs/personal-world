@@ -269,7 +269,7 @@ def test_c3_the_transport_enforces_the_verdict_it_is_given_and_does_not_decide_s
     lookups = []
     os.environ["SYNTH_CONNECT_TOKEN"] = SECRET_VALUE
     try:
-        with _Dials() as dials:
+        with _Dials():
             refused = confinement.confined_request(provider, Request(id="synth.health", provider="synth", path="/h"),
                                                    effect="read", in_scope=False,
                                                    resolver=lambda *a: lookups.append(a) or ["127.0.0.1"])
