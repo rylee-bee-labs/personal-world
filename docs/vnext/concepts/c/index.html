@@ -69,7 +69,8 @@ img{max-width:100%}
 .foot{padding:var(--space-xl) var(--space-lg);color:var(--text-soft);font-size:var(--type-small);border-top:var(--wv-hairline) solid var(--border-line)}
 @media(max-width:47.99rem){
   .topnav{position:fixed;left:0;right:0;bottom:0;z-index:40;justify-content:space-around;background:var(--surface-raised);border-top:var(--wv-hairline) solid var(--border-line);padding:var(--space-xs) var(--space-sm)}
-  .topnav .navbtn{flex:1 1 auto}
+  .topnav .navbtn{flex:1 1 0;min-width:0;padding:0 var(--space-xs);white-space:nowrap;font-size:.875rem}
+  body{padding-bottom:calc(var(--wv-target-min) + 2*var(--space-sm) + env(safe-area-inset-bottom,0px))}
   body{padding-bottom:calc(var(--wv-target-min) + var(--space-lg))}
   .main{padding:var(--space-lg)}
 }
@@ -653,7 +654,7 @@ select.sel{min-height:var(--wv-target-min);background:var(--surface-sunken);bord
           h('span', { class: 'micro muted', text: 'Older style. Scoped is safer. Unscoped can be used for anything it offers.' }))),
       h('p', { id: 'scope-say', class: 'note', text: '' }),
       h('p', { class: 'micro muted', text: 'This says what the reference can be used for. It is not what appears on your counter.' }));
-    var shell = flowShell(content, 'Next: try it', null, scopeInvalid(), scopeInvalid() ? 'Tick at least one read, or allow unscoped.' );
+    var shell = flowShell(content, 'Next: try it', null, scopeInvalid(), scopeInvalid() ? 'Tick at least one read, or allow unscoped.' : '');
     function upd() {
       var names = c.caps.filter(function (cap) { return cx.scope[cap.id]; }).map(function (cap) { return cap.nm; });
       var sayEl = $('#scope-say');
