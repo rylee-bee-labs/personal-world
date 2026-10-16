@@ -249,6 +249,19 @@ def test_c3_out_of_scope_capability_fails_before_any_dns_lookup():
     assert dials.dialed == []
 
 
+def test_c3_the_reference_sender_honours_an_out_of_scope_verdict_before_any_socket():
+    """reference_send has its own network path (it does not reach confined_request); it must take the verdict too."""
+    from personal_world.worlds.reference_provider import reference_send
+    provider = Provider(id="ref", name="R", kind="reference", base_url="http://127.0.0.1:1",
+                        auth=Auth(type="bearer", secret_ref=SECRET_REF, scope=["health"]))
+    send = reference_send({"SYNTH_CONNECT_TOKEN": SECRET_VALUE}, allowed_ports={1})
+    refused = send_scoped(send, provider, Request(id="ref.other", provider="ref", path="/other"), effect="read")
+    assert isinstance(refused, ConfinementError) and refused.error_class == "auth_failed" and refused.pre_send
+    # an in-scope request is not refused as auth_failed: it proceeds to the (dead) port and fails as a connection
+    went = send_scoped(send, provider, Request(id="ref.health", provider="ref", path="/h"), effect="read")
+    assert isinstance(went, ConfinementError) and went.error_class != "auth_failed"
+
+
 def test_c3_the_transport_enforces_the_verdict_it_is_given_and_does_not_decide_scope():
     """confined_request reads no scope: an unscoped-looking call refused by verdict is refused; a scoped one allowed by verdict goes."""
     provider = Provider(id="synth", name="S", kind="http", base_url="http://fixture.invalid",

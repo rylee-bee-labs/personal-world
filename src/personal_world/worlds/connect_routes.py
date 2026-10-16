@@ -27,7 +27,7 @@ from .authn import Principal
 from .cards import CardService
 from .config_store import ConfigStore, _describe
 from .confinement import ConfinementError, RawResponse, confined_request
-from .models import Card, Provider, Request
+from .models import Card, Provider, Request, send_scoped
 from .secrets import resolve_secret_ref
 from .suggest import SAMPLE_BYTES, redact_sample, scrub_text, suggest_fields
 
@@ -127,7 +127,7 @@ def register_connect_routes(
         if wait:
             raise HTTPException(status_code=429, detail="too many tries; wait a moment", headers={"Retry-After": str(wait)})
         try:
-            result = send(provider, request, effect="read")         # exactly one attempt, through confinement
+            result = send_scoped(send, provider, request, effect="read")   # exactly one attempt, through confinement
         except Exception:
             result = ConfinementError("connection", "sender error")
         out = _describe_result(result, secrets_for(provider))
