@@ -584,8 +584,8 @@ select.sel{min-height:var(--wv-target-min);background:var(--surface-sunken);bord
         h('div', { class: 'actions' },
           cx.step > 1 ? h('button', { type: 'button', class: 'btn', onclick: function () { cx.step--; cx.done = false; renderConnect('full'); }, text: 'Back' }) : null,
           cx.step < 5 ? h('button', { type: 'button', class: 'btn primary', disabled: !!nextDisabled,
-            onclick: function () {
-              if (nextDisabled) return;
+            onclick: function (e) {
+              if (e.currentTarget.disabled) return;   // the LIVE state: upd() re-enables it after a re-tick
               if (onNext) { onNext(); return; }
               cx.step++; renderConnect('full');
             },
