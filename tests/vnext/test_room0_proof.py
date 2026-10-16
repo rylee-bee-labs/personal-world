@@ -8,15 +8,11 @@ The contract (``docs/vnext/connect-contract.md``) is a MOCKUP, so this proves ro
 that DO exist - ``room0.py``, ``config_store.py``, ``confinement.py``, ``dispatcher.py`` - and pins the
 places the contract is ahead of the code as strict ``xfail`` in the sibling file (asserted here, never
 relaxed). The three states the card names (zero-provider, stale/UNKNOWN, revoked connection) each get a
-<<<<<<< HEAD
-test, and a Project Home-governed room answer is shown to fail closed.
-=======
 test, and a Project Home-governed room answer is shown to fail closed. The zero-provider state is also
 proven at the surface a person actually reads - ``GET /api/boards/home``, wired the way production wires
 it (production.py:91) - where the empty screen must still render; the explanation that surface owes the
 person is pinned here as a strict ``xfail`` of its own, because no such words exist in the code today
 (the UI never even reads the payload's ``first_run`` flag).
->>>>>>> origin/main
 
 Everything is synthetic and read-only: the room is a fixture, ``base_url`` is the shipped
 ``*.lan.example`` placeholder (a reserved name that never resolves), the principal is the recipe's
@@ -151,8 +147,6 @@ def room_world(tmp_path):
 # --------------------------------------------------------------------------- state 1: zero-provider
 
 
-<<<<<<< HEAD
-=======
 def _home_board_client(room_world, tmp_path):
     """The surface a person reads: ``GET /api/boards/home``, wired the way production wires room items
     into it (production.py:91 passes ``home_extra=lambda: rooms.home_items()``).
@@ -209,7 +203,6 @@ def test_room0_zero_provider_home_board_says_why_it_is_empty(room_world, tmp_pat
     assert words or "first_run" in ui, "nothing explains the empty Home to the person who opens it"
 
 
->>>>>>> origin/main
 def test_room0_zero_provider_is_empty_and_honest(room_world):
     """No provider configured at all: the room surface is empty and says so, invents nothing, dials nothing."""
     store, fx, clock, client, service, cards = room_world
@@ -445,7 +438,6 @@ def test_c1_room0_a_verifier_that_does_not_confirm_leaves_it_unapproved(tmp_path
 # -------------------------------------- inherited Stage C conditions 2 and 3: pin the gaps, never relax them
 
 
-<<<<<<< HEAD
 def _stage_c_fn(name: str, source: str | None = None) -> ast.FunctionDef | None:
     tree = ast.parse(source if source is not None else _STAGE_C.read_text(encoding="utf-8"))
     return next((n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == name), None)
@@ -473,28 +465,10 @@ def test_c2_room0_the_state_proposed_pins_are_plain_tests_now_that_the_gap_is_cl
 
     A flipped pin that is still (or again) an xfail/skip would paper the gap over, so that fails here.
     """
-=======
-def _xfail_pin(name: str) -> tuple[bool, bool]:
-    """(strict, names_a_raises) for ``name`` in the sibling Stage C file. A pin is an xfail, not a pass."""
-    tree = ast.parse(_STAGE_C.read_text(encoding="utf-8"))
-    for node in tree.body:
-        if isinstance(node, ast.FunctionDef) and node.name == name:
-            for dec in node.decorator_list:
-                if (isinstance(dec, ast.Call) and isinstance(dec.func, ast.Attribute) and dec.func.attr == "xfail"):
-                    kw = {k.arg: k.value for k in dec.keywords}
-                    strict = isinstance(kw.get("strict"), ast.Constant) and kw["strict"].value is True
-                    return strict, kw.get("raises") is not None
-    return False, False
-
-
-def test_c2_room0_the_state_proposed_pins_are_strict_and_the_gap_is_still_real():
-    """Contract §6.1 proposes Action.state; the code cannot satisfy it, so the pins must stay strict xfails."""
->>>>>>> origin/main
     from personal_world.worlds.models import Action
 
     for name in ("test_c2_a_state_proposed_action_can_exist",
                  "test_c2_a_state_proposed_action_is_inert_at_dispatcher_and_runtime"):
-<<<<<<< HEAD
         assert _is_plain_test(name), f"{name} must be a plain test: no xfail, no skip"
     assert "state" in Action.model_fields                         # the gap the pins recorded is closed
 
@@ -520,22 +494,3 @@ def test_c3_room0_a_relaxed_or_dropped_pin_would_be_detected():
     assert _xfail_pin("gone", strict_src) == (False, False)
     assert _stage_c_fn("t", "def t(): ...\n") is not None and not _stage_c_fn("t", "def t(): ...\n").decorator_list
     assert _stage_c_fn("t", strict_src).decorator_list                # a decorated test is not "plain"
-=======
-        strict, names_raises = _xfail_pin(name)
-        assert strict and names_raises, f"{name} must stay a strict xfail naming its ValidationError"
-    assert "state" not in Action.model_fields                     # the gap the pins record is still real
-
-
-def test_c3_room0_the_scope_pins_are_strict_and_the_gap_is_still_real():
-    """Contract §6.1 promises Auth.scope and a scope check before DNS; neither exists, so the pins stay strict xfails."""
-    from personal_world.worlds.models import Auth
-
-    for name in ("test_c3_auth_scope_exists_and_none_is_the_legacy_unscoped_state",
-                 "test_c3_unscoped_is_labelled_wherever_it_appears",
-                 "test_c3_out_of_scope_capability_fails_before_any_dns_lookup"):
-        strict, _ = _xfail_pin(name)
-        assert strict, f"{name} must stay a strict xfail, not be relaxed to a plain xfail"
-    assert "scope" not in Auth.model_fields                       # the field §6.1 proposes does not exist
-    source = pathlib.Path(confinement.__file__).read_text(encoding="utf-8").lower()
-    assert "scope" not in source                                  # no scope check exists in the only outbound seam
->>>>>>> origin/main

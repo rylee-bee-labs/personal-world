@@ -26,6 +26,13 @@
   scope check, so Sol's conditions 2 and 3 CANNOT pass against today's code. `tests/vnext/test_connect_proof.py`
   already pins both with `xfail(strict=True)`; those pins are left exactly as they are - not relaxed, not
   marked passed, and the contract is not edited to match the code.
+- 2026-10-16, merging `origin/main` into the Worlds vNext implementation branch (#353): the protected-code
+  work the decision above scoped to the d-plan **landed**. `Auth.scope` and `Action.state` now exist and the
+  scope verdict is refused before DNS, so the pins that decision describes were flipped - by the
+  implementation satisfying the contract, not by relaxing a pin. The two guards in this file's test were
+  rewritten to say so: the flipped tests must stay plain, the "unscoped" label pin must stay strict, and a
+  negative control proves the guard tells strict from relaxed from removed. The quote above is left exactly as
+  it was written.
 - Protected invariants this proof binds: local Memory; accessibility floors; zero-provider usability;
   security/consent; no invented status; "external systems keep their own authority (Project Home owns
   operational authority, Companion owns chat, services own data)."
@@ -36,20 +43,18 @@ Nothing protected was modified. No protected module is edited anywhere in this c
 ## What this proof is, and is not
 
 The contract (`docs/vnext/connect-contract.md`) is a MOCKUP: no `/api/connect/v1` route exists, and
-`Auth.scope` / `Action.state` are fields it *proposes* but the code does not have. So "Project Home is
-the contract's room/0" is only **partly provable today**. This file proves the room/0 read surface as it
+`Auth.scope` / `Action.state` are fields it *proposes*; they did not exist when this proof was written and
+**do exist now**, in the implementation branch this file merged into. So "Project Home is the contract's
+room/0" is **partly provable**. This file proves the room/0 read surface as it
 exists - `room0.py`, `config_store.py`, `confinement.py`, `dispatcher.py` - across the three states the
 card names, and carries the Stage C conditions through: condition 1 fails closed and passes here;
-conditions 2 and 3 are pinned strict `xfail` in the sibling file and are **not provable** against today's
-<<<<<<< HEAD
-code. An `xfail` is a gap, not a pass.
-=======
-code. The 2026-10-16 revision adds a pin that lives in this file itself: the zero-provider surface is
+conditions 2 and 3 were pinned strict `xfail` in the sibling file and were **not provable** against the code
+of the day - the implementation now closes both, so they run as plain tests and the two guards in this
+file assert they STAY plain. The 2026-10-16 revision adds a pin that lives in this file itself: the zero-provider surface is
 proven to render, but its missing empty-state explanation is a strict `xfail` here, because no such
 words exist in the code. An `xfail` is a gap, not a pass. So this proof does **not** show that Worlds
 tells a person why the screen is empty: the server half of contract C6.1 holds (200, `first_run` true),
 and the UI's guided start ("Connect your first service") is unbuilt. Tracked in personal-world#357.
->>>>>>> origin/main
 
 ## How it was run (read this first)
 
@@ -63,8 +68,6 @@ real pytest **without** fastapi they would be SKIPPED, i.e. NOT RUN; with the `t
 real. A negative control confirmed the pin-assertion parser sees a relaxed pin as not-strict (strict
 `False`), so the pins cannot be silently relaxed.
 
-<<<<<<< HEAD
-=======
 **Revision 2026-10-16 (codex REQUEST-CHANGES).** The review found state 1 proved only that the service
 data was empty; it could not show that Worlds stays usable and *tells the person why* the screen is
 empty. The revision adds two tests at the surface the UI reads (`GET /api/boards/home`, wired as
@@ -77,7 +80,25 @@ temporarily blanked surface fails the render test, and a temporarily added expla
 xfail to XPASS, which fails the run. `src/` was restored byte-identical after each control; no `src/`
 or `ui/` file is part of this change.
 
->>>>>>> origin/main
+**This merge (`origin/main` into #353), 2026-10-16.** The test file is the merged one: main's reviewed
+room/0 tests (the `home_board` pair above) are kept, and the branch's flipped Stage C guards are kept, so
+the suite is the union. Every command and count above is a **pre-merge** run of one side, and two of the
+guard test names in those lines (`..._pins_are_strict_and_the_gap_is_still_real`) were renamed by the merge
+to `..._pins_are_plain_tests_now_that_the_gap_is_closed` and
+`..._pins_are_plain_or_strict_as_the_gap_is_closed_or_open`. The merge environment has no `pytest`, no
+`fastapi` and no `ruff`, so **the merged suite was NOT RUN**; the host must run
+`python -m pytest -q tests/vnext tests/test_public_safety.py` and `ruff check tests/vnext`. Verified here
+instead: both files compile, no conflict marker survives anywhere in `docs/` or `tests/`, and the merged
+guards' Stage C test names are exactly the names the merged sibling file defines - all three guard tests, plus the negative
+control, pass.
+
+As a signal only (NOT the acceptance test; `pydantic` and `httpx` are present here, `pytest`/`fastapi`/`ruff` are not), the
+throwaway stand-in outside the repo at `/tmp/m353-shim/run.py` ran both merged files: `test_room0_proof.py` gave **11 passed**,
+3 not runnable (`dispatcher` -> `authn` -> `fastapi`) and 2 SKIPPED by their own `importorskip("fastapi")` - the two
+`home_board` tests, so the empty-state pin is NOT RUN here, exactly as it is recorded above - and
+`test_connect_proof.py` gave **11 passed, 1 xfailed** (the `unscoped` label pin), 10 not runnable for the same `fastapi`
+reason.
+
 ## Commands and observed output
 
 | # | Command | Exit | Observed tail |
@@ -89,8 +110,6 @@ or `ui/` file is part of this change.
 | E | `PW_REPO=$PWD python3 -I /tmp/room0-shim/run.py tests/vnext/test_connect_proof.py tests/vnext/test_room0_proof.py` | 0 | `{'passed': 23, 'failed': 0, 'skipped': 0, 'xfailed': 5, 'xpassed': 0}` |
 | F | `command -v node; ls ui/node_modules` | 1 | `command -v node` prints nothing; `ls: cannot access 'ui/node_modules': No such file or directory` |
 | G | `test -s docs/vnext/proof/c-room0.md && python3 -m compileall -q src tests` | 0 | (no output) |
-<<<<<<< HEAD
-=======
 | H | `PW_REPO=$PWD python3 -I /tmp/room0-shim/run.py tests/vnext/test_room0_proof.py` (revision) | 0 | `{'passed': 14, 'failed': 0, 'skipped': 0, 'xfailed': 1, 'xpassed': 0}` |
 | I | `PW_REPO=$PWD python3 -I /tmp/room0-shim/run.py tests/vnext/test_connect_proof.py tests/vnext/test_room0_proof.py` (revision) | 0 | `{'passed': 24, 'failed': 0, 'skipped': 0, 'xfailed': 6, 'xpassed': 0}` |
 | J | bite control: same runner, `PW_K=home_board`, with the home route temporarily made to answer 404 when no board exists | 1 | `FAIL test_room0_zero_provider_home_board_still_renders` / `XFAIL test_room0_zero_provider_home_board_says_why_it_is_empty` |
@@ -122,7 +141,6 @@ an error body's `detail` string was being counted as words - so
 `test_room0_zero_provider_home_board_says_why_it_is_empty` now asserts the surface answers 200 before
 looking for words. The J line above is the tightened test's output: the render test FAILs and the pin
 stays XFAIL, exactly because a blank surface is not an explanation.)
->>>>>>> origin/main
 
 Per-test lines from C (the whole new file):
 
@@ -152,14 +170,6 @@ PASS test_room0_... (all 13 above)
 
 ## State 1 - zero-provider: nothing configured at all
 
-<<<<<<< HEAD
-Command (filtered to the two zero-provider tests; same stand-in runner as C):
-
-```
-PW_REPO=$PWD PW_K=room0_zero_provider python3 -I /tmp/room0-shim/run.py tests/vnext/test_room0_proof.py
-PASS test_room0_zero_provider_is_empty_and_honest
-{'passed': 1, 'failed': 0, 'skipped': 0, 'xfailed': 0, 'xpassed': 0}          (exit 0)
-=======
 Command (filtered to the four zero-provider tests; same stand-in runner as C; the two `home_board` tests
 are the 2026-10-16 revision's):
 
@@ -169,24 +179,12 @@ PASS test_room0_zero_provider_home_board_still_renders
 XFAIL test_room0_zero_provider_home_board_says_why_it_is_empty
 PASS test_room0_zero_provider_is_empty_and_honest
 {'passed': 2, 'failed': 0, 'skipped': 0, 'xfailed': 1, 'xpassed': 0}          (exit 0)
->>>>>>> origin/main
 
 PW_REPO=$PWD PW_K=absent_source python3 -I /tmp/room0-shim/run.py tests/vnext/test_room0_proof.py
 PASS test_room0_a_card_for_an_absent_source_reads_not_configured
 {'passed': 1, 'failed': 0, 'skipped': 0, 'xfailed': 0, 'xpassed': 0}          (exit 0)
 ```
 
-<<<<<<< HEAD
-What that observed: with an empty `ConfigStore`, `RoomService.providers()` and `rooms()` and
-`home_items()` and `needs()` are all `[]` (`room0.py:467-468`, `:493-500`, `:516-526`, `:528-531`),
-`Room0Client.snapshot("project-home")` is `None` because `provider()` rejects a missing id before any
-send (`room0.py:303-305`), `home_board_defs` is `None` (`cards.py:366-381`) and no sender call was made
-(`fx.calls == []`). Nothing is invented: no "connected", no fabricated card, no error that reads like a
-bug - the surface answers with the honest empty word. The one explicit word for "there is nothing here"
-is a card whose source is absent reading `not_configured` with values `{"text": "unknown"}`, never `0`
-(`cards.py:126-135`, `:173-178`; `cards.py:256-288`). **No browser check was run** (command F): the
-empty-state *screen* is NOT RUN.
-=======
 **The surface still renders (proven).** The screen a person opens is the React Home, which reads
 `GET /api/boards/home` (`server.py:164-175`; production wires the room's `home_items` into it,
 `production.py:91`). With zero providers the route answers **200** with the same keys a populated
@@ -225,7 +223,6 @@ bug. The one explicit word for "there is nothing here" is a card whose source is
 `not_configured` with values `{"text": "unknown"}`, never `0` (`cards.py:126-135`, `:173-178`;
 `cards.py:256-288`). **No browser check was run** (command F): the empty-state *screen* is NOT RUN -
 what is proven above is the payload the screen reads, plus the source of the UI that would render it.
->>>>>>> origin/main
 
 ## State 2 - stale and UNKNOWN
 
@@ -330,43 +327,37 @@ but fastapi's `TestClient` is unavailable here, so the 403 is shown at the dispa
 real Project Home 403 is simulated only by fixtures (the refusing-verifier test); end to end over HTTP
 is NOT RUN.
 
-## Inherited Stage C conditions 2 and 3: unmettable today, pins asserted
+## Inherited Stage C conditions 2 and 3: closed by the implementation, guards flipped
 
-Command:
+These two tests do not make anything pass by assertion about the feature - they assert the **shape of the
+pins themselves**, so a future change cannot quietly paper a gap over. When these conditions were unmettable
+the guards asserted "strict xfail + the field really is missing"; the implementation landed, so they now
+assert the opposite for the closed gaps and keep the strict requirement for the one gap that is still open:
 
-```
-PW_REPO=$PWD PW_K=pins_are_strict python3 -I /tmp/room0-shim/run.py tests/vnext/test_room0_proof.py
-PASS test_c2_room0_the_state_proposed_pins_are_strict_and_the_gap_is_still_real
-PASS test_c3_room0_the_scope_pins_are_strict_and_the_gap_is_still_real
-{'passed': 2, 'failed': 0, 'skipped': 0, 'xfailed': 0, 'xpassed': 0}          (exit 0)
-```
+- `test_c2_room0_the_state_proposed_pins_are_plain_tests_now_that_the_gap_is_closed` - `Action.state` exists
+  (d-impl Step 3), so both Stage C tests must exist with **no decorator at all** (no `xfail`, no `skip`), and
+  `"state" in Action.model_fields`.
+- `test_c3_room0_the_scope_pins_are_plain_or_strict_as_the_gap_is_closed_or_open` - `Auth.scope` and the
+  pre-DNS scope check exist, so `test_c3_auth_scope_exists_and_none_is_the_legacy_unscoped_state` and
+  `test_c3_out_of_scope_capability_fails_before_any_dns_lookup` must be plain tests too; the label pin
+  `test_c3_unscoped_is_labelled_wherever_it_appears` must stay a **strict** xfail, because the word
+  "unscoped" still reaches no card envelope and no UI surface.
+- `test_c3_room0_a_relaxed_or_dropped_pin_would_be_detected` - the negative control: the parser must read
+  a strict pin as strict, a relaxed one as not strict, and a missing function as no pin at all.
 
-These two tests do not make the missing features pass. They assert the **pins** and the **gap**, so a
-future fix turns the pins green loudly (strict `xfail` -> XPASS -> failure) and this file fails too until
-it is updated. The pins live in `tests/vnext/test_connect_proof.py` and were **not edited**:
+**Condition 2 (a proposed Action is inert) - MET by the implementation.** Contract §6.1 proposes
+`Action.state` (`connect-contract.md:452`) with a default that leaves every existing action file behaving as
+today. `Action.state` now exists (`Literal["proposed", "adopted", "refused", "expired"]`, default
+`adopted`, still `extra="forbid"`), and the sibling file proves the inertness directly: a proposed action is
+never listed to an agent, `request_authorization` raises `NotPermitted` for agent and owner alike, and
+`execute` raises `NotConsumable` - including when an approval is forced current, so the state check and not
+version invalidation is what refuses.
 
-- `test_c2_a_state_proposed_action_can_exist` and
-  `test_c2_a_state_proposed_action_is_inert_at_dispatcher_and_runtime` - both
-  `@pytest.mark.xfail(strict=True, raises=ValidationError, ...)`.
-- `test_c3_auth_scope_exists_and_none_is_the_legacy_unscoped_state` (`strict=True, raises=ValidationError`),
-  `test_c3_unscoped_is_labelled_wherever_it_appears` (`strict=True`),
-  `test_c3_out_of_scope_capability_fails_before_any_dns_lookup` (`strict=True`).
-
-**Condition 2 (a proposed Action is inert) - NOT MET.** Contract §6.1 proposes `Action.state`
-(`connect-contract.md:452`), whose default would make every existing action file behave as today. Today
-`Action` has no `state` field (`models.py:460-476`) and is `extra="forbid"` (`models.py:39`), so any
-`Action(state="proposed")` raises `ValidationError` - which is exactly what the two strict pins record.
-Observed: `"state" not in Action.model_fields`.
-
-**Condition 3 (scoped auth before the network) - NOT MET.** Contract §4.2 and §6.1 promise
-`CredentialReference.scope` checked "before any socket opens" (`connect-contract.md:287`) and
-`Auth.scope` (`connect-contract.md:449`). Today `Auth` has no `scope` field and is `extra="forbid"`
-(`models.py:78-159`, `extra` at `:101`), and `confinement.py` contains no scope check: `_prepare`
-(`confinement.py:571`) resolves DNS at `:593` and the credential is only applied afterwards, in
-`_send`'s `_auth_headers` call at `:565`. Observed: `"scope" not in Auth.model_fields` and the string
-`scope` appears nowhere in `confinement.py`'s source. So an out-of-scope capability is not refused before
-DNS; the three strict pins record it. Per the 2026-10-15 decision this is protected-code work for the
-d-plan, described only - nothing was built.
+**Condition 3 (scoped auth before the network) - MET by the implementation.** `Auth.scope` exists
+(`None` = the legacy unscoped state) and the verdict is refused before DNS: `confinement._prepare` checks
+`in_scope` before `resolve_within`. The sibling file asserts the ordering on an address confinement accepts,
+and that the transport reads no scope itself. **The label half is still open**: the word "unscoped" reaches
+no card envelope and no UI surface, and that strict xfail is deliberately not flipped.
 
 ## Read-only and synthetic-only
 
@@ -388,18 +379,11 @@ in the app, and it does not claim no other code could dial.
 
 ## NOT RUN
 
-<<<<<<< HEAD
-- Real `pytest` (command B: `No module named pytest`).
-- Real `fastapi`: command D; the three `test_c1_room0_*` tests ran under the shim's fastapi stub and are
-  SKIPPED under real pytest without the `test` extra.
-- The HTTP 403 on the wire (`room_routes.py:75-76`) - no `TestClient`.
-=======
 - Real `pytest` (commands B, L: `No module named pytest`).
 - Real `fastapi`: command D; the three `test_c1_room0_*` tests and the two `home_board` tests ran under
   the shim's fastapi stub and are SKIPPED under real pytest without fastapi (fastapi is a runtime
   dependency, so a normal install runs them for real).
 - The HTTP 403 on the wire (`room_routes.py:75-76`) - no real `TestClient`.
->>>>>>> origin/main
 - Keyboard visibility of the stale/unknown/retry states and the 390px phone layout - no node, no
   `ui/node_modules` (command F). The repo has `ui/e2e-fd` Playwright specs; I did not run them and make
   no claim about them. Human screen-reader and physical-device checks are NOT RUN until a human runs them.
@@ -407,21 +391,17 @@ in the app, and it does not claim no other code could dial.
 
 ## UNRESOLVED
 
-<<<<<<< HEAD
-- Real pytest and real fastapi never ran; command C/E used my own stand-in runner and a fastapi stub.
-  Re-run `python3 -m pytest -q tests/vnext` in an environment with the `test` extra.
-=======
 - Real pytest and real fastapi never ran; command C/E/H/I used my own stand-in runner and a fastapi
   stub. Re-run `python -m pytest -q tests/vnext` in an environment with the `test` extra.
 - **The zero-provider empty-state explanation does not exist in the code** (2026-10-16 revision): the
   payload carries only the bare boolean `first_run` (`server.py:174`), the UI never reads it
   (`ui/src/fd/types.ts:55-59`, `ui/src/fd/Home.tsx`), and `docs/rebuild/CONTRACTS.md:161`'s promised
   guided start is unimplemented. Pinned strict xfail in the test file; not invented here.
->>>>>>> origin/main
-- Condition 2: `models.py:460-476` `Action` has no `state` (contract §6.1 proposes it). Protected code;
-  not patched.
-- Condition 3: `confinement.py:571-613` resolves DNS before any credential/scope decision; `models.py:78-159`
-  `Auth` has no `scope`. Protected code; not patched.
+- Conditions 2 and 3 were closed by the implementation this branch carries (d-impl), after the runs above;
+  the merged test file's guards were rewritten to match, but no post-implementation pytest run backs them,
+  and the merged suite was NOT RUN here (no `pytest`, no `ruff` in this environment).
+- The "unscoped" label gap is still open and still strictly pinned: no card envelope and no UI surface says
+  it.
 - No room0 "revoked" state or route: removing the provider makes the room vanish rather than name a
   revocation; the contract's endpoints 13-14 / `RevocationResult` are MOCKUP. Only the room-says-403
   path names it (`auth_failed`).
@@ -431,72 +411,51 @@ in the app, and it does not claim no other code could dial.
 ## Return
 
 ```
-<<<<<<< HEAD
-RESULT: done (read-only, synthetic). States 1, 2 and 3 proven by command and observed output; inherited
-condition 1 passes; conditions 2 and 3 are unmettable today and stay pinned strict xfail, asserted here.
+RESULT: done (read-only, synthetic), revised 2026-10-16 for the codex REQUEST-CHANGES and again for this
+merge (origin/main into #353). States 1, 2 and 3 proven by command and observed output; state 1 also
+proves the person-facing surface (GET /api/boards/home) still renders with zero providers, and pins as a
+strict xfail that no explanation of the empty screen exists anywhere in the code (personal-world#357).
+Inherited condition 1 passes. Conditions 2 and 3 were unmettable at the time of those runs and are met by
+the implementation this branch carries: their pins are plain tests now, and the two guards here assert
+they stay plain (the "unscoped" label pin stays strict). The merged suite was NOT RUN here - no pytest,
+no fastapi, no ruff in this environment; the host re-runs.
 
-CHANGED: tests/vnext/test_room0_proof.py (new; 13 tests, reuses the Stage C fixture style),
-docs/vnext/proof/c-room0.md (new). No protected code touched. The stand-in runner lives outside the
-repo at /tmp/room0-shim/run.py and is not part of the change.
+CHANGED: tests/vnext/test_room0_proof.py (15 tests: main's +home_board_still_renders and +the
+empty-state explanation pin as strict xfail, plus the branch's flipped Stage C guards and their negative
+control; same Stage C fixture style), docs/vnext/proof/c-room0.md (revision section, state 1, new
+commands, the conditions-2/3 section and the guards, UNRESOLVED and Return rewritten for the merge). No
+src/ or ui/ file is part of this change; the two bite-check edits to server.py were restored
+byte-identical. The stand-in runner lives outside the repo at /tmp/room0-shim/run.py and is not part of
+the change.
 
-CHECKS: A python3 -m compileall -q src tests -> exit 0. B python3 -m pytest -q tests/vnext -> exit 1
-(No module named pytest). C stand-in runner on the new file -> exit 0, 13 passed 0 failed. E stand-in
-runner on both vnext files -> exit 0, 23 passed 0 failed 5 xfailed 0 xpassed. Per-state targeted runs
-(zero_provider, absent_source, stale, unknown, revoked, removed_provider, c1_room0, pins_are_strict,
-no_live_project_home) -> all exit 0.
+CHECKS: (pre-merge, main's side) python3 -m compileall -q src tests -> exit 0. python -m pytest -q
+tests/vnext/test_room0_proof.py -> exit 1 (No module named pytest; the host re-runs). Stand-in runner on
+the revised file -> exit 0, 14 passed 1 xfailed 0 failed; on both vnext files -> exit 0, 24 passed
+6 xfailed 0 failed. Bite controls -> both exit 1 with the expected FAIL/XPASS (commands J, K), src/
+restored after each. (this merge) python3 -m py_compile on both vnext test files -> exit 0;
+git grep for conflict markers over docs/ and tests/ -> empty.
 
-EVIDENCE: observed summaries {'passed': 13, 'failed': 0, 'skipped': 0, 'xfailed': 0, 'xpassed': 0} and
-{'passed': 23, 'failed': 0, 'skipped': 0, 'xfailed': 5, 'xpassed': 0}; No module named pytest;
-No module named 'fastapi'. Pins at tests/vnext/test_connect_proof.py:220-226, 341-350; gaps at
-src/personal_world/worlds/models.py:460-476 and confinement.py:571-593.
-
-UNRESOLVED: (1) real pytest/fastapi never ran (stand-in runner + fastapi stub); (2) condition 2 -
-Action has no state (models.py:460-476); (3) condition 3 - no Auth.scope (models.py:78-159) and DNS
-resolves before any scope check (confinement.py:593); (4) no room0 revoke route/state - only the
-room-says-403 path names a revocation; (5) condition 1 over HTTP not exercised; (6) NOT RUN: keyboard,
-390px, real browser, real fastapi.
-
-NEXT: Implement Auth.scope (checked before DNS) and Action.state as contract §6.1 proposes, as
-protected-code work for Rylee's d-plan; then flip the five strict xfail pins and run the phone-390 e2e
-where a browser exists.
-=======
-RESULT: done (read-only, synthetic), revised 2026-10-16 for the codex REQUEST-CHANGES. States 1, 2 and
-3 proven by command and observed output; state 1 now also proves the person-facing surface (GET
-/api/boards/home) still renders with zero providers, and pins as a strict xfail that no explanation of
-the empty screen exists anywhere in the code. Inherited condition 1 passes; conditions 2 and 3 are
-unmettable today and stay pinned strict xfail, asserted here.
-
-CHANGED: tests/vnext/test_room0_proof.py (15 tests now: +home_board_still_renders, +the empty-state
-explanation pin as strict xfail; reuses the Stage C fixture style), docs/vnext/proof/c-room0.md
-(revision section, state 1 rewritten, new commands, UNRESOLVED updated). No src/ or ui/ file is part
-of the change; the two bite-check edits to server.py were restored byte-identical. The stand-in runner
-lives outside the repo at /tmp/room0-shim/run.py and is not part of the change.
-
-CHECKS: python3 -m compileall -q src tests -> exit 0. python -m pytest -q tests/vnext/test_room0_proof.py
--> exit 1 (No module named pytest; the host re-runs). Stand-in runner on the revised file -> exit 0,
-14 passed 1 xfailed 0 failed; on both vnext files -> exit 0, 24 passed 6 xfailed 0 failed. Bite
-controls -> both exit 1 with the expected FAIL/XPASS (commands J, K), src/ restored after each.
-
-EVIDENCE: observed summaries {'passed': 14, 'failed': 0, 'skipped': 0, 'xfailed': 1, 'xpassed': 0} and
-{'passed': 24, 'failed': 0, 'skipped': 0, 'xfailed': 6, 'xpassed': 0}; bite controls 'FAIL
-test_room0_zero_provider_home_board_still_renders' (blanked surface) and 'XPASS
+EVIDENCE: (pre-merge) observed summaries {'passed': 14, 'failed': 0, 'skipped': 0, 'xfailed': 1,
+'xpassed': 0} and {'passed': 24, 'failed': 0, 'skipped': 0, 'xfailed': 6, 'xpassed': 0}; bite controls
+'FAIL test_room0_zero_provider_home_board_still_renders' (blanked surface) and 'XPASS
 test_room0_zero_provider_home_board_says_why_it_is_empty (strict xfail passed: the gap it named is
-gone)' (explanation added); No module named pytest. Empty-state gap at src/personal_world/worlds/
-server.py:164-175 + ui/src/fd/types.ts:55-59 + ui/src/fd/Home.tsx; contract promise at
-docs/rebuild/CONTRACTS.md:161. Stage C pins at tests/vnext/test_connect_proof.py:220-226, 341-350.
+gone)' (explanation added); No module named pytest. (merge) both vnext test files byte-compile; no conflict
+marker under docs/ or tests/; the guard's Stage C names match the merged sibling file's definitions.
+Empty-state gap at src/personal_world/worlds/server.py:164-175 + ui/src/fd/types.ts:55-59 +
+ui/src/fd/Home.tsx; contract promise at docs/rebuild/CONTRACTS.md:161.
 
-UNRESOLVED: (1) real pytest/fastapi never ran (stand-in runner + fastapi stub); (2) the zero-provider
+UNRESOLVED: (1) real pytest/fastapi never ran on either side (stand-in runner + fastapi stub), and the
+merged suite was NOT RUN here at all - no pytest, no ruff in this environment; (2) the zero-provider
 empty-state explanation does not exist - bare first_run flag, UI never reads it, CONTRACTS.md:161's
-guided start unimplemented - pinned strict xfail; (3) condition 2 - Action has no state
-(models.py:460-476); (4) condition 3 - no Auth.scope (models.py:78-159) and DNS resolves before any
-scope check (confinement.py:593); (5) no room0 revoke route/state - only the room-says-403 path names a
-revocation; (6) condition 1 over HTTP not exercised; (7) NOT RUN: keyboard, 390px, real browser, real
-fastapi.
+guided start unimplemented - pinned strict xfail (personal-world#357); (3) conditions 2 and 3 are closed by
+the implementation, but no post-implementation pytest run backs the flipped pins or the rewritten guards;
+(4) the "unscoped" label still reaches no envelope or UI surface - strict xfail kept; (5) no room0
+revoke route/state - only the room-says-403 path names a revocation; (6) condition 1 over HTTP not
+exercised; (7) NOT RUN: keyboard, 390px, real browser, real fastapi.
 
-NEXT: Add the missing empty-state explanation where a person reads it (words in the home board payload,
-or the UI's guided start from first_run as docs/rebuild/CONTRACTS.md:161 promises), flip that strict
-xfail; implement Auth.scope (checked before DNS) and Action.state as contract §6.1 proposes, as
-protected-code work for Rylee's d-plan; then flip the remaining strict xfail pins and run the
+NEXT: Run `python -m pytest -q tests/vnext tests/test_public_safety.py` and `ruff check tests/vnext` on
+the merged tree on the host; add the missing empty-state explanation where a person reads it (words in the
+home board payload, or the UI's guided start from first_run as docs/rebuild/CONTRACTS.md:161 promises) and
+flip that strict xfail; label the "unscoped" credential and flip the last strict xfail; then run the
 phone-390 e2e where a browser exists.
->>>>>>> origin/main
 ```
