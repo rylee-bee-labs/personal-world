@@ -33,7 +33,7 @@ from .authn import Principal
 from .config_store import ConfigStore
 from .confinement import ConfinementError, RawResponse, confined_request
 from .db import Database, register_migrations
-from .models import Action, Provider, Request, canonical_json
+from .models import Action, Provider, Request, canonical_json, send_scoped
 from .runner import redact
 
 log = logging.getLogger(__name__)
@@ -382,7 +382,7 @@ class Dispatcher:
         if self._db.conn().in_transaction:  # never hold a transaction across the network
             raise RuntimeError("transaction open across dispatch")
         try:
-            result = self._send(provider, sent, effect=effect)  # exactly one attempt
+            result = send_scoped(self._send, provider, sent, effect=effect)  # exactly one attempt
         except Exception as exc:  # BaseException (a crash) deliberately propagates: row stays DISPATCHING
             result = ConfinementError("connection", f"sender error: {type(exc).__name__}")
         state, status, error_class = classify_outcome(result)

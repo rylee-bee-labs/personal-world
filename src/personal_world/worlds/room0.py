@@ -29,7 +29,7 @@ from urllib.parse import quote
 
 from .config_store import ConfigInvalid
 from .confinement import ConfinementError, RawResponse, confined_request
-from .models import Action, Provider, Request
+from .models import Action, Provider, Request, send_scoped
 
 log = logging.getLogger(__name__)
 
@@ -355,7 +355,7 @@ class Room0Client:
     def _get(self, provider: Provider, path: str) -> tuple[Any, ConfinementError | None, RawResponse | None]:
         request = Request(id=f"{provider.id}.room", provider=provider.id, path=path, ttl_s=0)
         try:
-            result = self._send(provider, request, effect="read")
+            result = send_scoped(self._send, provider, request, effect="read")
         except Exception:
             return None, ConfinementError("connection", "sender error"), None
         if isinstance(result, ConfinementError):
@@ -555,8 +555,9 @@ class RoomService:
         out = []
         for a in snap.actions:
             _, action_id = self._ids(provider_id, a.room_id)
+            stored = self._store.get("action", action_id)
             out.append({"room_action_id": a.room_id, "label": a.label, "writes": a.writes, "default_autonomy": a.default_autonomy,
-                        "adopted": self._store.get("action", action_id) is not None, "action_id": action_id,
+                        "adopted": isinstance(stored, Action) and stored.state == "adopted", "action_id": action_id,
                         "choices": [{"value": c.value, "label": c.label} for c in a.choices], "allow_text": a.allow_text})
         return out
 

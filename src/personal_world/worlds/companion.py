@@ -25,6 +25,7 @@ from typing import Any, Callable, Literal
 from urllib.parse import quote
 
 from .confinement import ConfinementError, RawResponse, confined_request
+from .models import send_scoped
 
 logger = logging.getLogger("personal_world.worlds.companion")
 
@@ -345,7 +346,7 @@ class Companion:
             if not resolve_secret_ref(provider.auth.secret_ref):
                 raise NotConfigured("the companion token is not available")
         try:
-            result = self._send(provider, request, effect=request.resolved_effect())
+            result = send_scoped(self._send, provider, request, effect=request.resolved_effect())
         except Exception:  # the sender's contract is never to raise; if it does, that is unknown, not a crash
             raise Unavailable("unreachable") from None
         if isinstance(result, ConfinementError):

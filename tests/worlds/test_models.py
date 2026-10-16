@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from personal_world.worlds.models import Action, Auth, Card, Provider, Request, action_version
+from personal_world.worlds.models import Action, Auth, Card, Provider, Request, action_version, canonical_json
 
 
 def prov(**kw):
@@ -118,3 +118,16 @@ def test_action_version_is_unchanged_by_the_new_fields_at_their_defaults():
     assert v != action_version(a.model_copy(update={"state": "proposed"}), r, p)
     assert v != action_version(a, r, prov(auth=Auth(type="bearer", secret_ref="env:T", scope=["items"])))
     assert v != action_version(a, req(method="POST", verified=True), p)
+
+
+def test_action_version_at_defaults_equals_the_pre_change_hash():
+    """Defaults must hash as if the new fields did not exist. The expected value is rebuilt WITHOUT them, so dropping the compat code fails."""
+    import hashlib
+    a, r = Action(id="go", request="ref.items", name="Go"), req(method="POST")
+    p = prov(auth=Auth(type="bearer", secret_ref="env:T"))
+    old = {"action": {k: v for k, v in a.model_dump(mode="json").items() if k != "state"},
+           "request": {k: v for k, v in r.model_dump(mode="json").items() if k not in ("provenance", "verified")},
+           "provider": {"id": p.id, "kind": p.kind, "base_url": p.base_url, "path_prefix": p.path_prefix,
+                        "auth": {k: v for k, v in p.auth.model_dump(mode="json").items() if k != "scope"},
+                        "network": p.network.model_dump(mode="json"), "tls_verify": p.tls_verify}}
+    assert action_version(a, r, p) == hashlib.sha256(canonical_json(old).encode()).hexdigest()

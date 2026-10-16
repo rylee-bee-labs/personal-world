@@ -488,6 +488,22 @@ def canonical_json(obj: Any) -> str:
     return json.dumps(obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False, default=str)
 
 
+def scope_allows(provider: Provider, request: Request) -> bool:
+    """May this provider's credential go to this request's capability? ``scope`` None is unscoped: yes.
+
+    A decision about capabilities, so it lives with Worlds' models and is made at the call site, never in the transport.
+    """
+    scope = getattr(provider.auth, "scope", None)
+    return scope is None or str(request.id).partition(".")[2] in scope
+
+
+def send_scoped(send: Any, provider: Provider, request: Request, *, effect: str) -> Any:
+    """Call ``send``, handing it the scope verdict. Only a refusal is passed, so a sender that predates it still works."""
+    if scope_allows(provider, request):
+        return send(provider, request, effect=effect)
+    return send(provider, request, effect=effect, in_scope=False)
+
+
 def action_version(action: Action, request: Request, provider: Provider) -> str:
     """sha256 of the canonicalized resolved action + request + provider destination.
 
