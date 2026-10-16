@@ -8,7 +8,11 @@ The contract (``docs/vnext/connect-contract.md``) is a MOCKUP, so this proves ro
 that DO exist - ``room0.py``, ``config_store.py``, ``confinement.py``, ``dispatcher.py`` - and pins the
 places the contract is ahead of the code as strict ``xfail`` in the sibling file (asserted here, never
 relaxed). The three states the card names (zero-provider, stale/UNKNOWN, revoked connection) each get a
-test, and a Project Home-governed room answer is shown to fail closed.
+test, and a Project Home-governed room answer is shown to fail closed. The zero-provider state is also
+proven at the surface a person actually reads - ``GET /api/boards/home``, wired the way production wires
+it (production.py:91) - where the empty screen must still render; the explanation that surface owes the
+person is pinned here as a strict ``xfail`` of its own, because no such words exist in the code today
+(the UI never even reads the payload's ``first_run`` flag).
 
 Everything is synthetic and read-only: the room is a fixture, ``base_url`` is the shipped
 ``*.lan.example`` placeholder (a reserved name that never resolves), the principal is the recipe's
@@ -141,6 +145,60 @@ def room_world(tmp_path):
 
 
 # --------------------------------------------------------------------------- state 1: zero-provider
+
+
+def _home_board_client(room_world, tmp_path):
+    """The surface a person reads: ``GET /api/boards/home``, wired the way production wires room items
+    into it (production.py:91 passes ``home_extra=lambda: rooms.home_items()``).
+
+    The route (server.py:164-175) is the payload the React UI's Home screen reads. Here ``home_extra``
+    is the room service's ``home_items`` over the same (empty) config dir and the fixture is the send
+    seam, so rendering the surface can dial nothing. Without fastapi these tests are NOT RUN, exactly
+    like the ``test_c1_room0_*`` tests.
+    """
+    _store, fx, _clock, _client, service, _cards = room_world
+    pytest.importorskip("fastapi")
+    from fastapi.testclient import TestClient
+    from personal_world.worlds.server import build_app
+    app = build_app(tmp_path / "cfg", principal_dependency=lambda: "owner", send_override=fx,
+                    home_extra=lambda: service.home_items())
+    return TestClient(app, base_url="http://127.0.0.1"), fx
+
+
+def test_room0_zero_provider_home_board_still_renders(room_world, tmp_path):
+    """Zero providers: the surface the UI reads still renders - 200 with the same keys, never a 404."""
+    c, fx = _home_board_client(room_world, tmp_path)
+    r = c.get("/api/boards/home")
+    assert r.status_code == 200                                   # first run is a state, not an error (server.py:173-174)
+    body = r.json()
+    assert {"id", "title", "items"} <= set(body)                  # the same keys a populated board answers with
+    assert body["items"] == []                                    # nothing to draw, not a fabricated card
+    assert body["first_run"] is True                              # the empty state is named, not hidden
+    assert fx.calls == []                                         # rendering the empty surface sent nothing
+
+
+@pytest.mark.xfail(strict=True,
+                   reason="no empty-state explanation exists: the payload carries only the bare boolean "
+                          "first_run (server.py:174) and no words at all, and the UI never reads the flag "
+                          "(ui/src/fd/types.ts drops it) - nothing tells the person why the screen is empty")
+def test_room0_zero_provider_home_board_says_why_it_is_empty(room_world, tmp_path):
+    """The empty screen must explain itself to the person: words in the payload, or a field the UI renders.
+
+    docs/rebuild/CONTRACTS.md:161 promises a guided start shown from ``first_run`` ("one 'Connect your
+    first service' card, plus Memory"); neither the payload nor the React UI implements any of it, so
+    this pins the gap. It must flip loudly (strict xfail -> XPASS -> failure) when words are added.
+    """
+    c, _fx = _home_board_client(room_world, tmp_path)
+    r = c.get("/api/boards/home")
+    assert r.status_code == 200                                   # an error body's detail string is not an explanation
+    body = r.json()
+    # Everything in the payload a person could read, minus the board's own id/title: today only the bare
+    # boolean first_run is left, and a boolean says nothing.
+    words = [v for v in body.values() if isinstance(v, str) and v.strip() and v not in (body.get("id"), body.get("title"))]
+    ui_home = pathlib.Path(__file__).resolve().parents[2] / "ui" / "src" / "fd"
+    ui = "".join((ui_home / name).read_text(encoding="utf-8")
+                 for name in ("types.ts", "Home.tsx") if (ui_home / name).exists())
+    assert words or "first_run" in ui, "nothing explains the empty Home to the person who opens it"
 
 
 def test_room0_zero_provider_is_empty_and_honest(room_world):
