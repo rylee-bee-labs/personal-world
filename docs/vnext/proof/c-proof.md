@@ -7,11 +7,11 @@
 
 ## What this proof is, and is not
 
-The contract (`docs/vnext/connect-contract.md`) is a MOCKUP. This clone has no `/api/connect/v1` route, no `Auth.scope`
-field and no `Action.state` field. So "the contract works end to end" is **only partly provable today**. The test file
-`tests/vnext/test_connect_proof.py` proves the journey on the existing pieces (config store, runner, card service, confinement
-seam, dispatcher) and pins each place the contract is ahead of the code as a **strict `xfail`** that names the missing piece. An
-xfail is a gap, not a pass.
+The contract (`docs/vnext/connect-contract.md`) is a MOCKUP. This clone has no `/api/connect/v1` route. `Auth.scope` and
+`Action.state`, the two fields the contract proposes, **now exist here** (the Worlds vNext implementation this branch
+carries), so conditions 2 and 3 are proven by plain tests instead of by pins, and the sibling `test_room0_proof.py` asserts
+that they stay plain - a re-`xfail`ed pin fails that suite. What the contract is still ahead of is the "unscoped" label,
+which stays pinned as a **strict `xfail`** naming the missing piece. An xfail is a gap, not a pass.
 
 ## How it was run (read this first)
 
@@ -26,6 +26,19 @@ at the same distance from the repo (`/tmp/shim-run/run.py`, same surface). Count
 'skipped': 0, 'xfailed': 5, 'xpassed': 0}`. The out-of-scope xfail now fires as `AssertionError: not refused for scope`
 (the request ran to the stubbed sender on an accepted address and was refused by nothing) instead of on a loopback
 `confinement_denied`. Real pytest is still missing in the sandbox (no network); the host re-runs it.
+
+**This merge (origin/main into #353), 2026-10-16.** The test file is the merged one: conditions 2 and 3 run as plain tests
+against the implementation this branch carries, so the counts and per-test lines recorded below are each side's PRE-merge
+run and are **not** a claim about the merged tree - the merged file has fewer xfails and more plain tests. The merge
+environment has no `pytest`, no `fastapi` and no `ruff`, so the merged suite was **NOT RUN** here; the host must run
+`python -m pytest -q tests/vnext tests/test_public_safety.py` and `ruff check tests/vnext`. What IS verified in the merge
+is that the file compiles, that no conflict marker survives, and that the stronger assertions main's review added are the
+ones the flipped pins now run.
+
+This environment does have `pydantic` and `httpx`, so as a signal (NOT the acceptance test - it is a throwaway stand-in kept
+outside the repo at `/tmp/m353-shim/run.py`, weaker than pytest: no fixtures beyond `tmp_path`, no parametrisation, no
+collection) the merged file ran: **11 passed, 1 xfailed** - the xfail is `test_c3_unscoped_is_labelled_wherever_it_appears`,
+still a real gap - and 10 tests could not run here at all because `dispatcher` imports `authn`, which imports `fastapi`.
 
 ## Commands and observed output
 
@@ -86,30 +99,50 @@ end to end either; the verifier fixtures stand in for it.
 
 ## Condition 2: a proposed Action is inert
 
-**Not proven as written.** `Action` has no `state` field (`src/personal_world/worlds/models.py:462`-`:476`, `extra="forbid"`),
-so no Action can be `state=proposed`. The two strict xfails (`..._can_exist`, `..._is_inert_at_dispatcher_and_runtime`) fail with
-`ValidationError` today. What I did prove is the nearest existing behaviour, which the contract (§6.1) cites as the reason a
-proposed action is already inert: an `exposed: false` action. Direct: an agent's `request_authorization` raises `NotPermitted`
-and `list_actions` is empty. Indirect: the agent's `execute` on the owner's pending authorization raises `NotPermitted` and
-`request_retry` on an unknown execution raises `BadRequest`; the authorization stays `pending`, sender never called (command C,
-PASS). That is a proxy, not the condition. I did not test the runtime (`Runner`) side of a proposed action: it has nothing to act on.
+**Met by the implementation this branch carries, and no longer pinned** (was "not proven as written" when the two strict
+xfails recorded the gap). `Action.state` exists (`Literal["proposed", "adopted", "refused", "expired"]`, default `adopted`,
+`extra="forbid"`), so `..._can_exist` is now a plain test: `state="proposed"` validates, the default is `adopted`, and an
+unknown state still raises `ValidationError`. `..._is_inert_at_dispatcher_and_runtime` rewrites an approved action's file as
+`state=proposed` (keeping `exposed: true` on purpose) and proves it is inert at both seams: it is never listed to an agent,
+`request_authorization` raises `NotPermitted` for agent *and* owner, and `execute` raises `NotConsumable`. A third test forces
+a current-version approval so version invalidation cannot be the thing that refuses, and still gets `NotConsumable, match="not
+adopted"` - the state check itself, at runtime. Nothing was ever sent (`fx.calls == []`, no `executions` row).
+
+The proxy that was proven before the implementation still holds, as the contract (§6.1) cites for it: an `exposed: false`
+action. Direct: an agent's `request_authorization` raises `NotPermitted` and `list_actions` is empty. Indirect: the agent's
+`execute` on the owner's pending authorization raises `NotPermitted` and `request_retry` on an unknown execution raises
+`BadRequest`; the authorization stays `pending`, sender never called. I did not test the runtime (`Runner`) side of a proposed
+action: it has nothing to act on.
 
 ## Condition 3: scoped auth before the network, and "unscoped"
 
-**Not met in code.** `grep -n scope src/personal_world/worlds/confinement.py` returns nothing: no scope check exists, and
-`Auth` has no `scope` field. Observed with a counting resolver and the dial functions stubbed (no socket opened), on an
-address confinement ACCEPTS (lan provider, synthetic private `10.9.9.9`): a credential scoped to capability `synth.health` <!-- pw-safety: synthetic -->
-(carried by a synthetic provider in the contract's §6.1 shape, since `Auth` has no `scope` field) was asked to serve
-`synth.other` — the request reached DNS (`lookups= 1`), reached the send seam (`dials= 1`, the scoped credential attached)
-and was refused by nothing. So nothing refuses an out-of-scope capability before DNS. The strict xfail asserts the contract
-order (§4.2: `auth_failed` before any DNS, no bytes); a scope check that lands only AFTER DNS keeps it red on the
-`lookups == []` order assertion, and one that lands before DNS turns it into an XPASS(strict), which is loud. The word
-"unscoped" occurs in no file under `src/` or `ui/src` (it appears only in the contract and a history doc), so a legacy
-no-scope credential is not labelled anywhere. Three strict xfails record this. Passing, and no longer narrow:
-`test_c3_today_a_credential_applies_to_every_request_of_the_provider` now proves BOTH requests of the provider reached the
-sender and EACH carried `Authorization: Bearer <value>` (bite-checked 2026-10-16: an unavailable credential never reaches
-the sender, an unattached one arrives bare, and the test fails on both breaks and recovers when restored), and
-`test_c3_an_unresolvable_reference_sends_nothing` shows an unresolvable reference dials nothing.
+**The scope half is MET by the implementation this branch carries, and no longer pinned** (was "not met in code", with three
+strict xfails, before it). `Auth.scope` exists (`list[Id] | None`; `None` is the legacy unscoped state, and a non-id entry still
+raises `ValidationError`). The verdict is a decision about capabilities, so it is made at the call site
+(`models.scope_allows`, `models.send_scoped`) and handed to the transport as `in_scope`; `confinement._prepare` refuses it at
+`confinement.py:598`-`:600`, **before** `resolve_within` at `:602`, so an out-of-scope capability costs no lookup and no bytes.
+Observed by the tests: `test_c3_out_of_scope_capability_fails_before_any_dns_lookup` asserts `auth_failed`, `lookups == []` and
+nothing sent, on an address confinement ACCEPTS (a `lan` provider, synthetic private `10.9.9.9` <!-- pw-safety: synthetic -->,
+with the credential available) so address classification can no longer mask the ordering - a scope check that lands only AFTER
+DNS keeps the test red on the `lookups` assertion.
+`test_c3_the_transport_enforces_the_verdict_it_is_given_and_does_not_decide_scope` shows the transport reads no scope: a call
+given `in_scope=False` is refused and never looks anything up, while a call given the verdict goes; and
+`test_c3_an_in_scope_capability_still_reaches_dns` shows an in-scope capability still reaches DNS.
+`test_c3_the_reference_sender_honours_an_out_of_scope_verdict_before_any_socket` covers the reference sender, which has its own
+network path and does not reach `confined_request`: it takes the verdict too, refuses out of scope as `auth_failed` before any
+socket, and does not refuse an in-scope request for scope.
+
+Main's review strengthened the unscoped-credential observation, and that strengthening is kept: on an accepted address with the
+dial functions stubbed, `test_c3_today_a_credential_applies_to_every_request_of_the_provider` proves BOTH requests of an
+unscoped provider reached the sender and EACH carried `Authorization: Bearer <value>` (bite-checked 2026-10-16: an unavailable
+credential never reaches the sender, an unattached one arrives bare, and the test fails on both breaks and recovers when
+restored), while `scope_allows` allows every request of that provider. `test_c3_an_unresolvable_reference_sends_nothing` shows
+an unresolvable reference dials nothing.
+
+**The label half is still a gap: one strict xfail.** The word "unscoped" occurs in no card envelope (`cards.build`) and no UI
+surface (it appears only in the contract and a history doc), so a legacy no-scope credential is not labelled anywhere a person
+reads. `test_c3_unscoped_is_labelled_wherever_it_appears` stays `@pytest.mark.xfail(strict=True, ...)` naming that piece
+(build-plan Q2), and a sibling test asserts it is still strict, so relaxing it fails the suite.
 
 ## Condition 4: read-only end to end, keyboard, 390px
 
@@ -123,7 +156,7 @@ not run it and make no claim about it.
 
 ## RESULT / CHANGED / CHECKS / EVIDENCE / UNRESOLVED / NEXT
 
-RESULT: partial. Condition 1 proven at the dispatcher only; condition 4 read-only proven, browser half NOT RUN; conditions 2 and 3 are not met because the code lacks `Action.state` and `Auth.scope`.
+RESULT: partial. Condition 1 proven at the dispatcher only; condition 4 read-only proven, browser half NOT RUN. Conditions 2 and 3 were NOT met when this file was written and are met by the implementation the branch carries: `Action.state` and `Auth.scope` exist and the scope verdict is refused before DNS, so those five pins are plain tests now and one strict xfail (the "unscoped" label) remains.
 
 CHANGED: `tests/vnext/test_connect_proof.py` (new; the repo has no `tests/vnext`, and the existing `tests/worlds` layout needs relative imports from its own conftest, so this stands alone), `docs/vnext/proof/c-proof.md` (new). No protected code touched.
 
@@ -132,12 +165,11 @@ CHECKS: A `test -s ... && python3 -m compileall -q src tests` exit 0. B `python3
 EVIDENCE: `{'passed': 10, 'failed': 0, 'skipped': 0, 'xfailed': 5, 'xpassed': 0}`; `No module named pytest`; `No module named 'fastapi'`.
 
 UNRESOLVED:
-- Real pytest and real fastapi never ran; command C used my own stand-in runner and a fastapi stub. Re-run `python3 -m pytest -q tests/vnext` in an environment with the `test` extra; the dispatcher tests skip (NOT RUN) without fastapi.
-- Condition 2: `models.py:462` `Action` has no `state` (contract §6.1 proposes it). Gap in the contract's implementation, not a patched defect.
-- Condition 3: `src/personal_world/worlds/confinement.py` has no scope check (`_prepare`, `:571`-`:600`, resolves DNS before anything credential-related) and `models.py` `Auth` (`:84`-`:100`) has no `scope`. Protected code; not patched.
-- "unscoped" label exists nowhere in `src/` or `ui/src`.
+- Real pytest and real fastapi never ran; command C used my own stand-in runner and a fastapi stub. Re-run `python3 -m pytest -q tests/vnext tests/test_public_safety.py` in an environment with the `test` extra; the dispatcher tests skip (NOT RUN) without fastapi. The merged suite (main into #353) is NOT RUN: this merge environment has no `pytest` and no `ruff`, so every count above is a pre-merge run of one side.
+- Condition 2 and condition 3 were closed by the implementation this branch carries (`d-impl`), after this record was written; the pinned claims in this file were rewritten to match, but no post-implementation pytest run backs them.
+- "unscoped" label: still nowhere in a card envelope or UI surface - the one strict xfail that remains.
 - Condition 1 over HTTP (403 from `room_routes.py`) not exercised; Project Home 403 simulated by fixtures.
 - Condition 4 keyboard and 390px: NOT RUN.
 - Not checked: whether the run-2 day-alone test was scored before this started.
 
-NEXT: Implement `Auth.scope` and `Action.state` as the contract's §6.1 proposes (owner decision on protected modules), flip the five xfails to plain tests, and run the `phone-390` e2e where a browser exists.
+NEXT: Label the unscoped credential where a person reads it (a card envelope or UI surface, build-plan Q2) and flip the remaining strict xfail; run `python -m pytest -q tests/vnext tests/test_public_safety.py` on the merged tree; then run the `phone-390` e2e where a browser exists.

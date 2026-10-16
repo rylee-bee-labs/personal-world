@@ -541,23 +541,28 @@ def confined_request(
     *,
     effect: Literal["read", "write"],
     resolver: Resolver | None = None,
+    in_scope: bool = True,
 ) -> RawResponse | ConfinementError:
-    """Send one request. Never retries, never follows redirects, never raises."""
+    """Send one request. Never retries, never follows redirects, never raises.
+
+    ``in_scope`` is the call site's verdict on the credential's scope (a decision about capabilities, which is
+    Worlds' meaning, not the transport's). The transport only enforces it: False is ``auth_failed`` before DNS.
+    """
     try:
         budget = float(request.timeout_s or provider.timeout_s)
     except Exception:
         return ConfinementError("connection", "internal error: bad request or provider")
     deadline = Deadline(budget)
     try:
-        return _send(provider, request, effect, resolver or _system_resolver, deadline)
+        return _send(provider, request, effect, resolver or _system_resolver, deadline, in_scope)
     except Exception as exc:  # a bug here must fail closed, with no secret in the note
         return ConfinementError("connection", f"internal error: {type(exc).__name__}", duration_ms=_ms(deadline.started))
     finally:
         deadline.disarm()
 
 
-def _send(provider: Any, request: Any, effect: str, resolver: Resolver, deadline: Deadline):
-    ready = _prepare(provider, request, effect, resolver, deadline)
+def _send(provider: Any, request: Any, effect: str, resolver: Resolver, deadline: Deadline, in_scope: bool = True):
+    ready = _prepare(provider, request, effect, resolver, deadline, in_scope)
     if isinstance(ready, ConfinementError):
         return ready
     if getattr(provider.auth, "type", "none") in _SESSION_AUTH:
@@ -568,7 +573,7 @@ def _send(provider: Any, request: Any, effect: str, resolver: Resolver, deadline
     return _exchange(ready, provider, request, deadline, auth)
 
 
-def _prepare(provider: Any, request: Any, effect: str, resolver: Resolver, deadline: Deadline):
+def _prepare(provider: Any, request: Any, effect: str, resolver: Resolver, deadline: Deadline, in_scope: bool = True):
     """Every guard that must pass before a single byte goes out; returns the pinned request or why not."""
     started = deadline.started
     method = request.method.upper()
@@ -589,6 +594,10 @@ def _prepare(provider: Any, request: Any, effect: str, resolver: Resolver, deadl
         if any(c in f"{name}{value}" for c in ("\r", "\n", "\x00")):
             return _deny("header contains a control character", started)
         headers[name] = value
+
+    if not in_scope:  # the call site's verdict; before DNS: an out-of-scope capability costs no lookup and no bytes
+        return ConfinementError("auth_failed", "capability is outside the credential's scope", duration_ms=_ms(started),
+                                pre_send=True)
 
     addresses = resolve_within(resolver, host, port, deadline, key=str(getattr(provider, 'id', '')))
     if isinstance(addresses, ConfinementError):

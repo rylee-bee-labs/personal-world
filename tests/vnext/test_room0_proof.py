@@ -438,39 +438,59 @@ def test_c1_room0_a_verifier_that_does_not_confirm_leaves_it_unapproved(tmp_path
 # -------------------------------------- inherited Stage C conditions 2 and 3: pin the gaps, never relax them
 
 
-def _xfail_pin(name: str) -> tuple[bool, bool]:
+def _stage_c_fn(name: str, source: str | None = None) -> ast.FunctionDef | None:
+    tree = ast.parse(source if source is not None else _STAGE_C.read_text(encoding="utf-8"))
+    return next((n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == name), None)
+
+
+def _xfail_pin(name: str, source: str | None = None) -> tuple[bool, bool]:
     """(strict, names_a_raises) for ``name`` in the sibling Stage C file. A pin is an xfail, not a pass."""
-    tree = ast.parse(_STAGE_C.read_text(encoding="utf-8"))
-    for node in tree.body:
-        if isinstance(node, ast.FunctionDef) and node.name == name:
-            for dec in node.decorator_list:
-                if (isinstance(dec, ast.Call) and isinstance(dec.func, ast.Attribute) and dec.func.attr == "xfail"):
-                    kw = {k.arg: k.value for k in dec.keywords}
-                    strict = isinstance(kw.get("strict"), ast.Constant) and kw["strict"].value is True
-                    return strict, kw.get("raises") is not None
+    node = _stage_c_fn(name, source)
+    for dec in node.decorator_list if node else ():
+        if (isinstance(dec, ast.Call) and isinstance(dec.func, ast.Attribute) and dec.func.attr == "xfail"):
+            kw = {k.arg: k.value for k in dec.keywords}
+            strict = isinstance(kw.get("strict"), ast.Constant) and kw["strict"].value is True
+            return strict, kw.get("raises") is not None
     return False, False
 
 
-def test_c2_room0_the_state_proposed_pins_are_strict_and_the_gap_is_still_real():
-    """Contract §6.1 proposes Action.state; the code cannot satisfy it, so the pins must stay strict xfails."""
+def _is_plain_test(name: str) -> bool:
+    """True when ``name`` exists in the sibling Stage C file with no decorator at all (no xfail, skip or skipif)."""
+    node = _stage_c_fn(name)
+    return node is not None and not node.decorator_list
+
+
+def test_c2_room0_the_state_proposed_pins_are_plain_tests_now_that_the_gap_is_closed():
+    """Action.state exists (d-impl Step 3), so the two pins were flipped: they must run, undecorated, and pass.
+
+    A flipped pin that is still (or again) an xfail/skip would paper the gap over, so that fails here.
+    """
     from personal_world.worlds.models import Action
 
     for name in ("test_c2_a_state_proposed_action_can_exist",
                  "test_c2_a_state_proposed_action_is_inert_at_dispatcher_and_runtime"):
-        strict, names_raises = _xfail_pin(name)
-        assert strict and names_raises, f"{name} must stay a strict xfail naming its ValidationError"
-    assert "state" not in Action.model_fields                     # the gap the pins record is still real
+        assert _is_plain_test(name), f"{name} must be a plain test: no xfail, no skip"
+    assert "state" in Action.model_fields                         # the gap the pins recorded is closed
 
 
-def test_c3_room0_the_scope_pins_are_strict_and_the_gap_is_still_real():
-    """Contract §6.1 promises Auth.scope and a scope check before DNS; neither exists, so the pins stay strict xfails."""
+def test_c3_room0_the_scope_pins_are_plain_or_strict_as_the_gap_is_closed_or_open():
+    """Auth.scope and the scope check before DNS exist, so those two pins are plain tests; the label pin is still open."""
     from personal_world.worlds.models import Auth
 
     for name in ("test_c3_auth_scope_exists_and_none_is_the_legacy_unscoped_state",
-                 "test_c3_unscoped_is_labelled_wherever_it_appears",
                  "test_c3_out_of_scope_capability_fails_before_any_dns_lookup"):
-        strict, _ = _xfail_pin(name)
-        assert strict, f"{name} must stay a strict xfail, not be relaxed to a plain xfail"
-    assert "scope" not in Auth.model_fields                       # the field §6.1 proposes does not exist
-    source = pathlib.Path(confinement.__file__).read_text(encoding="utf-8").lower()
-    assert "scope" not in source                                  # no scope check exists in the only outbound seam
+        assert _is_plain_test(name), f"{name} must be a plain test: no xfail, no skip"
+    strict, _ = _xfail_pin("test_c3_unscoped_is_labelled_wherever_it_appears")
+    assert strict, "the 'unscoped' label pin must stay a strict xfail, not be relaxed to a plain xfail"
+    assert "scope" in Auth.model_fields                           # the field §6.1 proposed now exists
+
+
+def test_c3_room0_a_relaxed_or_dropped_pin_would_be_detected():
+    """Negative control: the guard's reading of a pin must tell strict from relaxed from removed."""
+    strict_src = "@pytest.mark.xfail(strict=True, raises=ValidationError, reason='r')\ndef t(): ...\n"
+    relaxed_src = "@pytest.mark.xfail(reason='r')\ndef t(): ...\n"
+    assert _xfail_pin("t", strict_src) == (True, True)
+    assert _xfail_pin("t", relaxed_src) == (False, False)
+    assert _xfail_pin("gone", strict_src) == (False, False)
+    assert _stage_c_fn("t", "def t(): ...\n") is not None and not _stage_c_fn("t", "def t(): ...\n").decorator_list
+    assert _stage_c_fn("t", strict_src).decorator_list                # a decorated test is not "plain"

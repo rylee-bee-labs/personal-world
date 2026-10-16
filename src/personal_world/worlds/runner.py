@@ -33,6 +33,7 @@ from typing import Any, Callable, Iterable
 
 from . import mapping
 from .confinement import ConfinementError, ErrorClass, RawResponse
+from .models import send_scoped
 
 __all__ = ["Fetch", "Runner", "redact", "REDACTED"]
 
@@ -268,7 +269,7 @@ class Runner:
     def _send_once(self, request_id: str, provider: Any, request: Any) -> Fetch:
         now = self._clock()
         try:
-            response = self._send(provider, request, effect="read")
+            response = send_scoped(self._send, provider, request, effect="read")
         except Exception as exc:
             return self._failure(
                 request_id,

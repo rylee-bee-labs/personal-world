@@ -33,7 +33,7 @@ from .authn import Principal
 from .config_store import ConfigStore
 from .confinement import ConfinementError, RawResponse, confined_request
 from .db import Database, register_migrations
-from .models import Action, Provider, Request, canonical_json
+from .models import Action, Provider, Request, canonical_json, send_scoped
 from .runner import redact
 
 log = logging.getLogger(__name__)
@@ -208,8 +208,8 @@ class Dispatcher:
     # -------------------------------------------------------- authorization
 
     def can_see(self, principal: Principal, action: Action) -> bool:
-        """Agents see only exposed actions inside their scope; the owner sees all."""
-        return principal.is_owner or (action.exposed and principal.allows_scope(action.scope))
+        """Agents see only adopted, exposed actions inside their scope; the owner sees all."""
+        return principal.is_owner or (action.state == "adopted" and action.exposed and principal.allows_scope(action.scope))
 
     def list_actions(self, principal: Principal) -> list[Action]:
         return [obj for kind, obj in self._store.iter_all() if kind == "action" and self.can_see(principal, obj)]
@@ -220,6 +220,8 @@ class Dispatcher:
         action, request, provider = self._resolve(action_id)
         if not self.can_see(principal, action):
             raise NotPermitted("that action is not available to this caller")
+        if action.state != "adopted":  # a proposed (or refused/expired) action is inert for everyone, the owner included
+            raise NotPermitted(f"that action is {action.state}, not adopted")
         params = {} if params is None else params
         if not isinstance(params, dict) or len(canonical_json(params).encode()) > MAX_PARAMS_BYTES:
             raise BadRequest("params must be a JSON object under 8 KiB")
@@ -338,6 +340,8 @@ class Dispatcher:
                 action, request, provider = self._resolve(row["action_id"])
             except BadRequest:
                 raise NotConsumable("the action is no longer configured") from None
+            if action.state != "adopted":
+                raise NotConsumable(f"the action is {action.state}, not adopted")
             current = self._store.action_version(row["action_id"])
             if row["params_hash"] != params_hash(json.loads(row["params_json"])):
                 raise NotConsumable("stored parameters do not match their hash")
@@ -378,7 +382,7 @@ class Dispatcher:
         if self._db.conn().in_transaction:  # never hold a transaction across the network
             raise RuntimeError("transaction open across dispatch")
         try:
-            result = self._send(provider, sent, effect=effect)  # exactly one attempt
+            result = send_scoped(self._send, provider, sent, effect=effect)  # exactly one attempt
         except Exception as exc:  # BaseException (a crash) deliberately propagates: row stays DISPATCHING
             result = ConfinementError("connection", f"sender error: {type(exc).__name__}")
         state, status, error_class = classify_outcome(result)

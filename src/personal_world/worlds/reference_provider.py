@@ -505,11 +505,16 @@ def reference_send(secrets: dict[str, str], *, allowed_ports: Iterable[int] | No
     tokens: dict[tuple[str, ...], str] = {}
     token_lock = threading.Lock()
 
-    def send(provider: Provider, request: Request, *, effect: Literal["read", "write"]) -> RawResponse | ConfinementError:
+    def send(provider: Provider, request: Request, *, effect: Literal["read", "write"],
+             in_scope: bool = True) -> RawResponse | ConfinementError:
         started = time.monotonic()
 
         def elapsed_ms() -> int:
             return int((time.monotonic() - started) * 1000)
+
+        if not in_scope:  # the call site's scope verdict, before any socket (login and token fetches included)
+            return ConfinementError("auth_failed", "capability is outside the credential's scope",
+                                    duration_ms=elapsed_ms(), pre_send=True)
 
         parts = urlsplit(provider.base_url)
         try:
