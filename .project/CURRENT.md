@@ -42,12 +42,21 @@ Those statements describe source on `main`, not the running instance.
 
 ## Current work
 
-Issues #262 (finish Phase 4 retirement and cutover readiness) and #263
-(main maintenance reconciliation) were closed as not planned on 2026-10-07.
-Their remainder is carried in [docs/BACKLOG.md](../docs/BACKLOG.md). #263 is
-largely overtaken by the merge of the rebuild into `main`.
+**Live work:** [#321](https://github.com/rylee-bee-labs/personal-world/issues/321)
+is the vNext owner-directed campaign: preserve/clean the existing baseline, then
+review the new visual direction and provider-neutral Connect API before prototyping.
+[#262](https://github.com/rylee-bee-labs/personal-world/issues/262) is **OPEN,
+reopened** for the remaining Phase 4 source retirement and cutover evidence.
+Do not retire source without consumer and rollback proof. Its 2026-10-07 closure as
+`not_planned` is a historical event, not current task state.
 
-There are no routine session handoffs to resume.
+[#263](https://github.com/rylee-bee-labs/personal-world/issues/263) remains
+closed as `not_planned`; the rebuild-to-`main` merge overtook much of its earlier
+scope. The October 7 [BACKLOG](../docs/BACKLOG.md) is a **historical census**, not
+a current issue list. The [vNext crosswalk](../docs/vnext/2026-10-16-issue-crosswalk.md)
+records the preserved obligations of the superseded #312 epic. Follow linked
+GitHub issues and evidence for current acceptance; no routine session handoff is
+authoritative over them.
 
 ## What is deployed
 
