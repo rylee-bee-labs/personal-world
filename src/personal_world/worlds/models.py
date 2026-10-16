@@ -515,7 +515,8 @@ def action_version(action: Action, request: Request, provider: Provider) -> str:
     if action.state == "adopted":
         action_d.pop("state")
     if request.provenance == "owner" and not request.verified:
-        request_d.pop("provenance"), request_d.pop("verified")
+        request_d.pop("provenance")
+        request_d.pop("verified")
     if provider.auth.scope is None:
         auth_d.pop("scope")
     payload = {
