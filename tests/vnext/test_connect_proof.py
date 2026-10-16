@@ -4,7 +4,7 @@ The contract is a MOCKUP: no ``/api/connect/v1`` route exists, and ``Auth.scope`
 fields it PROPOSES. So this file proves the journey against the pieces that DO exist (config store,
 runner, card service, confinement seam, dispatcher) and pins each place the contract is ahead of the
 code as a strict ``xfail`` naming the missing piece, instead of passing by assertion. Nothing here
-touches protected code, a real credential, a real URL or a socket: senders are fixtures, and the two
+touches protected code, a real credential, a real URL or a socket: senders are fixtures, and the three
 confinement tests replace the dial functions with stubs for the length of the test.
 
 Sol #158 conditions: 1 -> ``test_c1_*``, 2 -> ``test_c2_*``, 3 -> ``test_c3_*``, 4 -> ``test_c4_*`` and the journey.
@@ -12,6 +12,7 @@ The browser half of 4 (keyboard, 390px) is NOT RUN here; see docs/vnext/proof/c-
 """
 import json
 import os
+from types import SimpleNamespace
 
 import pytest
 from pydantic import ValidationError
@@ -20,7 +21,7 @@ from personal_world.worlds import confinement
 from personal_world.worlds.cards import CardService, home_board_defs
 from personal_world.worlds.config_store import ConfigInvalid, ConfigStore
 from personal_world.worlds.confinement import ConfinementError, RawResponse
-from personal_world.worlds.models import Action, Auth, Board, BoardItem, Card, Provider, Request
+from personal_world.worlds.models import Action, Auth, Board, BoardItem, Card, Network, Provider, Request
 from personal_world.worlds.room0 import valid_link
 from personal_world.worlds.runner import Runner
 
@@ -174,16 +175,34 @@ def test_c4_the_confinement_seam_refuses_a_mutating_read_effect():
 # ---------------------------------------------------------------- condition 3: scoped auth before the network
 
 class _Dials:
-    """Replace the two functions that put bytes on a socket; restored on exit, so nothing here can dial."""
+    """Replace the two functions that put bytes on a socket; restored on exit, so nothing here can dial.
+
+    Every call lands in ``dialed`` (the request path). The bearer path's calls also land in ``sent`` as
+    (request path, credential headers): the fake never dials, so what the sender was asked to carry is the
+    proof. The default answer is a connection error; a test that means its requests to succeed passes
+    ``answer=``. The session path records only that it was reached: no c3 test takes it.
+    """
+
+    def __init__(self, answer=None):
+        self.dialed = []
+        self.sent = []
+        self.answer = ConfinementError("connection", "stubbed: no network in the proof") if answer is None else answer
 
     def __enter__(self):
-        self.dialed = []
         self._saved = (confinement._exchange, confinement._session_send)
+        answer = self.answer
 
-        def stub(*a, **k):
-            self.dialed.append(a)
-            return ConfinementError("connection", "stubbed: no network in the proof")
-        confinement._exchange = confinement._session_send = stub
+        def stub_exchange(ready, provider, request, deadline, credential=None):
+            self.dialed.append(request.path)
+            self.sent.append({"path": request.path, "credential": dict(credential or {})})
+            return answer
+
+        def stub_session(provider, request, ready, effect, deadline):
+            self.dialed.append(request.path)
+            return answer
+
+        confinement._exchange = stub_exchange
+        confinement._session_send = stub_session
         return self
 
     def __exit__(self, *exc):
@@ -195,13 +214,24 @@ def test_c3_today_a_credential_applies_to_every_request_of_the_provider():
     os.environ["SYNTH_CONNECT_TOKEN"] = SECRET_VALUE
     try:
         provider = Provider(id="synth", name="S", kind="http", base_url="http://fixture.invalid",
-                            auth=Auth(type="bearer", secret_ref=SECRET_REF))
+                            auth=Auth(type="bearer", secret_ref=SECRET_REF), network=Network(lan=True))
         assert "scope" not in Auth.model_fields          # None / unscoped is the only state that exists
-        with _Dials():
+        outs = []
+        with _Dials(answer=ok({})) as dials:
             for path in ("/health", "/anything-else"):
-                confinement.confined_request(provider, Request(id="synth.r", provider="synth", path=path), effect="read",
-                                             resolver=lambda host, port: ["192.0.2.10"])
-        # whatever happened at classify time, no request was ever refused FOR SCOPE: there is no such check
+                # an address confinement ACCEPTS for this provider, so nothing but the credential
+                # (or the lack of one) can stand between the request and the sender
+                outs.append(confinement.confined_request(
+                    provider, Request(id="synth.r", provider="synth", path=path), effect="read",
+                    resolver=lambda host, port: ["10.9.9.9"]))        # pw-safety: synthetic; allowed for a lan provider
+        # BOTH requests reached the sender, and EACH one carried the provider's credential: miss it on
+        # either request and this fails -- an unavailable credential never reaches the sender at all,
+        # and a dropped one arrives bare.
+        assert [s["path"] for s in dials.sent] == ["/health", "/anything-else"], "a request never reached the sender"
+        assert all(s["credential"] == {"Authorization": f"Bearer {SECRET_VALUE}"} for s in dials.sent), \
+            "a request reached the sender without the credential"
+        assert all(isinstance(o, RawResponse) and o.status_code == 200 for o in outs)
+        # and no request was ever refused FOR SCOPE: there is no such check anywhere in the sender
         assert not hasattr(confinement, "scope_allows") and "scope" not in open(confinement.__file__).read().lower()
     finally:
         os.environ.pop("SYNTH_CONNECT_TOKEN", None)
@@ -231,19 +261,33 @@ def test_c3_unscoped_is_labelled_wherever_it_appears(world):
     assert "unscoped" in json.dumps(cards.build("synth-health")).lower()
 
 
-@pytest.mark.xfail(strict=True, reason="no scope check exists in confinement.py: nothing refuses an out-of-scope capability")
+@pytest.mark.xfail(strict=True, raises=AssertionError,
+                   reason="no scope check exists in confinement.py: an out-of-scope capability reaches DNS and "
+                          "the sender today, refused by nothing (contract §4.2: out of scope is auth_failed "
+                          "BEFORE any DNS, no bytes)")
 def test_c3_out_of_scope_capability_fails_before_any_dns_lookup():
-    provider = Provider(id="synth", name="S", kind="http", base_url="http://fixture.invalid",
-                        auth=Auth(type="bearer", secret_ref=SECRET_REF))
+    # Auth has no scope field yet (pinned above), so the scoped credential rides a synthetic provider in
+    # the contract's §6.1 shape: the sender has nothing to read it with, which is the gap being pinned.
+    provider = SimpleNamespace(id="synth", kind="http", base_url="http://fixture.invalid", path_prefix="",
+                               timeout_s=5, auth=SimpleNamespace(type="bearer", secret_ref=SECRET_REF,
+                                                                 scope=["synth.health"]),
+                               network=SimpleNamespace(lan=True))
     lookups = []
     os.environ["SYNTH_CONNECT_TOKEN"] = SECRET_VALUE
     try:
-        with _Dials():
+        with _Dials() as dials:
+            # scoped to capability "synth.health"; this request serves "synth.other". The address is one
+            # confinement accepts and the credential is available, so the ONLY thing that can refuse
+            # this request is scope -- address classification can no longer mask the ordering.
             out = confinement.confined_request(provider, Request(id="synth.other", provider="synth", path="/other"),
-                                               effect="read", resolver=lambda *a: lookups.append(a) or ["127.0.0.1"])
+                                               effect="read", resolver=lambda *a: lookups.append(a) or ["10.9.9.9"])
     finally:
         os.environ.pop("SYNTH_CONNECT_TOKEN", None)
-    assert isinstance(out, ConfinementError) and out.error_class == "auth_failed" and lookups == []
+    # the contract's ORDER: the scope refusal comes first, so the resolver was never asked and nothing was
+    # sent. A scope check that lands only AFTER DNS keeps this test red: lookups would be non-empty.
+    assert isinstance(out, ConfinementError) and out.error_class == "auth_failed", f"not refused for scope: {out!r}"
+    assert lookups == [], "the capability was refused for scope, but only after DNS"
+    assert dials.dialed == [], "bytes were attempted"
 
 
 # ---------------------------------------------------------------- conditions 1 and 2: the dispatcher
