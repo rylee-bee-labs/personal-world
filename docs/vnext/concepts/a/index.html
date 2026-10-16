@@ -125,7 +125,7 @@ main{padding:var(--space-xl);width:100%;max-width:92rem;margin:0 auto;min-width:
 .peek-val{font-size:var(--type-lead);font-weight:700;line-height:1.25}
 .peek-lbl{font-size:var(--type-small);color:var(--text-soft)}
 .slip-foot{display:flex;justify-content:space-between;gap:var(--space-sm);margin-top:var(--space-sm);font-size:var(--type-small);color:var(--text-soft)}
-.sel-word{display:inline-flex;gap:var(--space-xs);align-items:center;color:var(--accent-mint);font-weight:700;font-size:var(--type-small)}
+.sel-word{display:inline-flex;white-space:nowrap;flex:none;gap:var(--space-xs);align-items:center;color:var(--accent-mint);font-weight:700;font-size:var(--type-small)}
 .detail{min-width:0}
 .svc-head{display:flex;justify-content:space-between;gap:var(--space-lg);align-items:flex-start;flex-wrap:wrap;margin-bottom:var(--space-lg)}
 .svc-title{font-size:var(--wv-display-page);letter-spacing:-.02em;min-width:0}
@@ -532,7 +532,7 @@ function renderHome(state){
   f.append(freshLine('dot','Dot rests. checked 24s ago.'));
   const needs=SERVICES.filter(s=>s.state==='needs_attention').length;
   f.append(el('p',{class:'status-line'},
-    el('strong',{class:'cnt',text:needs+' need'+(needs===1?'s':' you')}),el('span',{text:' · checked 24s ago'})));
+    el('strong',{class:'cnt',text:needs+(needs===1?' needs you':' need you')}),el('span',{text:' · checked 24s ago'})));
   const grid=el('div',{class:'home-grid'});
   const list=el('ul',{class:'slips','aria-label':'Services'});
   for(const svc of SERVICES){
