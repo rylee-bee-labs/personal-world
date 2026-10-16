@@ -6,13 +6,16 @@
 <title>Worlds · The Card deck · MOCKUP</title>
 <style>
 /* ------------------------------------------------------------------ tokens
-   Mulberry & Mint, copied from the v3.1 prototype (docs/vnext/prototype). */
-:root{--space-xs:.25rem;--space-sm:.5rem;--space-md:1rem;--space-lg:1.5rem;--space-xl:2rem;--space-2xl:3rem;--radius-sm:.25rem;--radius-md:.5rem;--radius-lg:1rem;--radius-full:999rem;--type-micro:.75rem;--type-small:.875rem;--type-label:.875rem;--type-body:1rem;--type-lead:1.25rem;--type-h1:1.5rem}
-:root,:root[data-theme="dark"]{--surface-base:#291d30;--surface-raised:#352640;--surface-sunken:#1f1625;--text-primary:#f5ecf2;--text-soft:#dacad9;--border-line:#8b7791;--border-line-strong:#b09ab3;--action-primary:#a7e6ce;--action-on-primary:#291d30;--focus-ring:#c4f5e2;--status-needs-you:#f6cea2;--status-done:#c3e79b;--status-failed:#ffa8b4;--status-unknown:#cbbcce;--accent-mint:#a7e6ce;--accent-apricot:#f6cea2;--accent-lilac:#dcc2f7;--status-healthy:#c3e79b;--status-warning:#f6cea2;--status-stale:#f6cea2;--status-unavailable:#ffa8b4;--status-not_configured:#cbbcce;--status-working:#a9d4ff;color-scheme:dark}
-@media(prefers-color-scheme:light){:root:not([data-theme]){--surface-base:#f7f1f4;--surface-raised:#fffafc;--surface-sunken:#ece1e8;--text-primary:#291d30;--text-soft:#5c4a62;--border-line:#8b7791;--border-line-strong:#5c4a62;--action-primary:#1f5c47;--action-on-primary:#fffafc;--focus-ring:#291d30;--status-needs-you:#8a4a12;--status-done:#3f6b1f;--status-failed:#9b3346;--status-unknown:#5c4a62;--accent-mint:#1f5c47;--accent-apricot:#8a4a12;--accent-lilac:#6a4a8f;--status-healthy:#3f6b1f;--status-warning:#8a4a12;--status-stale:#8a4a12;--status-unavailable:#9b3346;--status-not_configured:#5c4a62;--status-working:#2d5a8a;color-scheme:light}}
-:root[data-theme="light"]{--surface-base:#f7f1f4;--surface-raised:#fffafc;--surface-sunken:#ece1e8;--text-primary:#291d30;--text-soft:#5c4a62;--border-line:#8b7791;--border-line-strong:#5c4a62;--action-primary:#1f5c47;--action-on-primary:#fffafc;--focus-ring:#291d30;--status-needs-you:#8a4a12;--status-done:#3f6b1f;--status-failed:#9b3346;--status-unknown:#5c4a62;--accent-mint:#1f5c47;--accent-apricot:#8a4a12;--accent-lilac:#6a4a8f;--status-healthy:#3f6b1f;--status-warning:#8a4a12;--status-stale:#8a4a12;--status-unavailable:#9b3346;--status-not_configured:#5c4a62;--status-working:#2d5a8a;color-scheme:light}
-@media(prefers-contrast:more){:root:not([data-theme]){--surface-base:#170f1b;--surface-raised:#291d30;--surface-sunken:#0f0912;--text-primary:#fffafd;--text-soft:#f5ecf2;--border-line:#fffafd;--border-line-strong:#fffafd;--action-primary:#c4f5e2;--action-on-primary:#170f1b;--focus-ring:#fffafd;--status-needs-you:#ffd9b0;--status-done:#d6f5b0;--status-failed:#ffc2cb;--status-unknown:#f5ecf2;--accent-mint:#c4f5e2;--accent-apricot:#ffd9b0;--accent-lilac:#e8d6ff;--status-healthy:#d6f5b0;--status-warning:#ffd9b0;--status-stale:#ffd9b0;--status-unavailable:#ffc2cb;--status-not_configured:#f5ecf2;--status-working:#c2e0ff;color-scheme:dark}}
-:root[data-theme="high-contrast"]{--surface-base:#170f1b;--surface-raised:#291d30;--surface-sunken:#0f0912;--text-primary:#fffafd;--text-soft:#f5ecf2;--border-line:#fffafd;--border-line-strong:#fffafd;--action-primary:#c4f5e2;--action-on-primary:#170f1b;--focus-ring:#fffafd;--status-needs-you:#ffd9b0;--status-done:#d6f5b0;--status-failed:#ffc2cb;--status-unknown:#f5ecf2;--accent-mint:#c4f5e2;--accent-apricot:#ffd9b0;--accent-lilac:#e8d6ff;--status-healthy:#d6f5b0;--status-warning:#ffd9b0;--status-stale:#ffd9b0;--status-unavailable:#ffc2cb;--status-not_configured:#f5ecf2;--status-working:#c2e0ff;color-scheme:dark}
+   Mulberry & Mint, the design system's own file (tokens/mulberry-mint.css).
+   Dark is the default (Rylee's 2026-10-16 pick), so the file's follow-the-OS
+   light override is dropped here; Light and High contrast stay one toggle
+   away in Settings, and prefers-contrast: more is honoured until a theme
+   is chosen. No colour outside this block appears in the page. */
+:root{--space-xs:.25rem;--space-sm:.5rem;--space-md:1rem;--space-lg:1.5rem;--space-xl:2rem;--space-2xl:3rem;--space-3xl:4rem;--radius-sm:.25rem;--radius-md:.5rem;--radius-lg:1rem;--radius-full:999rem;--type-micro:.75rem;--type-small:.875rem;--type-label:.875rem;--type-body:1rem;--type-lead:1.25rem;--type-h1:1.5rem}
+:root,:root[data-theme="dark"]{--surface-base:#291d30;--surface-raised:#352640;--surface-sunken:#1f1625;--text-primary:#f5ecf2;--text-soft:#dacad9;--border-line:#8b7791;--border-line-strong:#b09ab3;--action-primary:#a7e6ce;--action-on-primary:#291d30;--focus-ring:#c4f5e2;--status-needs-you:#f6cea2;--status-working:#a9d4ff;--status-held:#dcc2f7;--status-done:#c3e79b;--status-failed:#ffa8b4;--status-unknown:#cbbcce;--accent-mint:#a7e6ce;--accent-apricot:#f6cea2;--accent-lilac:#dcc2f7;--accent-honey:#e8c56a;--status-healthy:#c3e79b;--status-warning:#f6cea2;--status-needs_attention:#f6cea2;--status-degraded:#dcc2f7;--status-unavailable:#ffa8b4;--status-not_configured:#cbbcce;--status-disabled:#cbbcce;--status-stale:#f6cea2;--status-waiting:#dcc2f7;--status-blocked:#ffa8b4;--status-deferred:#dcc2f7;--status-partial:#c8ccff;--status-complete:#c3e79b;--accent-tide:#a9d4ff;--accent-kelp:#c3e79b;--accent-mermaid:#dcc2f7;--accent-iris:#c8ccff;--accent-coral:#ffa8b4;--accent-sunbeam:#e8c56a;color-scheme:dark}
+@media(prefers-contrast:more){:root:not([data-theme]){--surface-base:#170f1b;--surface-raised:#291d30;--surface-sunken:#0f0912;--text-primary:#fffafd;--text-soft:#f5ecf2;--border-line:#fffafd;--border-line-strong:#fffafd;--action-primary:#c4f5e2;--action-on-primary:#170f1b;--focus-ring:#fffafd;--status-needs-you:#ffd9b0;--status-working:#c2e0ff;--status-held:#e8d6ff;--status-done:#d6f5b0;--status-failed:#ffc2cb;--status-unknown:#f5ecf2;--accent-mint:#c4f5e2;--accent-apricot:#ffd9b0;--accent-lilac:#e8d6ff;--accent-honey:#f0d27c;--status-healthy:#d6f5b0;--status-warning:#ffd9b0;--status-needs_attention:#ffd9b0;--status-degraded:#e8d6ff;--status-unavailable:#ffc2cb;--status-not_configured:#f5ecf2;--status-disabled:#f5ecf2;--status-stale:#ffd9b0;--status-waiting:#e8d6ff;--status-blocked:#ffc2cb;--status-deferred:#e8d6ff;--status-partial:#d8dbff;--status-complete:#d6f5b0;--accent-tide:#c2e0ff;--accent-kelp:#d6f5b0;--accent-mermaid:#e8d6ff;--accent-iris:#d8dbff;--accent-coral:#ffc2cb;--accent-sunbeam:#f0d27c}}
+:root[data-theme="light"]{--surface-base:#f7f1f4;--surface-raised:#fffafc;--surface-sunken:#ece1e8;--text-primary:#291d30;--text-soft:#5c4a62;--border-line:#8b7791;--border-line-strong:#5c4a62;--action-primary:#1f5c47;--action-on-primary:#fffafc;--focus-ring:#291d30;--status-needs-you:#8a4a12;--status-working:#2d5a8a;--status-held:#6a4a8f;--status-done:#3f6b1f;--status-failed:#9b3346;--status-unknown:#5c4a62;--accent-mint:#1f5c47;--accent-apricot:#8a4a12;--accent-lilac:#6a4a8f;--accent-honey:#7a5208;--status-healthy:#3f6b1f;--status-warning:#8a4a12;--status-needs_attention:#8a4a12;--status-degraded:#6a4a8f;--status-unavailable:#9b3346;--status-not_configured:#5c4a62;--status-disabled:#5c4a62;--status-stale:#8a4a12;--status-waiting:#6a4a8f;--status-blocked:#9b3346;--status-deferred:#6a4a8f;--status-partial:#4b4f9b;--status-complete:#3f6b1f;--accent-tide:#2d5a8a;--accent-kelp:#3f6b1f;--accent-mermaid:#6a4a8f;--accent-iris:#4b4f9b;--accent-coral:#9b3346;--accent-sunbeam:#7a5208;color-scheme:light}
+:root[data-theme="high-contrast"]{--surface-base:#170f1b;--surface-raised:#291d30;--surface-sunken:#0f0912;--text-primary:#fffafd;--text-soft:#f5ecf2;--border-line:#fffafd;--border-line-strong:#fffafd;--action-primary:#c4f5e2;--action-on-primary:#170f1b;--focus-ring:#fffafd;--status-needs-you:#ffd9b0;--status-working:#c2e0ff;--status-held:#e8d6ff;--status-done:#d6f5b0;--status-failed:#ffc2cb;--status-unknown:#f5ecf2;--accent-mint:#c4f5e2;--accent-apricot:#ffd9b0;--accent-lilac:#e8d6ff;--accent-honey:#f0d27c;--status-healthy:#d6f5b0;--status-warning:#ffd9b0;--status-needs_attention:#ffd9b0;--status-degraded:#e8d6ff;--status-unavailable:#ffc2cb;--status-not_configured:#f5ecf2;--status-disabled:#f5ecf2;--status-stale:#ffd9b0;--status-waiting:#e8d6ff;--status-blocked:#ffc2cb;--status-deferred:#e8d6ff;--status-partial:#d8dbff;--status-complete:#d6f5b0;--accent-tide:#c2e0ff;--accent-kelp:#d6f5b0;--accent-mermaid:#e8d6ff;--accent-iris:#d8dbff;--accent-coral:#ffc2cb;--accent-sunbeam:#f0d27c;color-scheme:dark}
 
 /* deck-local handles: layout and motion only */
 :root{--wv-target-min:2.75rem;--wv-hairline:.0625rem;--wv-frame-line:.125rem;--wv-ring-width:.1875rem;--wv-pad-tight:.125rem;--wv-ease:cubic-bezier(.2,0,0,1);--wv-dur-state:150ms;--wv-dur-deal:320ms;--wv-dur-stamp:280ms;--wv-lift:-.125rem;--wv-display-page:2.5rem;--wv-serif:"Young Serif",Georgia,"Times New Roman",serif;--wv-sans:"Atkinson Hyperlegible Next","Atkinson Hyperlegible",Verdana,sans-serif}
@@ -64,7 +67,7 @@ img{max-width:100%}
 .topnav{display:flex;gap:var(--space-xs)}
 .navbtn{min-height:var(--wv-target-min);padding:0 var(--space-md);border-radius:var(--radius-full);border:var(--wv-hairline) solid transparent;background:transparent;font-weight:600;cursor:pointer}
 .navbtn:hover{background:var(--surface-sunken);border-color:var(--border-line)}
-.navbtn[aria-current="page"]{background:var(--surface-sunken);border-color:var(--action-primary)}
+.navbtn[aria-current="page"]{background:var(--action-primary);color:var(--action-on-primary);border-color:var(--action-primary)}
 .main{padding:var(--space-xl);width:100%;max-width:80rem;margin:0 auto;min-width:0}
 .foot{padding:var(--space-xl) var(--space-lg);color:var(--text-soft);font-size:var(--type-small);border-top:var(--wv-hairline) solid var(--border-line)}
 @media(max-width:47.99rem){
@@ -113,18 +116,16 @@ fieldset.switch{border:0;padding:0;margin:0 0 var(--space-lg)}
 @media(min-width:48rem){.board{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(min-width:78rem){.board{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .board:focus-visible{outline:var(--wv-ring-width) solid var(--focus-ring);outline-offset:var(--wv-ring-width)}
-.card{background:var(--surface-raised);border:var(--wv-hairline) solid var(--border-line);border-left:.5rem solid var(--border-line);border-radius:var(--radius-lg);padding:var(--space-lg);min-width:0;animation:deal var(--wv-dur-deal) var(--wv-ease) both}
+.card{background:var(--surface-raised);border:var(--wv-hairline) solid var(--border-line);border-top:.5rem solid var(--accent-mint);border-radius:var(--radius-lg);padding:var(--space-lg);min-width:0;animation:deal var(--wv-dur-deal) var(--wv-ease) both}
 .board>*:nth-child(2){animation-delay:50ms}
 .board>*:nth-child(3){animation-delay:100ms}
 .board>*:nth-child(4){animation-delay:150ms}
 .board>*:nth-child(5){animation-delay:200ms}
 @keyframes deal{from{opacity:0;transform:translateY(1.25rem) rotate(1.2deg)}to{opacity:1;transform:none}}
-@media(min-width:48rem){.card:hover{transform:translateY(var(--wv-lift));border-color:var(--action-primary);border-left-color:var(--action-primary)}}
-.card[data-st="healthy"]{border-left-color:var(--status-healthy)}
-.card[data-st="needs_attention"]{border-left-color:var(--status-needs-you)}
-.card[data-st="stale"]{border-left-color:var(--status-stale)}
-.card[data-st="unknown"]{border-left-color:var(--status-unknown)}
-.card[data-st="unavailable"]{border-left-color:var(--status-unavailable)}
+@media(min-width:48rem){.card:hover{transform:translateY(var(--wv-lift));border-color:var(--action-primary)}}
+.card[data-st="healthy"]{border-top-color:var(--accent-mint)}
+.card[data-st="needs_attention"],.card[data-st="stale"]{border-top-color:var(--accent-apricot)}
+.card[data-st="unknown"],.card[data-st="unavailable"]{border-top-color:var(--accent-lilac)}
 .card .who{display:flex;align-items:center;gap:var(--space-md);min-width:0}
 .card .who img{width:2.5rem;height:2.5rem;object-fit:contain;flex:none}
 .card h2{font-size:var(--type-h1);flex:1;min-width:0}
@@ -831,6 +832,12 @@ select.sel{min-height:var(--wv-target-min);background:var(--surface-sunken);bord
 
   /* ------------------------------------------------------------- Settings */
   var liveOn = true;
+  function curTheme() {
+    var t = document.documentElement.getAttribute('data-theme');
+    if (t === 'light' || t === 'high-contrast' || t === 'dark') return t;
+    if (window.matchMedia('(prefers-contrast: more)').matches) return 'high-contrast';
+    return 'dark';
+  }
   function renderSettings(state) {
     var box = $('#content-settings');
     box.textContent = '';
@@ -895,14 +902,12 @@ select.sel{min-height:var(--wv-target-min);background:var(--surface-sunken);bord
         'Reduce motion always'),
       h('label', { class: 'sr-only', for: 'theme', text: 'Theme' }),
       h('select', { id: 'theme', class: 'sel', onchange: function (e) {
-        var v = e.target.value;
-        if (v === 'auto') document.documentElement.removeAttribute('data-theme');
-        else document.documentElement.setAttribute('data-theme', v);
+        document.documentElement.setAttribute('data-theme', e.target.value);
         say('Theme: ' + e.target.options[e.target.selectedIndex].text + '.');
       } },
-        h('option', { value: 'auto', text: 'Auto (dark by default)' }),
-        h('option', { value: 'light', text: 'Light' }),
-        h('option', { value: 'high-contrast', text: 'High contrast' })))));
+        h('option', { value: 'dark', text: 'Dark (default)', selected: curTheme() === 'dark' }),
+        h('option', { value: 'light', text: 'Light', selected: curTheme() === 'light' }),
+        h('option', { value: 'high-contrast', text: 'High contrast', selected: curTheme() === 'high-contrast' })))));
     /* activity */
     box.appendChild(mk('Activity', empty
       ? h('div', { class: 'well' },

@@ -15,7 +15,7 @@ try, receipt — and nothing is saved until the last one.
 
 - **One card, one service, no chrome between them.** No rail, no sticky detail pane, no receipt
   station grid on Home — the card *is* the surface. Depth comes from the surface ladder and the
-  state-coloured spine on each card's left edge, not from panels.
+  state-coloured band along each card's top edge, not from panels.
 - **The deck is the navigation.** Phone: stacked card edges behind the current card, swipe or
   Previous/Next, "Card 2 of 5", arrow keys; desktop: the deck fans out into a board. The same
   content, two tempos, no third layout.
@@ -28,8 +28,15 @@ try, receipt — and nothing is saved until the last one.
 - **Motion is card motion.** Cards deal in with a slight tilt and a stagger; the "Connected"
   stamp lands rotated; hover lifts a card two pixels. One easing curve, and every duration
   zeroes under `prefers-reduced-motion` or the in-page "Reduce motion always".
-- Mulberry & Mint tokens, Dot, terse warmth and the state vocabulary are the standing rules, so
-  this concept stays a costume change over the same skeleton, not a different product.
+- **Rylee's pick, in Mulberry & Mint.** She chose C on 2026-10-16 ("I choose C for worlds vnext,
+  but I'd like it in the mulberry and mint colors"), so the mockup now defaults to the dark
+  Mulberry & Mint mode: deep mulberry surfaces, mint leading the primary buttons, the active tab,
+  the focus rings, the "Full deck" state chip and every card's top band, with apricot and lilac
+  only as secondary card accents — status still says its state in words. Light and High contrast
+  stay one toggle away in Settings, `prefers-contrast: more` is honoured, and Light leads with
+  the same mint/mulberry accents, not generic green.
+- Dot, terse warmth and the state vocabulary are the standing rules, so this concept stays a
+  costume change over the same skeleton, not a different product.
 
 ## Known gaps (deliberate, for the gallery pass)
 
