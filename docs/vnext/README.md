@@ -16,6 +16,7 @@ that would turn them into one.
 | `docs/vnext/retire.md` | **Current** | The Stage 0 keep-or-retire ledger: what was retired as provably dead, with its consumer proof and rollback, and what is deliberately kept. |
 | `docs/vnext/worlds-design.md` | **MOCKUP** | The Worlds front-door design (screens, words, states) over synthetic fixture data. |
 | `docs/vnext/inventory.md` | **Current** | Ownership and disposition of the front-door core, with unknowns listed in §10. |
+| `docs/vnext/reviews/2026-10-16-connect-contract-review.md` | **REVIEW** | Rylee's requested contract review (#323): what the Connect contract promises against what the code does at `39beedb`, the gaps, and the questions — including the two MAJOR findings and the citation drift. Not an approval; nothing in it amends the contract. |
 
 Companions this index does not restate: `connect-contract-rereview.md`, `contracts-audit.md`,
 `docs-truth.md`, `full-design-brief.md`, `preserved-branch.md`, `worlds-design-CRITIQUE.md`, and the
