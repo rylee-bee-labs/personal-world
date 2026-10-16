@@ -112,3 +112,16 @@ Tests: new `test_c3_the_reference_sender_honours_an_out_of_scope_verdict_before_
 All 16 of the 19 `tests/vnext/test_connect_proof.py` functions that take no fixture or `tmp_path` passed under the stub runner;
 the 3 others take the `world` fixture (`:81`, `:155`, `:229`, the last being the xfail-strict pin) and were NOT RUN. Real pytest, `tests/worlds/*` (including `test_config_store.py`): NOT RUN.
 `python3 -m compileall -q src tests` → exit 0.
+
+### d-ci-fix: the two room/0 guard failures
+CI: `test_c2_room0_the_state_proposed_pins_are_strict_and_the_gap_is_still_real` and `test_c3_room0_the_scope_pins_are_strict_and_the_gap_is_still_real` failed. They are guards, written before `Auth.scope` / `Action.state` existed, asserting those pins were still strict xfails. Steps 1-5 flipped four of five pins to plain tests, so the guards were out of date. The code was not wrong.
+
+Changed `tests/vnext/test_room0_proof.py` only:
+- The c2 guard now asserts both `Action.state` pins are plain tests (present, no decorator at all, so no xfail and no skip) and that `state` is in `Action.model_fields`.
+- The c3 guard asserts the `scope_exists` and `out_of_scope_before_dns` pins are plain, that `test_c3_unscoped_is_labelled_wherever_it_appears` is still `xfail(strict=True)`, and that `scope` is in `Auth.model_fields`.
+- The two test names were changed because they asserted the opposite of what they now check.
+- **The brief said to keep a negative control for a relaxed pin. None existed in this file** (searched for "relax" and "control"), so I added one: `test_c3_room0_a_relaxed_or_dropped_pin_would_be_detected` feeds the helper a strict, a relaxed and a missing pin. That is an addition, not a preservation.
+- I removed the old `"scope" not in confinement source` assertion. It is false now that the scope check exists.
+
+Observed: a stdlib-`ast` check, run outside pytest, shows all four flipped pins are present and undecorated, the label pin is `(strict=True, raises=None)`, and the control inputs return `(True, True)`, `(False, False)` and `(False, False)`. Compileall exit 0.
+**NOT RUN:** real `pytest`, so I have not seen the guards pass or the four flipped pins pass. Whether the flipped pins pass is what the rest of the suite shows, and I did not observe it.
