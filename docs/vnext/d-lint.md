@@ -67,7 +67,7 @@ names.
   ruff-enabling commit `fa70dda` itself and kept green. Because I am not certain, I left the code alone rather
   than guess. If a second CI run still fails, this line is the next thing to look at; the safe rewrite (two
   statements, or `del request_d["provenance"]; del request_d["verified"]` semantics preserved) removes the
-  question without changing behaviour.
+  question without changing behaviour. → **Closed in d-lint2 below (two statements).**
 
 ## What I could not determine
 
@@ -95,4 +95,85 @@ CHECKS: python3 -m compileall -q src tests → exit 0; python3 -m pytest tests/v
 EVIDENCE: tests/vnext/test_connect_proof.py:272 (fixed); tests/worlds/test_dispatcher.py:93 and tests/worlds/test_room0.py:153 (green tuple-unpack evidence); src/personal_world/worlds/models.py:518 (B018 candidate, left)
 UNRESOLVED: whether ruff also flags the bare tuple expression at src/personal_world/worlds/models.py:518 (B018); project tests could not be run (pytest/fastapi absent); ruff itself not run
 NEXT: Re-run CI on this branch; if it is still red, treat models.py:518 as the B018 candidate and split the comma expression into two statements
+```
+
+# d-lint2 — the B018 candidate closed
+
+A second pass closed the one candidate the audit above left standing and re-swept the changed files. `ruff` is
+**still not installed** and there is no network, so **I did not run ruff**; `pytest`/`fastapi` are still absent,
+so **I did not run the project tests**. The findings below are from reading the code and from a stdlib-`ast`
+scan approximating the configured subset.
+
+## Changed
+
+**`src/personal_world/worlds/models.py:517`, inside `action_version`** — the bare tuple expression this audit
+named as the B018 candidate:
+
+```python
+    if request.provenance == "owner" and not request.verified:
+        request_d.pop("provenance")
+        request_d.pop("verified")
+```
+
+The two statements evaluate left to right exactly as the tuple did, so both `pop`s still run, in the same order,
+under the same condition — **no behaviour change**. The nearby lines are not the same shape: line 516
+`action_d.pop("state")` and line 520 `auth_d.pop("scope")` are already single statements. Nothing else was
+changed.
+
+## Ruled out, and how
+
+Re-swept all 11 files the branch changed (`git diff ea517bd..HEAD --name-only -- src tests`), whole files, not
+just hunks:
+
+- **B018 (bare expression):** none left. An `ast` scan flagging bare `Name`/`Attribute`/`Subscript`/`Constant`/
+  `Tuple`/`List`/`Set`/`Dict`/`BoolOp`/`BinOp`/`UnaryOp`/`Compare`/`IfExp`/`Lambda` statements (skipping
+  docstrings and `...`) reports `models.py:518` before this fix and nothing after. The scanner was validated
+  against the pre-fix file (`git show HEAD:...`), where it does catch the tuple.
+- **F401 (unused import):** none. Every name bound by an `import`/`from` in the changed files is loaded somewhere
+  in its module or named in a string; `__future__` excluded.
+- **F841 (unused local):** none. A scope-aware scan (function-local single-name `=`/`:=`/`with ... as`/
+  `except ... as` bindings, `_`-prefixed exempt, loads counted across closures, not descending into nested
+  defs/classes) is clean. The earlier `dials` binding was the only one and is already fixed.
+- **I001 (import order):** none introduced. The scope work only *extended* existing `from .models import ...`
+  lines and *added* `from .models import send_scoped` after `from .confinement import ...`. In each block the
+  names stay case-sensitively ascending (`Action, Provider, Request, canonical_json, send_scoped`), and the
+  repo's layout — straight imports then `from` imports within each isort section — is preserved.
+- **E711/E712, F541 (spot-check):** none in the changed files.
+- **Line length (E501):** ignored by config, so nothing was rewrapped for it.
+
+**Ruled out and left alone:** a whole-tree scan also shows two bare conditional-expression statements at
+`tests/worlds/test_confinement_auth.py:98` and `:102` (`self._send(...) if cond else self._send(...)`). They are
+**pre-existing on main** (commit `0941377`), in a file this branch does not touch, so they are not this branch's
+failure. Rewriting another author's code to satisfy a guess is worse than leaving it; left as-is.
+
+## Is the ruff failure now fully explained?
+
+The one candidate is closed, and I could not find a third violation in the changed code. I **believe** the bare
+tuple expression was the remaining live violation — but I **cannot prove ruff is now green**: `ruff` is not
+installed, so I did not run it and cannot show its rule code; my checks are an `ast` approximation of the rule
+set, not the rule engine. CI decides. If CI is still red, the remaining surface is outside the files this branch
+changed.
+
+## d-lint2 checks
+
+| command | result |
+| --- | --- |
+| `python3 -m compileall -q src tests` | exit 0 (acceptance) |
+| `python3 -I -m pytest --version` | `No module named pytest` (not installed, tests not run) |
+| `command -v ruff` | not found (ruff not run) |
+| stdlib-`ast` bare-expression scan over the 11 changed files | 1 before the fix (`models.py:518`), 0 after |
+| stdlib-`ast` F401 scan over the 11 changed files | 0 |
+| stdlib-`ast` scope-aware F841 scan over the 11 changed files | 0 |
+| `git diff`/manual check of added import lines | in order; no I001 introduced |
+| stdlib-`ast` whole-tree bare-expression scan | only pre-existing on-main shapes (above) |
+
+## Return (d-lint2)
+
+```
+RESULT: done
+CHANGED: src/personal_world/worlds/models.py:517-518 (split the bare tuple), docs/vnext/d-lint.md
+CHECKS: python3 -m compileall -q src tests → exit 0; python3 -I -m pytest --version → "No module named pytest" (not run); command -v ruff → not found (not run); ast scans → 0 bare-expr / 0 F401 / 0 F841 in the 11 changed files
+EVIDENCE: src/personal_world/worlds/models.py:517 (fixed); docs/vnext/d-lint.md (this record); tests/worlds/test_confinement_auth.py:98,102 (pre-existing bare IfExp, ruled out)
+UNRESOLVED: ruff itself not run, so "B018 cleared" is inferred, not shown; project tests not run (pytest/fastapi absent)
+NEXT: Re-run CI on this branch; if still red, the violation lies outside the files this branch changed
 ```
