@@ -159,6 +159,7 @@ def _home_board_client(room_world, tmp_path):
     _store, fx, _clock, _client, service, _cards = room_world
     pytest.importorskip("fastapi")
     from fastapi.testclient import TestClient
+
     from personal_world.worlds.server import build_app
     app = build_app(tmp_path / "cfg", principal_dependency=lambda: "owner", send_override=fx,
                     home_extra=lambda: service.home_items())
