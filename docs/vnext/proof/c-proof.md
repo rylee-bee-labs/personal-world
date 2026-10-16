@@ -98,7 +98,7 @@ PASS). That is a proxy, not the condition. I did not test the runtime (`Runner`)
 
 **Not met in code.** `grep -n scope src/personal_world/worlds/confinement.py` returns nothing: no scope check exists, and
 `Auth` has no `scope` field. Observed with a counting resolver and the dial functions stubbed (no socket opened), on an
-address confinement ACCEPTS (lan provider, synthetic private `10.9.9.9`): a credential scoped to capability `synth.health`
+address confinement ACCEPTS (lan provider, synthetic private `10.9.9.9`): a credential scoped to capability `synth.health` <!-- pw-safety: synthetic -->
 (carried by a synthetic provider in the contract's §6.1 shape, since `Auth` has no `scope` field) was asked to serve
 `synth.other` — the request reached DNS (`lookups= 1`), reached the send seam (`dials= 1`, the scoped credential attached)
 and was refused by nothing. So nothing refuses an out-of-scope capability before DNS. The strict xfail asserts the contract

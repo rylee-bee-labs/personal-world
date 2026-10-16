@@ -280,7 +280,7 @@ def test_c3_out_of_scope_capability_fails_before_any_dns_lookup():
             # confinement accepts and the credential is available, so the ONLY thing that can refuse
             # this request is scope -- address classification can no longer mask the ordering.
             out = confinement.confined_request(provider, Request(id="synth.other", provider="synth", path="/other"),
-                                               effect="read", resolver=lambda *a: lookups.append(a) or ["10.9.9.9"])
+                                               effect="read", resolver=lambda *a: lookups.append(a) or ["10.9.9.9"])  # pw-safety: synthetic
     finally:
         os.environ.pop("SYNTH_CONNECT_TOKEN", None)
     # the contract's ORDER: the scope refusal comes first, so the resolver was never asked and nothing was
