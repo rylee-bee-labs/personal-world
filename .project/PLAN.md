@@ -72,19 +72,28 @@ carries the front door, merged from `rebuild/front-door` in PR #277
 (2026-10-06). That was a source cutover. Merging publishes an image; it is
 not a deployment, and it is not a production cutover.
 
-Issues #262 and #263 were closed as not planned on 2026-10-07; their
-remainder is carried in [`docs/BACKLOG.md`](../docs/BACKLOG.md).
+Issues #262 and #263 were closed as `not_planned` on 2026-10-07, but
+[#262](https://github.com/rylee-bee-labs/personal-world/issues/262) was later
+**reopened** for the remaining source-retirement and cutover work. #263 remains
+closed. The historical [`docs/BACKLOG.md`](../docs/BACKLOG.md) preserves the
+October 7 census; it does not supersede live issue state. The current gated
+vNext campaign is [#321](https://github.com/rylee-bee-labs/personal-world/issues/321),
+with visual direction [#322](https://github.com/rylee-bee-labs/personal-world/issues/322)
+and Connect API [#323](https://github.com/rylee-bee-labs/personal-world/issues/323).
+[Issue crosswalk](../docs/vnext/2026-10-16-issue-crosswalk.md) keeps prior
+preservation and owner gates visible.
 
 Documents that describe `main` as pre-front-door, or `rebuild/front-door`
 as the live lane, predate the merge. Keep their content and label it; do
 not read their branch claims as current direction.
 
-Next, ADR-0009 proposes a fresh-ground semantic-kernel experiment:
-keep the earned safety/durability constraints, but delete compatibility-only
-models and rebuild the smallest machine model on Play-Nice vocabulary.
-
-That implementation must live in bounded GitHub issues. Do not grow this file
-into a hidden backlog.
+ADR-0009 proposes a fresh-ground semantic-kernel experiment, **not an
+approved implementation sequence**. The current vNext direction in #321 and
+provider-neutral Connect contract in #323 take precedence over that earlier
+proposal. Any replacement must first prove consumers, durable data and rollback,
+then receive the actual authority/owner approvals. Do not build or delete the
+kernel solely because ADR-0009 is linked here. Implementation, when justified,
+must live in bounded GitHub issues; this file is not a hidden backlog.
 
 ## Preserve
 
