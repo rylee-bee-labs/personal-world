@@ -181,7 +181,8 @@ def test_room0_zero_provider_home_board_still_renders(room_world, tmp_path):
 @pytest.mark.xfail(strict=True,
                    reason="no empty-state explanation exists: the payload carries only the bare boolean "
                           "first_run (server.py:174) and no words at all, and the UI never reads the flag "
-                          "(ui/src/fd/types.ts drops it) - nothing tells the person why the screen is empty")
+                          "(ui/src/fd/types.ts drops it) - nothing tells the person why the screen is empty; "
+                          "contract C6.1's guided start is unbuilt (personal-world#357)")
 def test_room0_zero_provider_home_board_says_why_it_is_empty(room_world, tmp_path):
     """The empty screen must explain itself to the person: words in the payload, or a field the UI renders.
 

@@ -43,7 +43,9 @@ card names, and carries the Stage C conditions through: condition 1 fails closed
 conditions 2 and 3 are pinned strict `xfail` in the sibling file and are **not provable** against today's
 code. The 2026-10-16 revision adds a pin that lives in this file itself: the zero-provider surface is
 proven to render, but its missing empty-state explanation is a strict `xfail` here, because no such
-words exist in the code. An `xfail` is a gap, not a pass.
+words exist in the code. An `xfail` is a gap, not a pass. So this proof does **not** show that Worlds
+tells a person why the screen is empty: the server half of contract C6.1 holds (200, `first_run` true),
+and the UI's guided start ("Connect your first service") is unbuilt. Tracked in personal-world#357.
 
 ## How it was run (read this first)
 
